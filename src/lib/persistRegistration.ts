@@ -1,4 +1,4 @@
-import type { RegistrationFormState } from '../types/registration'
+﻿import type { RegistrationFormState } from '../types/registration'
 import { isSupabaseConfigured, supabase } from './supabase'
 
 export type MedicationPayload = {
@@ -15,7 +15,7 @@ function buildMedicationsPayload(form: RegistrationFormState): MedicationPayload
 export async function persistRegistration(form: RegistrationFormState): Promise<string> {
   if (!isSupabaseConfigured) {
     throw new Error(
-      'Supabase が未設定です。.env に VITE_SUPABASE_URL と VITE_SUPABASE_PUBLISHABLE_KEY を設定してください。',
+      'Supabase が未設定です。.env に VITE_SUPABASE_URL と VITE_SUPABASE_ANON_KEY を設定してください。',
     )
   }
 
@@ -50,3 +50,4 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
   }
   return data.id
 }
+

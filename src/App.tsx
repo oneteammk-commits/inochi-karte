@@ -3,7 +3,7 @@ import { ViewPage } from './components/ViewPage'
 
 function App() {
   const path = window.location.pathname
-  const viewMatch = path.match(/^\/view\/(.+)$/)
+  const viewMatch = path.match(/^\/card\/(.+)$/)
 
   if (viewMatch) {
     return <ViewPage id={viewMatch[1]} />

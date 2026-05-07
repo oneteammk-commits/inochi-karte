@@ -1,43 +1,19 @@
 import type { RegistrationFormState } from '../types/registration'
 import { isSupabaseConfigured, supabase } from './supabase'
 
-export type MedicationPayload = {
-  name: string
-  photo_url: string | null
-}
-
-async function uploadPhoto(dataUrl: string, path: string): Promise<string | null> {
+async function toBase64(url: string): Promise<string | null> {
   try {
-    const res = await fetch(dataUrl)
+    const res = await fetch(url)
     const blob = await res.blob()
-    const { error } = await supabase.storage
-      .from('medication-photos')
-      .upload(path, blob, { contentType: blob.type, upsert: true })
-    if (error) return null
-    const { data } = supabase.storage
-      .from('medication-photos')
-      .getPublicUrl(path)
-    return data.publicUrl
+    return await new Promise<string | null>((resolve) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.onerror = () => resolve(null)
+      reader.readAsDataURL(blob)
+    })
   } catch {
     return null
   }
-}
-
-async function buildMedicationsPayload(
-  form: RegistrationFormState,
-  registrationId: string
-): Promise<MedicationPayload[]> {
-  const results: MedicationPayload[] = []
-  for (const m of form.medications) {
-    if (!m.name.trim()) continue
-    let photo_url: string | null = null
-    if (m.photoPreviews.length > 0) {
-      const path = `${registrationId}/${m.id}.jpg`
-      photo_url = await uploadPhoto(m.photoPreviews[0], path)
-    }
-    results.push({ name: m.name.trim(), photo_url })
-  }
-  return results
 }
 
 export async function persistRegistration(form: RegistrationFormState): Promise<string> {
@@ -47,13 +23,19 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
     )
   }
 
-  const registrationId = crypto.randomUUID()
-  const medications = await buildMedicationsPayload(form, registrationId)
+  const medications: string[] = []
+  for (const m of form.medications) {
+    if (!m.name.trim()) continue
+    let photo_url: string | null = null
+    if (m.photoPreviews.length > 0) {
+      photo_url = await toBase64(m.photoPreviews[0])
+    }
+    medications.push(JSON.stringify({ name: m.name.trim(), photo_url }))
+  }
 
   const { data, error } = await supabase
     .from('registrations')
     .insert({
-      id: registrationId,
       name: form.fullName.trim(),
       birth_date: form.birthDate,
       emergency_contact_name: form.emergencyContactName.trim(),

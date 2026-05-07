@@ -23,7 +23,7 @@ export function ViewPage({ id }: { id: string }) {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><p>読み込み中...</p></div>
   if (error || !data) return <div className="min-h-screen flex items-center justify-center"><p className="text-red-600">データが見つかりませんでした</p></div>
 
- const rawMeds = Array.isArray(data.medications)
+  const rawMeds = Array.isArray(data.medications)
     ? data.medications
     : typeof data.medications === 'string'
     ? JSON.parse(data.medications)
@@ -35,7 +35,6 @@ export function ViewPage({ id }: { id: string }) {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
-
         <div className="bg-red-600 text-white text-center py-4 rounded-t-xl">
           <h1 className="text-2xl font-bold">🚨 救急情報カード</h1>
           <p className="text-sm">命のカルテ</p>
@@ -79,27 +78,18 @@ export function ViewPage({ id }: { id: string }) {
           </div>
         )}
 
-       <div className="bg-white shadow p-4 mb-2">
+        <div className="bg-white shadow p-4 mb-2">
           <h2 className="text-lg font-bold border-b pb-1 mb-2">💊 服用中のお薬</h2>
-          <pre className="text-xs bg-gray-100 p-2 mb-2 break-all">
-            {JSON.stringify(data.medications, null, 2)}
-          </pre>
           {medications.length === 0 ? (
             <p className="text-gray-400">登録なし</p>
           ) : (
             medications.map((m: any, i: number) => (
               <div key={i} className="mb-4 border-b pb-3">
                 <p className="font-bold text-lg">{m.name}</p>
-                {m.photo_url ? (
-                  <img
-                    src={m.photo_url}
-                    alt={m.name}
-                    className="mt-2 w-full max-w-sm rounded border"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                  />
-                ) : (
-                  <p className="text-gray-400 text-sm">写真なし</p>
-                )}
+                {m.photo_url
+                  ? <img src={m.photo_url} alt={m.name} className="mt-2 w-full max-w-sm rounded border" onError={(e) => { (e.target as HTMLImageElement).style.display='none' }} />
+                  : <p className="text-gray-400 text-sm">写真なし</p>
+                }
               </div>
             ))
           )}
@@ -120,7 +110,6 @@ export function ViewPage({ id }: { id: string }) {
             {(data.prefecture || data.city) && <p className="text-gray-500 text-sm">{data.prefecture} {data.city}</p>}
           </div>
         )}
-
       </div>
     </div>
   )

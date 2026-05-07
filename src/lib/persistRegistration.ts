@@ -1,21 +1,6 @@
 import type { RegistrationFormState } from '../types/registration'
 import { isSupabaseConfigured, supabase } from './supabase'
 
-async function toBase64(url: string): Promise<string | null> {
-  try {
-    const res = await fetch(url)
-    const blob = await res.blob()
-    return await new Promise<string | null>((resolve) => {
-      const reader = new FileReader()
-      reader.onloadend = () => resolve(reader.result as string)
-      reader.onerror = () => resolve(null)
-      reader.readAsDataURL(blob)
-    })
-  } catch {
-    return null
-  }
-}
-
 export async function persistRegistration(form: RegistrationFormState): Promise<string> {
   if (!isSupabaseConfigured) {
     throw new Error(
@@ -26,10 +11,7 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
   const medications: string[] = []
   for (const m of form.medications) {
     if (!m.name.trim()) continue
-    let photo_url: string | null = null
-    if (m.photoPreviews.length > 0) {
-      photo_url = await toBase64(m.photoPreviews[0])
-    }
+    const photo_url = m.photoPreviews.length > 0 ? m.photoPreviews[0] : null
     medications.push(JSON.stringify({ name: m.name.trim(), photo_url }))
   }
 

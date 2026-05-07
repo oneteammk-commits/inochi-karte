@@ -23,11 +23,14 @@ export function ViewPage({ id }: { id: string }) {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><p>読み込み中...</p></div>
   if (error || !data) return <div className="min-h-screen flex items-center justify-center"><p className="text-red-600">データが見つかりませんでした</p></div>
 
-  const medications = Array.isArray(data.medications)
+ const rawMeds = Array.isArray(data.medications)
     ? data.medications
     : typeof data.medications === 'string'
     ? JSON.parse(data.medications)
     : []
+  const medications = rawMeds.map((m: any) =>
+    typeof m === 'string' ? JSON.parse(m) : m
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">

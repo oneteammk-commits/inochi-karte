@@ -76,8 +76,11 @@ export function ViewPage({ id }: { id: string }) {
           </div>
         )}
 
-        <div className="bg-white shadow p-4 mb-2">
+       <div className="bg-white shadow p-4 mb-2">
           <h2 className="text-lg font-bold border-b pb-1 mb-2">💊 服用中のお薬</h2>
+          <pre className="text-xs bg-gray-100 p-2 mb-2 break-all">
+            {JSON.stringify(data.medications, null, 2)}
+          </pre>
           {medications.length === 0 ? (
             <p className="text-gray-400">登録なし</p>
           ) : (

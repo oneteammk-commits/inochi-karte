@@ -1,4 +1,4 @@
-﻿import type { RegistrationFormState } from '../types/registration'
+import type { RegistrationFormState } from '../types/registration'
 import { isSupabaseConfigured, supabase } from './supabase'
 
 export type MedicationPayload = {
@@ -6,10 +6,38 @@ export type MedicationPayload = {
   photo_url: string | null
 }
 
-function buildMedicationsPayload(form: RegistrationFormState): MedicationPayload[] {
-  return form.medications
-    .filter((m) => m.name.trim().length > 0)
-    .map((m) => ({ name: m.name.trim(), photo_url: null }))
+async function uploadPhoto(dataUrl: string, path: string): Promise<string | null> {
+  try {
+    const res = await fetch(dataUrl)
+    const blob = await res.blob()
+    const { error } = await supabase.storage
+      .from('medication-photos')
+      .upload(path, blob, { contentType: blob.type, upsert: true })
+    if (error) return null
+    const { data } = supabase.storage
+      .from('medication-photos')
+      .getPublicUrl(path)
+    return data.publicUrl
+  } catch {
+    return null
+  }
+}
+
+async function buildMedicationsPayload(
+  form: RegistrationFormState,
+  registrationId: string
+): Promise<MedicationPayload[]> {
+  const results: MedicationPayload[] = []
+  for (const m of form.medications) {
+    if (!m.name.trim()) continue
+    let photo_url: string | null = null
+    if (m.photoPreviews.length > 0) {
+      const path = `${registrationId}/${m.id}.jpg`
+      photo_url = await uploadPhoto(m.photoPreviews[0], path)
+    }
+    results.push({ name: m.name.trim(), photo_url })
+  }
+  return results
 }
 
 export async function persistRegistration(form: RegistrationFormState): Promise<string> {
@@ -19,11 +47,13 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
     )
   }
 
-  const medications = buildMedicationsPayload(form)
+  const registrationId = crypto.randomUUID()
+  const medications = await buildMedicationsPayload(form, registrationId)
 
   const { data, error } = await supabase
     .from('registrations')
     .insert({
+      id: registrationId,
       name: form.fullName.trim(),
       birth_date: form.birthDate,
       emergency_contact_name: form.emergencyContactName.trim(),
@@ -48,6 +78,6 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
   if (!data?.id) {
     throw new Error('登録IDを取得できませんでした。')
   }
+
   return data.id
 }
-

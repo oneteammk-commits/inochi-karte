@@ -345,11 +345,12 @@ function StepBasic({
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">生年月日</span>
           <input
-            type="date"
-            value={form.birthDate}
-            onChange={(e) => onChange({ birthDate: e.target.value })}
-            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-          />
+              type="text"
+              value={form.birthDate}
+              onChange={(e) => onChange({ birthDate: e.target.value })}
+              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+              placeholder="例：1970年1月1日"
+            />
         </label>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">

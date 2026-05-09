@@ -709,11 +709,6 @@ function StepComplete({
           fgColor="#C0392B"
           bgColor="#ffffff"
         />
-     <div className="bg-white shadow p-4 mb-2 text-center">
-          <p className="text-sm text-gray-500 mb-2">このページをブックマークして保存してください</p>
-          <p className="text-xs text-gray-400">📱 iPhone: 共有ボタン→「ホーム画面に追加」</p>
-          <p className="text-xs text-gray-400">🤖 Android: メニュー→「ホーム画面に追加」</p>
-        </div> </div>
 
       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-stone-400">
         登録ID

@@ -434,11 +434,22 @@ function StepRegion({
   return (
     <section aria-labelledby="step-region-title">
       <h2 id="step-region-title" className="mb-6 text-lg font-bold text-stone-900">
-        地域・施設情報
+        現在お住まいのお家・施設などの情報
       </h2>
       <FieldError message={error} />
       <div className="space-y-5">
-        <label className="block">
+       <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">郵便番号</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={8}
+            placeholder="例：123-4567"
+            value={form.postalCode ?? ''}
+            onChange={(e) => onChange({ postalCode: e.target.value })}
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+          />
+        </label> <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">都道府県</span>
           <select
             value={form.prefecture}
@@ -454,7 +465,7 @@ function StepRegion({
           </select>
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">市区町村</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">住所</span>
           <input
             type="text"
             value={form.city}

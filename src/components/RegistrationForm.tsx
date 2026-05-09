@@ -709,7 +709,7 @@ function StepComplete({
           fgColor="#C0392B"
           bgColor="#ffffff"
         />
-
+</div>
       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-stone-400">
         登録ID
       </p>

@@ -11,6 +11,7 @@ export type RegistrationFormState = {
   emergencyContactPhone: string
   prefecture: string
   city: string
+  postalCode: string
   facilityName: string
   facilityType: string
   allergyTags: string[]

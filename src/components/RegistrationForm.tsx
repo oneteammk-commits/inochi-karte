@@ -211,7 +211,11 @@ export function RegistrationForm() {
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
             命のカルテ
           </h1>
-        </header>
+            <p className="mt-3 text-sm text-stone-600 leading-relaxed">
+              これは命を守る情報を医療従事者に伝えるアプリです。<br />
+              情報はご自身のスマートフォンにだけに、登録されます。
+            </p>
+          </header>
 
         <StepIndicator current={activeStep} />
 

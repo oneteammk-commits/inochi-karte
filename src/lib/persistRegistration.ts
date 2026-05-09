@@ -24,6 +24,7 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
       emergency_contact_phone: form.emergencyContactPhone.trim(),
       prefecture: form.prefecture,
       city: form.city.trim(),
+      postal_code: form.postalCode?.trim() || null,
       facility_name: form.facilityName.trim() || null,
       facility_type: form.facilityType,
       allergies: form.allergyTags,

@@ -500,8 +500,20 @@ function StepRegion({
                 {t}
               </option>
             ))}
-          </select>
+         </select>
         </label>
+        {form.facilityType.includes('その他') && (
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-stone-700">詳細を入力してください</span>
+            <input
+              type="text"
+              value={form.facilityName}
+              onChange={(e) => onChange({ facilityName: e.target.value })}
+              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+              placeholder="例：自宅、グループホームなど"
+            />
+          </label>
+        )}
       </div>
     </section>
   )

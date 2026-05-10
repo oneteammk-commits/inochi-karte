@@ -27,6 +27,7 @@ const initialForm: RegistrationFormState = {
   emergencyContactPhone: '',
   prefecture: '',
   city: '',
+  postalCode: '',
   facilityName: '',
   facilityType: '',
   allergyTags: [],

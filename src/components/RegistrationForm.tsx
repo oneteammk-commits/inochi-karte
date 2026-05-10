@@ -714,6 +714,21 @@ function StepMedications({
                   タップして画像を選択（複数枚）
                 </span>
               </label>
+              <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-stone-300 bg-white px-4 py-5 transition hover:border-brand-50 hover:bg-brand-50/20">
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="sr-only"
+                onChange={(e) => {
+                  void onAddPhotos(med.id, e.target.files)
+                  e.currentTarget.value = ''
+                }}
+              />
+              <span className="text-center text-sm text-stone-500">
+                📷 カメラで撮影
+              </span>
+            </label>
               {med.photoPreviews.length > 0 && (
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   {med.photoPreviews.map((src, idx) => (

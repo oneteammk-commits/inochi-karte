@@ -49,6 +49,7 @@ export const PREFECTURES = [
 ] as const
 
 export const ALLERGY_TAGS = [
+  'なし',
   '卵',
   '牛乳',
   '小麦',
@@ -63,6 +64,7 @@ export const ALLERGY_TAGS = [
 ] as const
 
 export const CHRONIC_TAGS = [
+  'なし',
   '高血圧',
   '糖尿病',
   '心疾患',

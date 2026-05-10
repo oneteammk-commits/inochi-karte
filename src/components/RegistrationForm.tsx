@@ -410,7 +410,7 @@ function StepBasic({
             value={form.emergencyContactName}
             onChange={(e) => onChange({ emergencyContactName: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-            placeholder="山田 花子（続柄：配偶者）"
+           placeholder="山田 花子（続柄：配偶者）"
             />
         </label>
         <label className="block">
@@ -424,16 +424,7 @@ function StepBasic({
           />
         </label>
         <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-stone-700">緊急連絡先のフリガナ</span>
-            <input
-              type="text"
-              value={form.emergencyContactFurigana}
-              onChange={(e) => onChange({ emergencyContactFurigana: e.target.value })}
-              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              placeholder="ヤマダ ハナコ"
-            />
-          </label>
-          </span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">緊急連絡先の電話番号</span>
           <input
             type="tel"
             inputMode="tel"

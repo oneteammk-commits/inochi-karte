@@ -107,6 +107,7 @@ export function ViewPage({ id }: { id: string }) {
             <h2 className="text-lg font-bold border-b pb-1 mb-2">🏨 かかりつけ医・施設</h2>
             {data.facility_name && <p className="font-medium">{data.facility_name}</p>}
             {data.facility_type && <p className="text-gray-600">{data.facility_type}</p>}
+            {data.postal_code && <p className="text-gray-500 text-sm">〒{data.postal_code}</p>}
             {(data.prefecture || data.city) && <p className="text-gray-500 text-sm">{data.prefecture} {data.city}</p>}
           </div>
         )}

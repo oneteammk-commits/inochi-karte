@@ -504,7 +504,7 @@ function StepRegion({
         </label>
         {form.facilityType.includes('その他') && (
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-stone-700">詳細を入力してください</span>
+            <span className="mb-1.5 block text-sm font-medium text-stone-700">その他の情報を入力してください</span>
             <input
               type="text"
               value={form.facilityName}

@@ -655,7 +655,7 @@ function StepMedications({
         投薬情報
       </h2>
       <p className="mb-6 text-sm text-stone-600">
-        薬品名・用量は任意です。未入力のまま登録しても構いません。
+        お薬の名前や画像を入れたり、お薬手帳などのページを撮影して画像登録ができます。
       </p>
       <FieldError message={error} />
 

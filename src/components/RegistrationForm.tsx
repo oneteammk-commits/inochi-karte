@@ -55,7 +55,7 @@ function validateRegistrationStep(s: number, data: RegistrationFormState): strin
     }
     case 1: {
       if (!data.prefecture) return '都道府県を選択してください。'
-      if (!data.city.trim()) return '市区町村を入力してください。'
+      if (!data.city.trim()) return '住所を入力してください。'
       if (!data.facilityType) return '施設種別を選択してください。'
       return null
     }

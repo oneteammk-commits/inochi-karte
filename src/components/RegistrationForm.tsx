@@ -344,9 +344,16 @@ function StepBasic({
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder="山田 太郎"
           />
-        </label>
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">生年月日</span>
+       <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-stone-700">フリガナ</span>
+            <input
+              type="text"
+              value={form.furigana}
+              onChange={(e) => onChange({ furigana: e.target.value })}
+              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+              placeholder="ヤマダ タロウ"
+            />
+          </label>
           <div className="flex gap-2 items-center">
               <input
                 type="text"

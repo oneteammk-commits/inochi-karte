@@ -81,7 +81,7 @@ export const FACILITY_TYPES = [
   'デイサービス・通所介護',
   'グループホーム',
   '学校・保育・こども園',
-  'その他（在宅）',
+  'その他',
 ] as const
 
 export const STEP_LABELS = [

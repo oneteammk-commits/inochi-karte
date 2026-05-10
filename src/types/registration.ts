@@ -6,8 +6,10 @@ export type MedicationRow = {
 
 export type RegistrationFormState = {
   fullName: string
+  furigana: string
   birthDate: string
   emergencyContactName: string
+  emergencyContactFurigana: string
   emergencyContactPhone: string
   prefecture: string
   city: string

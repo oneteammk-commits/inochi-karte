@@ -714,7 +714,7 @@ function StepMedications({
             </label>
             <div className="mt-4">
               <span className="mb-1 block text-xs font-medium text-stone-600">
-                お薬の写真<span className="font-normal text-stone-500">（任意・複数枚可）</span>
+                お薬、お薬手帳、医療や福祉手帳など<span className="font-normal text-stone-500">（複数可）</span>
               </span>
               <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-stone-300 bg-white px-4 py-5 transition hover:border-brand/50 hover:bg-brand-50/20">
                 <input

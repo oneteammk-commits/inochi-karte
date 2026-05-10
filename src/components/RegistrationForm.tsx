@@ -57,7 +57,7 @@ function validateRegistrationStep(s: number, data: RegistrationFormState): strin
     case 1: {
       if (!data.prefecture) return '都道府県を選択してください。'
       if (!data.city.trim()) return '住所を入力してください。'
-      if (!data.facilityType) return '施設種別を選択してください。'
+      if (!data.facilityType) return '居住種別を選択してください。'
       return null
     }
     case 2:
@@ -488,7 +488,7 @@ function StepRegion({
           />
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">施設種別</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">居住種別</span>
           <select
             value={form.facilityType}
             onChange={(e) => onChange({ facilityType: e.target.value })}

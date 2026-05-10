@@ -532,7 +532,7 @@ function TagGrid({
 }) {
   return (
     <div>
-      <p className="mb-2 text-sm font-medium text-stone-700">{title}</p>
+    <p className="mb-2 text-lg font-bold text-stone-700">{title}</p>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => {
           const on = selected.includes(tag)

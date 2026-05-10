@@ -22,8 +22,10 @@ function createEmptyMedicationRow(): MedicationRow {
 
 const initialForm: RegistrationFormState = {
   fullName: '',
+  furigana: '',
   birthDate: '',
   emergencyContactName: '',
+  emergencyContactFurigana: '',
   emergencyContactPhone: '',
   prefecture: '',
   city: '',

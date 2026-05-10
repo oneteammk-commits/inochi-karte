@@ -783,7 +783,7 @@ function StepComplete({
         登録が完了しました
       </h2>
       <p className="mb-8 text-sm leading-relaxed text-stone-600">
-        以下のQRコードは、このカルテを確認するための目印です。スクリーンショットの保存や印刷をご利用ください。
+        スマートフォンからいつでも情報を確認することができます。QRコードを読み込んでもらうことで、あなたの命を守る情報を他人に伝えることができます。
       </p>
 
       <div className="mx-auto mb-6 flex justify-center rounded-2xl border border-stone-200 bg-white p-6 shadow-inner">

@@ -783,7 +783,7 @@ function StepComplete({
         登録が完了しました
       </h2>
       <p className="mb-8 text-sm leading-relaxed text-stone-600">
-        スマートフォンからいつでも情報を確認することができます。QRコードを読み込んでもらうことで、あなたの命を守る情報を他人に伝えることができます。
+        スマートフォンからいつでも情報を確認することができます。QRコードを読み込んでもらうことで、あなたの命を守る情報を救護の方に伝えることができます。
       </p>
 
       <div className="mx-auto mb-6 flex justify-center rounded-2xl border border-stone-200 bg-white p-6 shadow-inner">

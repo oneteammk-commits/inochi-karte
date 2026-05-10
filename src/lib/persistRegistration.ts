@@ -19,8 +19,10 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
     .from('registrations')
     .insert({
       name: form.fullName.trim(),
+      furigana: form.furigana.trim() || null,
       birth_date: form.birthDate,
       emergency_contact_name: form.emergencyContactName.trim(),
+      emergency_contact_furigana: form.emergencyContactFurigana.trim() || null,
       emergency_contact_phone: form.emergencyContactPhone.trim(),
       prefecture: form.prefecture,
       city: form.city.trim(),

@@ -354,7 +354,7 @@ function StepBasic({
               placeholder="ヤマダ タロウ"
             />
           </label>
-          <div className="flex gap-2 items-center">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">生年月日</span><div className="flex gap-2 items-center">
               <input
                 type="text"
                 inputMode="numeric"

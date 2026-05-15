@@ -767,7 +767,54 @@ function StepMedications({
     </section>
   )
 }
-
+function StepEditPassword({
+  form,
+  onChange,
+  error,
+}: {
+  form: RegistrationFormState
+  onChange: (p: Partial<RegistrationFormState>) => void
+  error: string | null
+}) {
+  return (
+    <section aria-labelledby="step-edit-password-title">
+      <h2 id="step-edit-password-title" className="mb-6 text-lg font-bold text-stone-900">
+        編集用パスワード
+      </h2>
+      <FieldError message={error} />
+      <div className="space-y-5">
+        <div className="rounded-xl bg-stone-50 p-4 text-sm text-stone-700">
+          <p className="mb-2 font-semibold text-stone-900">
+            登録内容を後から変更するために必要なパスワードです。
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>数字4桁で設定してください</li>
+            <li>忘れないように必ずメモしてください</li>
+            <li>ご家族など、登録内容を変更したい方に伝えてください</li>
+          </ul>
+        </div>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">
+            編集用パスワード（数字4桁）
+          </span>
+          <input
+            type="password"
+            inputMode="numeric"
+            maxLength={4}
+            autoComplete="off"
+            value={form.editPassword}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9]/g, '')
+              onChange({ editPassword: value })
+            }}
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-[0.5em] text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            placeholder="••••"
+          />
+        </label>
+      </div>
+    </section>
+  )
+}
 function StepComplete({
   registrationId,
   qrValue,

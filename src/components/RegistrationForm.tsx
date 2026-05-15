@@ -67,6 +67,11 @@ function validateRegistrationStep(s: number, data: RegistrationFormState): strin
       return null
     case 3:
       return null
+      case 4: {
+        if (!data.editPassword) return '編集用パスワードを入力してください。'
+        if (!/^\d{4}$/.test(data.editPassword)) return '編集用パスワードは数字4桁で入力してください。'
+        return null
+      }
     default:
       return null
   }

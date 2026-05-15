@@ -234,23 +234,26 @@ export function RegistrationForm() {
             {activeStep === 2 && (
               <StepMedicalTags form={form} onChange={updateForm} error={stepError} />
             )}
-            {activeStep === 3 && (
-              <StepMedications
-                form={form}
-                onAddRow={addMedicationRow}
-                onRemoveRow={removeMedicationRow}
-                onUpdateMedication={updateMedication}
-                onAddPhotos={updateMedicationPhotos}
-                onRemovePhoto={removeMedicationPhoto}
-                error={stepError}
-              />
-            )}
-            {activeStep === 4 && registrationId && (
-              <StepComplete registrationId={registrationId} qrValue={qrPayload} />
-            )}
+           {activeStep === 3 && (
+  <StepMedications
+    form={form}
+    onAddRow={addMedicationRow}
+    onRemoveRow={removeMedicationRow}
+    onUpdateMedication={updateMedication}
+    onAddPhotos={updateMedicationPhotos}
+    onRemovePhoto={removeMedicationPhoto}
+    error={stepError}
+  />
+)}
+{activeStep === 4 && (
+  <StepEditPassword form={form} onChange={updateForm} error={stepError} />
+)}
+{activeStep === 5 && registrationId && (
+  <StepComplete registrationId={registrationId} qrValue={qrPayload} />
+)}
           </div>
 
-          {activeStep < 4 && (
+          {activeStep < 5 && (
             <nav className="mt-6 flex gap-3">
               <button
                 type="button"

@@ -3,7 +3,6 @@ export type MedicationRow = {
   name: string
   photoPreviews: string[]
 }
-
 export type RegistrationFormState = {
   fullName: string
   furigana: string
@@ -22,4 +21,5 @@ export type RegistrationFormState = {
   chronicOther: string
   dailyNotes: string
   medications: MedicationRow[]
+  editPassword: string
 }

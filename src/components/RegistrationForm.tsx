@@ -38,6 +38,7 @@ const initialForm: RegistrationFormState = {
   chronicOther: '',
   dailyNotes: '',
   medications: [createEmptyMedicationRow()],
+  editPassword: '',
 }
 
 function toggleInList(list: string[], value: string): string[] {

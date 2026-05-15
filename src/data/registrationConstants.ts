@@ -91,5 +91,6 @@ export const STEP_LABELS = [
   '地域・施設',
   'アレルギー・持病',
   '投薬',
+  '編集用パスワード',
   '完了',
 ] as const

@@ -111,7 +111,7 @@ export function RegistrationForm() {
     if (err) return
     setStepError(null)
 
-    if (currentStep === 3) {
+    if (currentStep === 4) {
       submitLockRef.current = true
       setIsSubmitting(true)
       try {
@@ -143,7 +143,7 @@ export function RegistrationForm() {
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (activeStep >= 4 || isSubmitting) return
+    if (activeStep >= 5 || isSubmitting) return
     void goNext()
   }
 

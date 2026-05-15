@@ -1,5 +1,6 @@
 import type { RegistrationFormState } from '../types/registration'
 import { isSupabaseConfigured, supabase } from './supabase'
+import { hashPassword } from './passwordHash'
 
 export async function persistRegistration(form: RegistrationFormState): Promise<string> {
   if (!isSupabaseConfigured) {
@@ -7,6 +8,14 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
       'Supabase が未設定です。.env に VITE_SUPABASE_URL と VITE_SUPABASE_ANON_KEY を設定してください。',
     )
   }
+
+  // 編集用パスワードのチェック（数字4桁）
+  if (!/^\d{4}$/.test(form.editPassword)) {
+    throw new Error('編集用パスワードは数字4桁で入力してください。')
+  }
+
+  // パスワードをハッシュ化
+  const editPasswordHash = await hashPassword(form.editPassword)
 
   const medications: string[] = []
   for (const m of form.medications) {
@@ -35,6 +44,7 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
       disease_other: form.chronicOther.trim() || null,
       daily_notes: form.dailyNotes.trim() || null,
       medications,
+      edit_password_hash: editPasswordHash,
     })
     .select('id')
     .single()
@@ -45,6 +55,5 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
   if (!data?.id) {
     throw new Error('登録IDを取得できませんでした。')
   }
-
   return data.id
 }

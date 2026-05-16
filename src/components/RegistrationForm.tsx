@@ -217,11 +217,12 @@ export function RegistrationForm() {
   return (
     <div className="min-h-screen bg-stone-100 pb-16 pt-6 sm:pt-10">
       <div className="mx-auto max-w-lg px-4">
-        <header className="mb-8 text-center">
+      <header className="mb-8 text-center">
           <p className="text-sm font-medium tracking-wide text-brand">健康情報登録</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
-            命のカルテ
-          </h1>
+          <div className="mt-1 flex items-center justify-center gap-3">
+            <img src="/icon-192x192.png" alt="命のカルテ" className="w-12 h-12 rounded-2xl shadow-md" />
+            <h1 className="text-2xl font-bold tracking-tight text-black sm:text-3xl">命のカルテ</h1>
+          </div>
             <p className="mt-3 text-sm text-stone-600 leading-relaxed">
               これは命を守る情報を医療従事者に伝えるアプリです。<br />
               情報はご自身のスマートフォンにだけに、登録されます。

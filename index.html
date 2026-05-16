@@ -41,11 +41,19 @@
         align-items: center;
         gap: 6px;
         cursor: pointer;
+        border: none;
       }
       #language_button:hover {
         background: #fdf2f1;
       }
     </style>
-    <a id="language_button" href="https://translate.google.com/translate?sl=ja&tl=en&u=https%3A%2F%2Finochi-karte.vercel.app%2F" target="_blank" rel="noopener noreferrer">🌍 Language / 言語</a>
+    <button id="language_button" onclick="openTranslate()">🌍 Language / 言語</button>
+    <script>
+      function openTranslate() {
+        var currentUrl = window.location.href;
+        var translateUrl = 'https://translate.google.com/translate?sl=ja&tl=en&u=' + encodeURIComponent(currentUrl);
+        window.open(translateUrl, '_blank');
+      }
+    </script>
   </body>
 </html>

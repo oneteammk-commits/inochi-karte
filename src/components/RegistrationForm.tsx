@@ -730,7 +730,6 @@ export function StepMedications({
                 <input
                   type="file"
                   accept="image/*"
-                  multiple
                   className="sr-only"
                   onChange={(e) => {
                     void onAddPhotos(med.id, e.target.files)

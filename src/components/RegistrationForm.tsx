@@ -8,6 +8,7 @@ import {
   STEP_LABELS,
 } from '../data/registrationConstants'
 import { persistRegistration } from '../lib/persistRegistration'
+import { saveMyCardId } from '../lib/storage'
 import type { MedicationRow, RegistrationFormState } from '../types/registration'
 
 export type { MedicationRow, RegistrationFormState }

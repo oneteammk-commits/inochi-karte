@@ -102,7 +102,7 @@ export function ViewPage({ id }: { id: string }) {
           </div>
         )}
 
-        {(data.facility_name || data.facility_type || data.prefecture) && (
+      {(data.facility_name || data.facility_type || data.prefecture) && (
           <div className="bg-white shadow p-4 mb-2">
             <h2 className="text-lg font-bold border-b pb-1 mb-2">🏨 かかりつけ医・施設</h2>
             {data.facility_name && <p className="font-medium">{data.facility_name}</p>}
@@ -111,6 +111,15 @@ export function ViewPage({ id }: { id: string }) {
             {(data.prefecture || data.city) && <p className="text-gray-500 text-sm">{data.prefecture} {data.city}</p>}
           </div>
         )}
+
+        <div className="mt-6 mb-4">
+          
+            href={`/edit/${id}`}
+            className="block w-full bg-gray-700 hover:bg-gray-800 text-white text-center py-3 rounded-xl font-semibold shadow"
+          >
+            ✏️ 内容を変更する
+          </a>
+        </div>
       </div>
     </div>
   )

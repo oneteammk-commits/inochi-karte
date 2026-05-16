@@ -449,7 +449,7 @@ export function StepBasic({
   )
 }
 
-function StepRegion({
+export function StepRegion({
   form,
   onChange,
   error,
@@ -582,7 +582,7 @@ function TagGrid({
   )
 }
 
-function StepMedicalTags({
+export function StepMedicalTags({
   form,
   onChange,
   error,
@@ -658,7 +658,7 @@ function StepMedicalTags({
   )
 }
 
-function StepMedications({
+export function StepMedications({
   form,
   onAddRow,
   onRemoveRow,

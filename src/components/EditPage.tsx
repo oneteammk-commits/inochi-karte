@@ -73,35 +73,27 @@ export function EditPage({ id }: { id: string }) {
   }
 
   if (isAuthenticated) {
+    const backUrl = "/card/" + id
     return (
       <div className="min-h-screen bg-stone-100 p-4">
         <div className="max-w-lg mx-auto bg-white rounded-2xl shadow p-6 mt-8">
           <h1 className="text-2xl font-bold text-green-700 mb-4">認証成功</h1>
-          <p className="mb-4 text-stone-700">
-            {name} さんのカルテを編集できます。
-          </p>
-          <p className="text-sm text-stone-500">
-            (編集フォームは次の段階で作ります)
-          </p>
-          
-            href={"/card/" + id}
-            className="mt-6 block w-full bg-stone-700 hover:bg-stone-800 text-white text-center py-3 rounded-xl font-semibold"
-          >
-            カルテ表示に戻る
-          </a>
+          <p className="mb-4 text-stone-700">{name} さんのカルテを編集できます。</p>
+          <p className="text-sm text-stone-500">編集フォームは次の段階で作ります</p>
+          <a href={backUrl} className="mt-6 block w-full bg-stone-700 hover:bg-stone-800 text-white text-center py-3 rounded-xl font-semibold">カルテ表示に戻る</a>
         </div>
       </div>
     )
   }
+
+  const cancelUrl = "/card/" + id
 
   return (
     <div className="min-h-screen bg-stone-100 p-4">
       <div className="max-w-lg mx-auto">
         <header className="mb-8 text-center mt-6">
           <p className="text-sm font-medium text-red-700">登録内容の変更</p>
-          <h1 className="mt-1 text-2xl font-bold text-stone-900">
-            命のカルテ
-          </h1>
+          <h1 className="mt-1 text-2xl font-bold text-stone-900">命のカルテ</h1>
         </header>
 
         <form onSubmit={handleVerify} className="bg-white rounded-2xl shadow p-6">
@@ -112,15 +104,11 @@ export function EditPage({ id }: { id: string }) {
           </p>
 
           {authError && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">
-              {authError}
-            </div>
+            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">{authError}</div>
           )}
 
           <label className="block mb-6">
-            <span className="mb-1.5 block text-sm font-medium text-stone-700">
-              編集用パスワード(数字4桁)
-            </span>
+            <span className="mb-1.5 block text-sm font-medium text-stone-700">編集用パスワード(数字4桁)</span>
             <input
               type="password"
               inputMode="numeric"
@@ -134,12 +122,7 @@ export function EditPage({ id }: { id: string }) {
           </label>
 
           <div className="flex gap-3">
-            
-              href={"/card/" + id}
-              className="flex-1 text-center rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50"
-            >
-              キャンセル
-            </a>
+            <a href={cancelUrl} className="flex-1 text-center rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50">キャンセル</a>
             <button
               type="submit"
               disabled={isChecking}

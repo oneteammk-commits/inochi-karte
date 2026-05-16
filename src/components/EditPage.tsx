@@ -12,7 +12,6 @@ export function EditPage({ id }: { id: string }) {
   const [authError, setAuthError] = useState<string | null>(null)
   const [isChecking, setIsChecking] = useState(false)
 
-  // 登録データを読み込む
   useEffect(() => {
     const fetchData = async () => {
       const { data, error } = await supabase
@@ -31,7 +30,6 @@ export function EditPage({ id }: { id: string }) {
     fetchData()
   }, [id])
 
-  // パスワードを照合
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthError(null)
@@ -58,7 +56,6 @@ export function EditPage({ id }: { id: string }) {
     }
   }
 
-  // ロード中
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -67,7 +64,6 @@ export function EditPage({ id }: { id: string }) {
     )
   }
 
-  // エラー
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -76,20 +72,19 @@ export function EditPage({ id }: { id: string }) {
     )
   }
 
-  // 認証成功(まだ編集画面はないので仮表示)
   if (isAuthenticated) {
     return (
       <div className="min-h-screen bg-stone-100 p-4">
         <div className="max-w-lg mx-auto bg-white rounded-2xl shadow p-6 mt-8">
-          <h1 className="text-2xl font-bold text-green-700 mb-4">✅ 認証成功</h1>
+          <h1 className="text-2xl font-bold text-green-700 mb-4">認証成功</h1>
           <p className="mb-4 text-stone-700">
             {name} さんのカルテを編集できます。
           </p>
           <p className="text-sm text-stone-500">
-            （編集フォームは次の段階で作ります）
+            (編集フォームは次の段階で作ります)
           </p>
           
-            href={`/card/${id}`}
+            href={"/card/" + id}
             className="mt-6 block w-full bg-stone-700 hover:bg-stone-800 text-white text-center py-3 rounded-xl font-semibold"
           >
             カルテ表示に戻る
@@ -99,13 +94,12 @@ export function EditPage({ id }: { id: string }) {
     )
   }
 
-  // パスワード入力画面
   return (
     <div className="min-h-screen bg-stone-100 p-4">
       <div className="max-w-lg mx-auto">
         <header className="mb-8 text-center mt-6">
-          <p className="text-sm font-medium tracking-wide text-brand">登録内容の変更</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-stone-900">
+          <p className="text-sm font-medium text-red-700">登録内容の変更</p>
+          <h1 className="mt-1 text-2xl font-bold text-stone-900">
             命のカルテ
           </h1>
         </header>
@@ -115,8 +109,6 @@ export function EditPage({ id }: { id: string }) {
 
           <p className="text-sm text-stone-600 mb-4">
             <span className="font-semibold">{name}</span> さんのカルテです。
-            <br />
-            登録時に設定した数字4桁のパスワードを入力してください。
           </p>
 
           {authError && (
@@ -127,7 +119,7 @@ export function EditPage({ id }: { id: string }) {
 
           <label className="block mb-6">
             <span className="mb-1.5 block text-sm font-medium text-stone-700">
-              編集用パスワード（数字4桁）
+              編集用パスワード(数字4桁)
             </span>
             <input
               type="password"
@@ -136,22 +128,22 @@ export function EditPage({ id }: { id: string }) {
               autoComplete="off"
               value={inputPassword}
               onChange={(e) => setInputPassword(e.target.value.replace(/[^0-9]/g, ''))}
-              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-widest text-stone-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
-              placeholder="••••"
+              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-widest text-stone-900 focus:border-red-700 focus:outline-none"
+              placeholder="----"
             />
           </label>
 
           <div className="flex gap-3">
             
-              href={`/card/${id}`}
-              className="flex-1 text-center rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 shadow-sm hover:bg-stone-50"
+              href={"/card/" + id}
+              className="flex-1 text-center rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50"
             >
               キャンセル
             </a>
             <button
               type="submit"
               disabled={isChecking}
-              className="flex-1 rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-md hover:bg-brand-hover disabled:opacity-60"
+              className="flex-1 rounded-xl bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
             >
               {isChecking ? '確認中...' : '認証する'}
             </button>

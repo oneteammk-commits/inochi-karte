@@ -1,17 +1,30 @@
 @import 'tailwindcss';
-
 @theme {
   --color-brand: #c0392b;
   --color-brand-hover: #a93226;
   --color-brand-muted: #fadbd8;
   --color-brand-50: #fdf2f1;
   --font-sans:
-    'Noto Sans JP', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'BIZ UDPGothic', 'Noto Sans JP', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji';
 }
-
 body {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.7;
+  color: #1c1917;
+  -webkit-font-smoothing: antialiased;
+}
+input,
+select,
+textarea,
+button {
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+h1, h2, h3, h4 {
+  font-weight: 700;
 }

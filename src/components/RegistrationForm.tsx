@@ -227,6 +227,11 @@ export function RegistrationForm() {
               これは命を守る情報を医療従事者に伝えるアプリです。<br />
               情報はご自身のスマートフォンにだけに、登録されます。
             </p>
+            <div className="mt-4 rounded-xl bg-yellow-50 border-2 border-yellow-300 p-3 text-left">
+              <p className="text-sm font-bold text-black">🌍 外国人の方へ / For non-Japanese speakers</p>
+              <p className="text-xs text-black mt-1">翻訳ボタンで意味を確認できます。個人情報を守るため、入力は日本語のページで行ってください。</p>
+              <p className="text-xs text-black mt-1">You can check meanings with the translate button. To protect your personal information, please enter data on the Japanese page.</p>
+            </div>
           </header>
 
         <StepIndicator current={activeStep} />

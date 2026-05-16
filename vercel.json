@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/card/(.*)", "destination": "/index.html" },
-    { "source": "/view/(.*)", "destination": "/index.html" }
+    { "source": "/view/(.*)", "destination": "/index.html" },
+    { "source": "/edit/(.*)", "destination": "/index.html" }
   ]
 }

@@ -834,13 +834,13 @@ function StepComplete({
 }) {
   const viewUrl = "/card/" + registrationId
   return (
-    <section className="text-center" aria-labelledby="step-done-title">
-      <div className="mb-4 inline-flex size-14 items-center justify-center rounded-full bg-brand-muted text-2xl text-brand">
-        ✓
+  <section className="text-center" aria-labelledby="step-done-title">
+      <div className="mb-4 flex items-center justify-center gap-3">
+        <img src="/icon-192x192.png" alt="命のカルテ" className="w-12 h-12 rounded-2xl shadow-md" />
+        <h2 id="step-done-title" className="text-xl font-bold text-black">
+          登録が完了しました
+        </h2>
       </div>
-      <h2 id="step-done-title" className="mb-2 text-xl font-bold text-black">
-        登録が完了しました
-      </h2>
       <p className="mb-8 text-base leading-relaxed text-black">
         スマートフォンからいつでも情報を確認することができます。QRコードを読み込んでもらうことで、あなたの命を守る情報を救護の方に伝えることができます。
       </p>

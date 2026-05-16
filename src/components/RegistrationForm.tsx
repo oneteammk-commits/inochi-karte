@@ -121,6 +121,7 @@ export function RegistrationForm() {
       setIsSubmitting(true)
       try {
         const savedId = await persistRegistration(data)
+        localStorage.setItem('myCardId', savedId)
         setWizard((w) => ({
           step: Math.min(w.step + 1, STEP_LABELS.length - 1),
           registrationId: savedId,

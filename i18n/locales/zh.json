@@ -1,0 +1,20 @@
+{
+  "home": {
+    "title": "生命医疗卡",
+    "subtitle": "在紧急情况下,向医疗专业人员传达保护您生命的重要信息的应用程序。",
+    "buttonRegister": "📝 新建登记",
+    "buttonViewCard": "📋 查看我的医疗卡",
+    "buttonEdit": "✏️ 修改内容",
+    "notRegistered1": "尚未登记。",
+    "notRegistered2": "请通过上方按钮进行新建登记。",
+    "qrInfo": "在紧急情况下,可通过二维码与医疗专业人员分享您的登记信息",
+    "call110": "110",
+    "call110Sub": "警察",
+    "call119": "119",
+    "call119Sub": "急救",
+    "callContact": "联系人",
+    "callContactSub": "电话",
+    "callContactNotSet": "未设定"
+  },
+  "language": "语言"
+}

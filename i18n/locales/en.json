@@ -1,0 +1,20 @@
+{
+  "home": {
+    "title": "Medical ID Card",
+    "subtitle": "An app to share life-saving information with healthcare professionals when needed.",
+    "buttonRegister": "📝 Register New",
+    "buttonViewCard": "📋 View My Card",
+    "buttonEdit": "✏️ Edit Information",
+    "notRegistered1": "Not yet registered.",
+    "notRegistered2": "Please register using the button above.",
+    "qrInfo": "In emergencies, your registered information can be shared with healthcare professionals via QR code",
+    "call110": "110",
+    "call110Sub": "Police",
+    "call119": "119",
+    "call119Sub": "Emergency",
+    "callContact": "Contact",
+    "callContactSub": "Number",
+    "callContactNotSet": "Not set"
+  },
+  "language": "Language"
+}

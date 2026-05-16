@@ -21,13 +21,55 @@
   <body>
     <div id="root"></div>
  <script type="module" src="/src/main.tsx"></script>
-    <div id="google_translate_element" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: white; padding: 4px 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"></div>
+    <style>
+      #google_translate_element {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+        background: white;
+        padding: 6px 10px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border: 2px solid #c0392b;
+      }
+      #google_translate_element::before {
+        content: "🌍 ";
+        font-size: 14px;
+      }
+      #google_translate_element .goog-logo-link,
+      #google_translate_element .goog-te-gadget span,
+      #google_translate_element img {
+        display: none !important;
+      }
+      #google_translate_element .goog-te-gadget {
+        font-size: 0 !important;
+        color: transparent !important;
+      }
+      #google_translate_element .goog-te-combo {
+        font-size: 14px !important;
+        color: #000 !important;
+        border: none !important;
+        background: transparent !important;
+        font-weight: bold !important;
+        font-family: 'BIZ UDPGothic', 'Noto Sans JP', sans-serif !important;
+      }
+      .goog-te-banner-frame,
+      .skiptranslate {
+        display: none !important;
+      }
+      body {
+        top: 0 !important;
+      }
+    </style>
+    <div id="google_translate_element"></div>
     <script type="text/javascript">
       function googleTranslateElementInit() {
         new google.translate.TranslateElement({
           pageLanguage: 'ja',
-          includedLanguages: 'en,zh-CN,ko,my,vi,tl,ne,id,pt',
-          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+          includedLanguages: 'ja,en,zh-CN,ko,my,vi,tl,ne,id,pt',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
         }, 'google_translate_element');
       }
     </script>

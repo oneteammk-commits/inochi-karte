@@ -1,0 +1,20 @@
+{
+  "home": {
+    "title": "命のカルテ",
+    "subtitle": "あなたの命を守る大切な情報を、必要な時に医療従事者へ伝えるアプリです。",
+    "buttonRegister": "📝 新規登録する",
+    "buttonViewCard": "📋 自分のカルテを見る",
+    "buttonEdit": "✏️ 内容を変更する",
+    "notRegistered1": "まだ登録されていません。",
+    "notRegistered2": "上のボタンから新規登録してください。",
+    "qrInfo": "緊急時には登録情報をQRコードで医療従事者に共有できます",
+    "call110": "110番",
+    "call110Sub": "警察",
+    "call119": "119番",
+    "call119Sub": "救急",
+    "callContact": "登録先",
+    "callContactSub": "番号",
+    "callContactNotSet": "未設定"
+  },
+  "language": "言語"
+}

@@ -1,6 +1,7 @@
 import { RegistrationForm } from './components/RegistrationForm'
 import { ViewPage } from './components/ViewPage'
 import { EditPage } from './components/EditPage'
+import { HomePage } from './components/HomePage'
 
 function App() {
   const path = window.location.pathname
@@ -13,7 +14,10 @@ function App() {
   if (viewMatch) {
     return <ViewPage id={viewMatch[1]} />
   }
-  return <RegistrationForm />
+  if (path === '/register') {
+    return <RegistrationForm />
+  }
+  return <HomePage />
 }
 
 export default App

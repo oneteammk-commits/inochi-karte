@@ -30,7 +30,7 @@ export function HomePage() {
     <div className="min-h-screen bg-stone-100 p-4">
       <div className="max-w-lg mx-auto">
         <header className="mb-6 text-center mt-12">
-          <div className="text-6xl mb-4">🐕</div>
+          <div className="mb-4 flex justify-center"><img src="/icon-192x192.png" alt="命のカルテ" className="w-24 h-24 rounded-2xl shadow-md" /></div>
           <h1 className="text-3xl font-bold tracking-tight text-black">命のカルテ</h1>
           <p className="mt-3 text-base text-black leading-relaxed">あなたの命を守る大切な情報を、必要な時に医療従事者へ伝えるアプリです。</p>
         </header>

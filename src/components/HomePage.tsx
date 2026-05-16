@@ -39,7 +39,7 @@ export function HomePage() {
           )}
         </div>
 
-        <div className="mt-12 text-center text-xs text-stone-400">
+        <div className="mt-12 text-center text-sm text-stone-700">
           <p>緊急時には登録情報をQRコードで医療従事者に共有できます</p>
         </div>
       </div>

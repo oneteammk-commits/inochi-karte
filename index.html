@@ -21,71 +21,31 @@
   <body>
     <div id="root"></div>
  <script type="module" src="/src/main.tsx"></script>
-    <style>
-      #google_translate_wrapper {
+ <style>
+      #language_button {
         position: fixed;
         top: 10px;
         right: 10px;
         z-index: 9999;
         background: white;
-        padding: 8px 12px;
+        padding: 8px 14px;
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         border: 2px solid #c0392b;
-        display: flex;
+        font-family: 'BIZ UDPGothic', 'Noto Sans JP', sans-serif;
+        font-weight: bold;
+        font-size: 14px;
+        color: #c0392b;
+        text-decoration: none;
+        display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-family: 'BIZ UDPGothic', 'Noto Sans JP', sans-serif;
+        cursor: pointer;
       }
-      #google_translate_wrapper .label {
-        font-size: 14px;
-        font-weight: bold;
-        color: #c0392b;
-      }
-      #google_translate_element .goog-logo-link,
-      #google_translate_element .goog-te-gadget > span,
-      #google_translate_element img {
-        display: none !important;
-      }
-      #google_translate_element .goog-te-gadget {
-        font-size: 0 !important;
-        line-height: 0 !important;
-      }
-      #google_translate_element .goog-te-combo {
-        font-size: 16px !important;
-        color: #000 !important;
-        border: 2px solid #c0392b !important;
-        background: white !important;
-        font-weight: bold !important;
-        font-family: 'BIZ UDPGothic', 'Noto Sans JP', sans-serif !important;
-        padding: 6px 10px !important;
-        border-radius: 6px !important;
-        margin: 0 !important;
-        min-width: 120px !important;
-        cursor: pointer !important;
-      }
-      .goog-te-banner-frame,
-      .skiptranslate {
-        display: none !important;
-      }
-      body {
-        top: 0 !important;
+      #language_button:hover {
+        background: #fdf2f1;
       }
     </style>
-    <div id="google_translate_wrapper">
-      <span class="label">🌍 言語</span>
-      <div id="google_translate_element"></div>
-    </div>
-    <script type="text/javascript">
-      function googleTranslateElementInit() {
-        new google.translate.TranslateElement({
-          pageLanguage: 'ja',
-          includedLanguages: 'ja,en,zh-CN,ko,my,vi,tl,ne,id,pt',
-          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-          autoDisplay: false
-        }, 'google_translate_element');
-      }
-    </script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <a id="language_button" href="https://translate.google.com/translate?sl=ja&tl=en&u=https%3A%2F%2Finochi-karte.vercel.app%2F" target="_blank" rel="noopener noreferrer">🌍 Language / 言語</a>
   </body>
 </html>

@@ -830,18 +830,18 @@ function StepComplete({
   registrationId: string
   qrValue: string
 }) {
+  const viewUrl = "/card/" + registrationId
   return (
     <section className="text-center" aria-labelledby="step-done-title">
       <div className="mb-4 inline-flex size-14 items-center justify-center rounded-full bg-brand-muted text-2xl text-brand">
         ✓
       </div>
-      <h2 id="step-done-title" className="mb-2 text-xl font-bold text-stone-900">
+      <h2 id="step-done-title" className="mb-2 text-xl font-bold text-black">
         登録が完了しました
       </h2>
-      <p className="mb-8 text-sm leading-relaxed text-stone-600">
+      <p className="mb-8 text-base leading-relaxed text-black">
         スマートフォンからいつでも情報を確認することができます。QRコードを読み込んでもらうことで、あなたの命を守る情報を救護の方に伝えることができます。
       </p>
-
       <div className="mx-auto mb-6 flex justify-center rounded-2xl border border-stone-200 bg-white p-6 shadow-inner">
         <QRCodeSVG
           value={qrValue}
@@ -851,15 +851,13 @@ function StepComplete({
           fgColor="#C0392B"
           bgColor="#ffffff"
         />
-</div>
-      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-stone-400">
+      </div>
+      <p className="mb-1 text-sm font-medium tracking-wide text-stone-600">
         登録ID
       </p>
-      <p className="mb-8 font-mono text-sm text-stone-800 break-all">{registrationId}</p>
-
-      <p className="rounded-lg bg-stone-50 px-3 py-2 text-left text-xs text-stone-500 break-all">
-        {qrValue}
-      </p>
+      <p className="mb-8 font-mono text-sm text-black break-all">{registrationId}</p>
+      <a href={viewUrl} className="block w-full bg-red-700 hover:bg-red-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow-md mb-3">📋 登録内容を確認する</a>
+      <a href="/" className="block w-full bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-4 rounded-2xl text-base font-bold">🏠 ホームに戻る</a>
     </section>
   )
 }

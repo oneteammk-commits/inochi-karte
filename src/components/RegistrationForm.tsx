@@ -327,7 +327,7 @@ function FieldError({ message }: { message: string | null }) {
   )
 }
 
-function StepBasic({
+export function StepBasic({
   form,
   onChange,
   error,

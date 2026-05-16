@@ -229,8 +229,10 @@ export function RegistrationForm() {
             </p>
             <div className="mt-4 rounded-xl bg-yellow-50 border-2 border-yellow-300 p-3 text-left">
               <p className="text-sm font-bold text-black">🌍 外国人の方へ / For non-Japanese speakers</p>
-              <p className="text-xs text-black mt-1">翻訳ボタンで意味を確認できます。個人情報を守るため、入力は日本語のページで行ってください。</p>
-              <p className="text-xs text-black mt-1">You can check meanings with the translate button. To protect your personal information, please enter data on the Japanese page.</p>
+              <p className="text-xs text-black mt-2">翻訳ボタンで意味を確認しながら入力できます。</p>
+              <p className="text-xs text-black mt-1">入力時に「This form is not supported」という警告が出る場合は、<span className="font-bold">「OK」を押してそのまま入力</span>してください。問題ありません。</p>
+              <p className="text-xs text-black mt-3">You can enter information while checking meanings with the translate button.</p>
+              <p className="text-xs text-black mt-1">If you see a warning "This form is not supported", just press <span className="font-bold">"OK" and continue entering</span>. It's safe to proceed.</p>
             </div>
           </header>
 

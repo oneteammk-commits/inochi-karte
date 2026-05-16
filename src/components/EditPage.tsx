@@ -136,7 +136,7 @@ export function EditPage({ id }: { id: string }) {
               autoComplete="off"
               value={inputPassword}
               onChange={(e) => setInputPassword(e.target.value.replace(/[^0-9]/g, ''))}
-              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-[0.5em] text-stone-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-widest text-stone-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
               placeholder="••••"
             />
           </label>

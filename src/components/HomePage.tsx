@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
+import { getMyCardId } from '../lib/storage'
 
 export function HomePage() {
   const [myCardId, setMyCardId] = useState<string | null>(null)
 
   useEffect(() => {
-    const id = localStorage.getItem('myCardId')
+    const id = getMyCardId()
     setMyCardId(id)
   }, [])
 

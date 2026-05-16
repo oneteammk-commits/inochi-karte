@@ -112,15 +112,6 @@ export function ViewPage({ id }: { id: string }) {
           </div>
         )}
 
-        <div className="mt-6 mb-4">
-          
-            href={`/edit/${id}`}
-            className="block w-full bg-gray-700 hover:bg-gray-800 text-white text-center py-3 rounded-xl font-semibold shadow"
-          >
-            ✏️ 内容を変更する
-          </a>
-        </div>
-      </div>
-    </div>
-  )
-}
+      <div className="mt-6 mb-4">
+  <a href={"/edit/" + id} className="block w-full bg-gray-700 hover:bg-gray-800 text-white text-center py-3 rounded-xl font-semibold shadow">✏️ 内容を変更する</a>
+</div>

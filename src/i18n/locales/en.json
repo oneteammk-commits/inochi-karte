@@ -57,5 +57,26 @@
     "savedMessage": "Updated {{name}}'s card.",
     "buttonViewCard": "Back to Card View"
   },
+  "register": {
+    "headerLabel": "Health Information Registration",
+    "title": "Medical ID Card",
+    "subtitle1": "This app shares life-saving information with healthcare professionals.",
+    "subtitle2": "Your information is stored only on your smartphone.",
+    "step1": "Basic Info",
+    "step2": "Area / Facility",
+    "step3": "Allergies / Conditions",
+    "step4": "Medications",
+    "step5": "Edit Password",
+    "step6": "Done",
+    "buttonNext": "Next",
+    "buttonBack": "Back",
+    "buttonRegister": "Register",
+    "saving": "Registering...",
+    "doneTitle": "Registration Complete",
+    "doneMessage": "You can view your information anytime from your smartphone. By scanning the QR code, your life-saving information can be shared with first responders.",
+    "registrationId": "Registration ID",
+    "buttonViewCard": "📋 View Registration Details",
+    "buttonHome": "🏠 Back to Home"
+  },
   "language": "Language"
 }

@@ -128,4 +128,7 @@
     "optionalMultiple": "(複数可)",
     "tapToSelectImage": "タップして画像を選択(複数枚)",
     "altMedicineImage": "お薬画像 {{num}}",
-    "buttonAddMedicine": "＋ お薬を追加"}
+"buttonAddMedicine": "＋ お薬を追加"
+  },
+  "language": "言語"
+}

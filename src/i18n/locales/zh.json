@@ -57,5 +57,26 @@
     "savedMessage": "已更新{{name}}的医疗卡。",
     "buttonViewCard": "返回医疗卡显示"
   },
+  "register": {
+    "headerLabel": "健康信息登记",
+    "title": "生命医疗卡",
+    "subtitle1": "本应用将向医疗专业人员传达保护生命的重要信息。",
+    "subtitle2": "信息仅保存在您本人的智能手机上。",
+    "step1": "基本信息",
+    "step2": "地区·机构",
+    "step3": "过敏·疾病",
+    "step4": "用药",
+    "step5": "编辑密码",
+    "step6": "完成",
+    "buttonNext": "下一步",
+    "buttonBack": "返回",
+    "buttonRegister": "登记",
+    "saving": "登记中...",
+    "doneTitle": "登记已完成",
+    "doneMessage": "您可以随时通过智能手机查看信息。让救援人员扫描二维码,即可传达您的救命信息。",
+    "registrationId": "登记ID",
+    "buttonViewCard": "📋 查看登记内容",
+    "buttonHome": "🏠 返回首页"
+  },
   "language": "语言"
 }

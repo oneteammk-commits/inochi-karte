@@ -310,8 +310,8 @@ export function EditPage({ id }: { id: string }) {
                 onUpdateMedication={updateMedication}
                 onAddPhotos={updateMedicationPhotos}
                 onRemovePhoto={removeMedicationPhoto}
-                error={stepError}
-              />
+error={stepError}
+    t={t}              />
             )}
           </div>
 

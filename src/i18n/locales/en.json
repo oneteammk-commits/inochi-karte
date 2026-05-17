@@ -107,6 +107,14 @@
     "placeholderFacilityName": "You can proceed without filling this",
     "labelFacilityType": "Residence Type",
     "labelOtherFacility": "Please enter additional information",
-    "placeholderOtherFacility": "Example: Home, Group Home, etc."
-  },  "language": "Language"
+"placeholderOtherFacility": "Example: Home, Group Home, etc.",
+    "medicalTagsTitle": "Allergies & Medical Conditions",
+    "medicalTagsSubtitle": "Tap to select applicable items. You can add notes in the free entry area below.",
+    "tagsAllergyTitle": "Allergies",
+    "labelOtherFreeInput": "Other (free entry)",
+    "placeholderAllergyOther": "Items not listed, test results, contraindications, etc.",
+    "tagsChronicTitle": "Chronic Conditions / Medical History",
+    "placeholderChronicOther": "Conditions not listed, treatment details, etc.",
+    "labelDailyNotes": "Daily Living Notes",
+    "placeholderDailyNotes": "Swallowing precautions, wheelchair use, communication needs, etc."  },  "language": "Language"
 }

@@ -128,7 +128,13 @@
     "optionalMultiple": "(複数可)",
     "tapToSelectImage": "タップして画像を選択(複数枚)",
     "altMedicineImage": "お薬画像 {{num}}",
-"buttonAddMedicine": "＋ お薬を追加"
+"buttonAddMedicine": "＋ お薬を追加",
+    "editPasswordTitle": "編集用パスワード",
+    "editPasswordDescription": "登録内容を後から変更するために必要なパスワードです。",
+    "editPasswordRule1": "数字4桁で設定してください",
+    "editPasswordRule2": "忘れないように必ずメモしてください",
+    "editPasswordRule3": "ご家族など、登録内容を変更したい方に伝えてください",
+    "editPasswordLabel": "編集用パスワード（数字4桁）"
   },
   "language": "言語"
 }

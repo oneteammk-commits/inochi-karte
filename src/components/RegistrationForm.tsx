@@ -238,8 +238,7 @@ export function RegistrationForm() {
             {activeStep === 0 && (
 <StepBasic form={form} onChange={updateForm} error={stepError} t={t} />            )}
             {activeStep === 1 && (
-              <StepRegion form={form} onChange={updateForm} error={stepError} />
-            )}
+<StepRegion form={form} onChange={updateForm} error={stepError} t={t} />            )}
             {activeStep === 2 && (
               <StepMedicalTags form={form} onChange={updateForm} error={stepError} />
             )}
@@ -459,37 +458,40 @@ export function StepRegion({
   form,
   onChange,
   error,
+  t,
 }: {
   form: RegistrationFormState
   onChange: (p: Partial<RegistrationFormState>) => void
   error: string | null
+  t: (key: string) => string
 }) {
   return (
     <section aria-labelledby="step-region-title">
       <h2 id="step-region-title" className="mb-6 text-lg font-bold text-stone-900">
-        現在お住まいのお家・施設などの情報
+        {t('register.regionTitle')}
       </h2>
       <FieldError message={error} />
       <div className="space-y-5">
-       <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">郵便番号</span>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelPostalCode')}</span>
           <input
             type="text"
             inputMode="numeric"
             maxLength={8}
-            placeholder="例：123-4567"
+            placeholder={t('register.placeholderPostalCode')}
             value={form.postalCode ?? ''}
             onChange={(e) => onChange({ postalCode: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
           />
-        </label> <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">都道府県</span>
+        </label>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelPrefecture')}</span>
           <select
             value={form.prefecture}
             onChange={(e) => onChange({ prefecture: e.target.value })}
             className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
           >
-            <option value="">選択してください</option>
+            <option value="">{t('register.selectPlaceholder')}</option>
             {PREFECTURES.map((p) => (
               <option key={p} value={p}>
                 {p}
@@ -498,60 +500,58 @@ export function StepRegion({
           </select>
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">住所</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelCity')}</span>
           <input
             type="text"
             value={form.city}
             onChange={(e) => onChange({ city: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-            placeholder="〇〇市△△区"
+            placeholder={t('register.placeholderCity')}
           />
         </label>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
-            施設名<span className="ml-1.5 font-normal text-stone-500">（任意）</span>
+            {t('register.labelFacilityName')}<span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <input
             type="text"
             value={form.facilityName}
             onChange={(e) => onChange({ facilityName: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-            placeholder="未入力のまま次へ進めます"
+            placeholder={t('register.placeholderFacilityName')}
           />
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">居住種別</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelFacilityType')}</span>
           <select
             value={form.facilityType}
             onChange={(e) => onChange({ facilityType: e.target.value })}
             className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
           >
-            <option value="">選択してください</option>
-            {FACILITY_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
+            <option value="">{t('register.selectPlaceholder')}</option>
+            {FACILITY_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
               </option>
             ))}
-         </select>
+          </select>
         </label>
         {form.facilityType.includes('その他') && (
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-stone-700">その他の情報を入力してください</span>
+            <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelOtherFacility')}</span>
             <input
               type="text"
               value={form.facilityName}
               onChange={(e) => onChange({ facilityName: e.target.value })}
               className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              placeholder="例：自宅、グループホームなど"
+              placeholder={t('register.placeholderOtherFacility')}
             />
           </label>
         )}
       </div>
     </section>
   )
-}
-
-function TagGrid({
+}function TagGrid({
   title,
   tags,
   selected,

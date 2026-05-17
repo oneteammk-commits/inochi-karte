@@ -35,5 +35,27 @@
     "buttonEdit": "✏️ 내용 변경",
     "buttonHome": "🏠 홈으로 돌아가기"
   },
+  "edit": {
+    "title": "카르테 편집",
+    "subtitle": "내용을 변경하고 저장할 수 있습니다",
+    "loading": "로딩 중...",
+    "notFound": "데이터를 찾을 수 없습니다",
+    "passwordPrompt": "편집 비밀번호를 입력하세요",
+    "passwordPlaceholder": "숫자 4자리",
+    "passwordSubmit": "인증",
+    "passwordCancel": "취소",
+    "passwordError": "비밀번호가 틀렸습니다",
+    "step1": "기본 정보",
+    "step2": "지역·시설",
+    "step3": "알레르기·지병",
+    "step4": "투약",
+    "buttonNext": "다음",
+    "buttonBack": "이전",
+    "buttonSave": "변경사항 저장",
+    "saving": "저장 중...",
+    "savedTitle": "변경사항이 저장되었습니다",
+    "savedMessage": "{{name}}님의 카르테를 업데이트했습니다.",
+    "buttonViewCard": "카르테로 돌아가기"
+  },
   "language": "언어"
 }

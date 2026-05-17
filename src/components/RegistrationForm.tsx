@@ -1,4 +1,5 @@
 import { QRCodeSVG } from 'qrcode.react'
+import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
 import {
   ALLERGY_TAGS,
@@ -84,6 +85,7 @@ type WizardState = {
 }
 
 export function RegistrationForm() {
+  const { t } = useTranslation()
   const [wizard, setWizard] = useState<WizardState>({ step: 0, registrationId: null })
   const [form, setForm] = useState<RegistrationFormState>(initialForm)
   const [stepError, setStepError] = useState<string | null>(null)
@@ -218,18 +220,18 @@ export function RegistrationForm() {
     <div className="min-h-screen bg-stone-100 pb-16 pt-6 sm:pt-10">
       <div className="mx-auto max-w-lg px-4">
       <header className="mb-8 text-center">
-          <p className="text-sm font-medium tracking-wide text-brand">健康情報登録</p>
+          <p className="text-sm font-medium tracking-wide text-brand">{t('register.headerLabel')}</p>
           <div className="mt-1 flex items-center justify-center gap-3">
             <img src="/icon-192x192.png" alt="命のカルテ" className="w-12 h-12 rounded-2xl shadow-md" />
-            <h1 className="text-2xl font-bold tracking-tight text-black sm:text-3xl">命のカルテ</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-black sm:text-3xl">{t('register.title')}</h1>
           </div>
             <p className="mt-3 text-sm text-stone-600 leading-relaxed">
-              これは命を守る情報を医療従事者に伝えるアプリです。<br />
-              情報はご自身のスマートフォンにだけに、登録されます。
+              {t('register.subtitle1')}<br />
+              {t('register.subtitle2')}
             </p>
                       </header>
 
-        <StepIndicator current={activeStep} />
+        <StepIndicator current={activeStep} labels={[t('register.step1'), t('register.step2'), t('register.step3'), t('register.step4'), t('register.step5'), t('register.step6')]} />
 
         <form onSubmit={handleFormSubmit} noValidate className="block">
           <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:p-8">
@@ -257,7 +259,7 @@ export function RegistrationForm() {
   <StepEditPassword form={form} onChange={updateForm} error={stepError} />
 )}
 {activeStep === 5 && registrationId && (
-  <StepComplete registrationId={registrationId} qrValue={qrPayload} />
+  <StepComplete registrationId={registrationId} qrValue={qrPayload} t={t} />
 )}
           </div>
 
@@ -269,7 +271,7 @@ export function RegistrationForm() {
                 disabled={activeStep === 0 || isSubmitting}
                 className="flex-1 rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                戻る
+                {t('register.buttonBack')}
               </button>
               <button
                 type="submit"
@@ -277,10 +279,10 @@ export function RegistrationForm() {
                 className="flex-1 rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-md shadow-brand/25 transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting
-                  ? '登録中…'
-                  : activeStep === 3
-                    ? '登録して完了へ'
-                    : '次へ'}
+                  ? t('register.saving')
+                  : activeStep === 4
+                    ? t('register.buttonRegister')
+                    : t('register.buttonNext')}
               </button>
             </nav>
           )}
@@ -290,10 +292,10 @@ export function RegistrationForm() {
   )
 }
 
-function StepIndicator({ current }: { current: number }) {
+function StepIndicator({ current, labels }: { current: number; labels: string[] }) {
   return (
     <ol className="mb-8 flex justify-between gap-1 text-[10px] font-medium text-stone-500 sm:text-xs">
-      {STEP_LABELS.map((label, i) => {
+      {labels.map((label, i) => {
         const active = i === current
         const done = i < current
         return (
@@ -828,9 +830,11 @@ function StepEditPassword({
 function StepComplete({
   registrationId,
   qrValue,
+  t,
 }: {
   registrationId: string
   qrValue: string
+  t: (key: string) => string
 }) {
   const viewUrl = "/card/" + registrationId
   return (
@@ -838,11 +842,11 @@ function StepComplete({
       <div className="mb-4 flex items-center justify-center gap-3">
         <img src="/icon-192x192.png" alt="命のカルテ" className="w-12 h-12 rounded-2xl shadow-md" />
         <h2 id="step-done-title" className="text-xl font-bold text-black">
-          登録が完了しました
+          {t('register.doneTitle')}
         </h2>
       </div>
       <p className="mb-8 text-base leading-relaxed text-black">
-        スマートフォンからいつでも情報を確認することができます。QRコードを読み込んでもらうことで、あなたの命を守る情報を救護の方に伝えることができます。
+        {t('register.doneMessage')}
       </p>
       <div className="mx-auto mb-6 flex justify-center rounded-2xl border border-stone-200 bg-white p-6 shadow-inner">
         <QRCodeSVG
@@ -855,11 +859,11 @@ function StepComplete({
         />
       </div>
       <p className="mb-1 text-sm font-medium tracking-wide text-stone-600">
-        登録ID
+        {t('register.registrationId')}
       </p>
       <p className="mb-8 font-mono text-sm text-black break-all">{registrationId}</p>
-      <a href={viewUrl} className="block w-full bg-red-700 hover:bg-red-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow-md mb-3">📋 登録内容を確認する</a>
-      <a href="/" className="block w-full bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-4 rounded-2xl text-base font-bold">🏠 ホームに戻る</a>
+      <a href={viewUrl} className="block w-full bg-red-700 hover:bg-red-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow-md mb-3">{t('register.buttonViewCard')}</a>
+      <a href="/" className="block w-full bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-4 rounded-2xl text-base font-bold">{t('register.buttonHome')}</a>
     </section>
   )
 }

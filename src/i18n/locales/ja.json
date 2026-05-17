@@ -94,6 +94,19 @@
     "labelEmergencyFurigana": "緊急連絡先のフリガナ",
     "placeholderEmergencyFurigana": "ヤマダ ハナコ",
     "labelEmergencyPhone": "緊急連絡先の電話番号",
-    "placeholderEmergencyPhone": "090-1234-5678"  },
-  "language": "言語"
+"placeholderEmergencyPhone": "090-1234-5678",
+    "regionTitle": "現在お住まいのお家・施設などの情報",
+    "labelPostalCode": "郵便番号",
+    "placeholderPostalCode": "例:123-4567",
+    "labelPrefecture": "都道府県",
+    "selectPlaceholder": "選択してください",
+    "labelCity": "住所",
+    "placeholderCity": "〇〇市△△区",
+    "labelFacilityName": "施設名",
+    "optional": "(任意)",
+    "placeholderFacilityName": "未入力のまま次へ進めます",
+    "labelFacilityType": "居住種別",
+    "labelOtherFacility": "その他の情報を入力してください",
+    "placeholderOtherFacility": "例:自宅、グループホームなど"
+  },  "language": "言語"
 }

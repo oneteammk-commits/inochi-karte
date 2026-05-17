@@ -116,5 +116,16 @@
     "tagsChronicTitle": "持病・既往歴",
     "placeholderChronicOther": "タグにない病名や、治療状況の補足など",
     "labelDailyNotes": "日常生活で伝えておきたいこと",
-    "placeholderDailyNotes": "嚥下に注意、車椅子利用、コミュニケーションの工夫など"  },  "language": "言語"
-}
+"placeholderDailyNotes": "嚥下に注意、車椅子利用、コミュニケーションの工夫など",
+    "medicationsTitle": "投薬情報",
+    "medicationsSubtitle": "お薬の名前や画像を入れたり、お薬手帳などのページを撮影して画像登録ができます。",
+    "medicineLabel": "お薬 {{num}}",
+    "buttonDeleteRow": "この行を削除",
+    "labelMedicineName": "薬品名・用量メモ",
+    "placeholderMedicineName": "例:アムロジピン 5mg 朝1錠",
+    "medicineNote": "お薬手帳に記載されている情報でも可",
+    "labelMedicinePhotos": "お薬、お薬手帳、医療や福祉手帳などの写真",
+    "optionalMultiple": "(複数可)",
+    "tapToSelectImage": "タップして画像を選択(複数枚)",
+    "altMedicineImage": "お薬画像 {{num}}",
+    "buttonAddMedicine": "＋ お薬を追加"}

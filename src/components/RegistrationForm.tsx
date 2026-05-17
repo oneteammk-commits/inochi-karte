@@ -249,8 +249,8 @@ export function RegistrationForm() {
     onUpdateMedication={updateMedication}
     onAddPhotos={updateMedicationPhotos}
     onRemovePhoto={removeMedicationPhoto}
-    error={stepError}
-  />
+error={stepError}
+    t={t}  />
 )}
 {activeStep === 4 && (
   <StepEditPassword form={form} onChange={updateForm} error={stepError} />
@@ -663,7 +663,7 @@ export function StepMedicalTags({
       </div>
     </section>
   )
-}export function StepMedications({
+export function StepMedications({
   form,
   onAddRow,
   onRemoveRow,
@@ -671,6 +671,7 @@ export function StepMedicalTags({
   onAddPhotos,
   onRemovePhoto,
   error,
+  t,
 }: {
   form: RegistrationFormState
   onAddRow: () => void
@@ -679,14 +680,15 @@ export function StepMedicalTags({
   onAddPhotos: (id: string, files: FileList | null) => Promise<void>
   onRemovePhoto: (id: string, index: number) => void
   error: string | null
+  t: (key: string, options?: { num?: number }) => string
 }) {
   return (
     <section aria-labelledby="step-med-title">
       <h2 id="step-med-title" className="mb-2 text-lg font-bold text-stone-900">
-        投薬情報
+        {t('register.medicationsTitle')}
       </h2>
       <p className="mb-6 text-sm text-stone-600">
-        お薬の名前や画像を入れたり、お薬手帳などのページを撮影して画像登録ができます。
+        {t('register.medicationsSubtitle')}
       </p>
       <FieldError message={error} />
 
@@ -698,8 +700,8 @@ export function StepMedicalTags({
           >
             <div className="mb-3 flex items-center justify-between gap-2">
               <span className="text-sm font-semibold text-stone-800">
-                お薬 {index + 1}
-                <span className="ml-1.5 font-normal text-stone-500">（任意）</span>
+                {t('register.medicineLabel', { num: index + 1 })}
+                <span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
               </span>
               {form.medications.length > 1 && (
                 <button
@@ -707,28 +709,28 @@ export function StepMedicalTags({
                   onClick={() => onRemoveRow(med.id)}
                   className="text-xs font-medium text-red-600 hover:underline"
                 >
-                  この行を削除
+                  {t('register.buttonDeleteRow')}
                 </button>
               )}
             </div>
             <label className="block">
               <span className="mb-1 block text-xs font-medium text-stone-600">
-                薬品名・用量メモ<span className="font-normal text-stone-500">（任意）</span>
+                {t('register.labelMedicineName')}<span className="font-normal text-stone-500">{t('register.optional')}</span>
               </span>
               <input
                 type="text"
                 value={med.name}
                 onChange={(e) => onUpdateMedication(med.id, { name: e.target.value })}
                 className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
-                placeholder="例：アムロジピン 5mg 朝1錠"
+                placeholder={t('register.placeholderMedicineName')}
               />
               <p className="mt-2 text-xs leading-relaxed text-stone-500">
-                お薬手帳に記載されている情報でも可
+                {t('register.medicineNote')}
               </p>
             </label>
             <div className="mt-4">
               <span className="mb-1 block text-xs font-medium text-stone-600">
-                お薬、お薬手帳、医療や福祉手帳などの写真<span className="font-normal text-stone-500">（複数可）</span>
+                {t('register.labelMedicinePhotos')}<span className="font-normal text-stone-500">{t('register.optionalMultiple')}</span>
               </span>
               <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-stone-300 bg-white px-4 py-5 transition hover:border-brand/50 hover:bg-brand-50/20">
                 <input
@@ -741,7 +743,7 @@ export function StepMedicalTags({
                   }}
                 />
                 <span className="text-center text-sm text-stone-500">
-                  タップして画像を選択（複数枚）
+                  {t('register.tapToSelectImage')}
                 </span>
               </label>
               
@@ -751,7 +753,7 @@ export function StepMedicalTags({
                     <div key={`${med.id}-img-${idx}`} className="relative">
                       <img
                         src={src}
-                        alt={`お薬画像 ${idx + 1}`}
+                        alt={t('register.altMedicineImage', { num: idx + 1 })}
                         className="h-24 w-full rounded-md border border-stone-200 object-cover"
                       />
                       <button
@@ -773,13 +775,12 @@ export function StepMedicalTags({
           onClick={onAddRow}
           className="w-full rounded-xl border-2 border-dashed border-stone-300 py-3 text-sm font-semibold text-brand transition hover:border-brand hover:bg-brand-50"
         >
-          ＋ お薬を追加
+          {t('register.buttonAddMedicine')}
         </button>
       </div>
     </section>
   )
-}
-function StepEditPassword({
+}function StepEditPassword({
   form,
   onChange,
   error,

@@ -240,8 +240,7 @@ export function RegistrationForm() {
             {activeStep === 1 && (
 <StepRegion form={form} onChange={updateForm} error={stepError} t={t} />            )}
             {activeStep === 2 && (
-              <StepMedicalTags form={form} onChange={updateForm} error={stepError} />
-            )}
+<StepMedicalTags form={form} onChange={updateForm} error={stepError} t={t} />            )}
            {activeStep === 3 && (
   <StepMedications
     form={form}
@@ -592,79 +591,79 @@ export function StepMedicalTags({
   form,
   onChange,
   error,
+  t,
 }: {
   form: RegistrationFormState
   onChange: (p: Partial<RegistrationFormState>) => void
   error: string | null
+  t: (key: string) => string
 }) {
   return (
     <section aria-labelledby="step-tags-title">
       <h2 id="step-tags-title" className="mb-2 text-lg font-bold text-stone-900">
-        アレルギー・持病
+        {t('register.medicalTagsTitle')}
       </h2>
       <p className="mb-6 text-sm text-stone-600">
-        該当するものをタップして選択してください。自由記入欄に補足を書けます。
+        {t('register.medicalTagsSubtitle')}
       </p>
       <FieldError message={error} />
       <div className="space-y-8">
         <div>
           <TagGrid
-            title="アレルギー"
+            title={t('register.tagsAllergyTitle')}
             tags={ALLERGY_TAGS}
             selected={form.allergyTags}
             onToggle={(tag) => onChange({ allergyTags: toggleInList(form.allergyTags, tag) })}
           />
           <label className="mt-4 block">
             <span className="mb-1.5 block text-sm font-medium text-stone-700">
-              その他（自由記入）
+              {t('register.labelOtherFreeInput')}
             </span>
             <textarea
               value={form.allergyOther}
               onChange={(e) => onChange({ allergyOther: e.target.value })}
               rows={3}
               className="w-full resize-y rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              placeholder="タグにない内容や、検査結果・禁忌の補足など"
+              placeholder={t('register.placeholderAllergyOther')}
             />
           </label>
         </div>
         <div>
           <TagGrid
-            title="持病・既往歴"
+            title={t('register.tagsChronicTitle')}
             tags={CHRONIC_TAGS}
             selected={form.chronicTags}
             onToggle={(tag) => onChange({ chronicTags: toggleInList(form.chronicTags, tag) })}
           />
           <label className="mt-4 block">
             <span className="mb-1.5 block text-sm font-medium text-stone-700">
-              その他（自由記入）
+              {t('register.labelOtherFreeInput')}
             </span>
             <textarea
               value={form.chronicOther}
               onChange={(e) => onChange({ chronicOther: e.target.value })}
               rows={3}
               className="w-full resize-y rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              placeholder="タグにない病名や、治療状況の補足など"
+              placeholder={t('register.placeholderChronicOther')}
             />
           </label>
         </div>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
-            日常生活で伝えておきたいこと
+            {t('register.labelDailyNotes')}
           </span>
           <textarea
             value={form.dailyNotes}
             onChange={(e) => onChange({ dailyNotes: e.target.value })}
             rows={4}
             className="w-full resize-y rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-            placeholder="嚥下に注意、車椅子利用、コミュニケーションの工夫など"
+            placeholder={t('register.placeholderDailyNotes')}
           />
         </label>
       </div>
     </section>
   )
-}
-
-export function StepMedications({
+}export function StepMedications({
   form,
   onAddRow,
   onRemoveRow,

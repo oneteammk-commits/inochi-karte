@@ -107,6 +107,14 @@
     "placeholderFacilityName": "未入力のまま次へ進めます",
     "labelFacilityType": "居住種別",
     "labelOtherFacility": "その他の情報を入力してください",
-    "placeholderOtherFacility": "例:自宅、グループホームなど"
-  },  "language": "言語"
+"placeholderOtherFacility": "例:自宅、グループホームなど",
+    "medicalTagsTitle": "アレルギー・持病",
+    "medicalTagsSubtitle": "該当するものをタップして選択してください。自由記入欄に補足を書けます。",
+    "tagsAllergyTitle": "アレルギー",
+    "labelOtherFreeInput": "その他(自由記入)",
+    "placeholderAllergyOther": "タグにない内容や、検査結果・禁忌の補足など",
+    "tagsChronicTitle": "持病・既往歴",
+    "placeholderChronicOther": "タグにない病名や、治療状況の補足など",
+    "labelDailyNotes": "日常生活で伝えておきたいこと",
+    "placeholderDailyNotes": "嚥下に注意、車椅子利用、コミュニケーションの工夫など"  },  "language": "言語"
 }

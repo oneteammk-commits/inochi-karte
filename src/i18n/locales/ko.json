@@ -116,5 +116,16 @@
     "tagsChronicTitle": "지병·과거 병력",
     "placeholderChronicOther": "태그에 없는 병명, 치료 상황 등",
     "labelDailyNotes": "일상 생활에서 전하고 싶은 내용",
-    "placeholderDailyNotes": "연하 주의, 휠체어 이용, 의사소통 방법 등"  },  "language": "언어"
-}
+"placeholderDailyNotes": "연하 주의, 휠체어 이용, 의사소통 방법 등",
+    "medicationsTitle": "복용 정보",
+    "medicationsSubtitle": "약 이름이나 이미지를 입력하거나, 약 수첩 등의 페이지를 촬영하여 이미지로 등록할 수 있습니다.",
+    "medicineLabel": "약 {{num}}",
+    "buttonDeleteRow": "이 행 삭제",
+    "labelMedicineName": "약품명·용량 메모",
+    "placeholderMedicineName": "예: 암로디핀 5mg 아침 1정",
+    "medicineNote": "약 수첩에 기재된 정보도 가능",
+    "labelMedicinePhotos": "약, 약 수첩, 의료·복지 수첩 등의 사진",
+    "optionalMultiple": "(여러 장 가능)",
+    "tapToSelectImage": "탭하여 이미지 선택 (여러 장)",
+    "altMedicineImage": "약 이미지 {{num}}",
+    "buttonAddMedicine": "+ 약 추가"}

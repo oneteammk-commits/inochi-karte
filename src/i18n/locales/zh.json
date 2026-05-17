@@ -35,5 +35,27 @@
     "buttonEdit": "✏️ 修改内容",
     "buttonHome": "🏠 返回首页"
   },
+  "edit": {
+    "title": "编辑医疗卡",
+    "subtitle": "您可以修改并保存内容",
+    "loading": "加载中...",
+    "notFound": "未找到数据",
+    "passwordPrompt": "请输入编辑密码",
+    "passwordPlaceholder": "4位数字",
+    "passwordSubmit": "验证",
+    "passwordCancel": "取消",
+    "passwordError": "密码错误",
+    "step1": "基本信息",
+    "step2": "地区·机构",
+    "step3": "过敏·疾病",
+    "step4": "用药",
+    "buttonNext": "下一步",
+    "buttonBack": "返回",
+    "buttonSave": "保存修改",
+    "saving": "保存中...",
+    "savedTitle": "已保存修改",
+    "savedMessage": "已更新{{name}}的医疗卡。",
+    "buttonViewCard": "返回医疗卡显示"
+  },
   "language": "语言"
 }

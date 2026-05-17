@@ -16,5 +16,24 @@
     "callContactSub": "Number",
     "callContactNotSet": "Not set"
   },
+  "view": {
+    "headerTitle": "Emergency Info Card",
+    "headerSubtitle": "Medical ID Card",
+    "loading": "Loading...",
+    "notFound": "Data not found",
+    "basicInfo": "Basic Information",
+    "birthDate": "Date of Birth",
+    "emergencyContact": "Emergency Contact",
+    "allergies": "Allergies",
+    "diseases": "Medical History",
+    "medications": "Current Medications",
+    "dailyNotes": "Special Notes",
+    "facility": "Primary Doctor / Facility",
+    "noRegistration": "None registered",
+    "noPhoto": "No photo",
+    "other": "Other",
+    "buttonEdit": "✏️ Edit Information",
+    "buttonHome": "🏠 Back to Home"
+  },
   "language": "Language"
 }

@@ -128,4 +128,7 @@
     "optionalMultiple": "(可多张)",
     "tapToSelectImage": "点击选择图片(可多张)",
     "altMedicineImage": "药物图片 {{num}}",
-    "buttonAddMedicine": "+ 添加药物"}
+"buttonAddMedicine": "+ 添加药物"
+  },
+  "language": "语言"
+}

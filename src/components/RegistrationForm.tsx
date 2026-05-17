@@ -663,6 +663,7 @@ export function StepMedicalTags({
       </div>
     </section>
   )
+  }
 export function StepMedications({
   form,
   onAddRow,

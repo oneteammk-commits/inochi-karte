@@ -50,4 +50,33 @@
     "step3": "アレルギー・持病",
     "step4": "投薬",
     "buttonNext": "次へ",
-    "buttonBack": "戻
+    "buttonBack": "戻る",
+    "buttonSave": "変更を保存する",
+    "saving": "保存中...",
+    "savedTitle": "変更を保存しました",
+    "savedMessage": "{{name}} さんのカルテを更新しました。",
+    "buttonViewCard": "カルテ表示に戻る"
+  },
+  "register": {
+    "headerLabel": "健康情報登録",
+    "title": "命のカルテ",
+    "subtitle1": "これは命を守る情報を医療従事者に伝えるアプリです。",
+    "subtitle2": "情報はご自身のスマートフォンにだけに、登録されます。",
+    "step1": "基本情報",
+    "step2": "地域・施設",
+    "step3": "アレルギー・持病",
+    "step4": "投薬",
+    "step5": "編集用パスワード",
+    "step6": "完了",
+    "buttonNext": "次へ",
+    "buttonBack": "戻る",
+    "buttonRegister": "登録する",
+    "saving": "登録中...",
+    "doneTitle": "登録が完了しました",
+    "doneMessage": "スマートフォンからいつでも情報を確認することができます。QRコードを読み込んでもらうことで、あなたの命を守る情報を救護の方に伝えることができます。",
+    "registrationId": "登録ID",
+    "buttonViewCard": "📋 登録内容を確認する",
+    "buttonHome": "🏠 ホームに戻る"
+  },
+  "language": "言語"
+}

@@ -253,8 +253,7 @@ error={stepError}
     t={t}  />
 )}
 {activeStep === 4 && (
-  <StepEditPassword form={form} onChange={updateForm} error={stepError} />
-)}
+<StepEditPassword form={form} onChange={updateForm} error={stepError} t={t} />)}
 {activeStep === 5 && registrationId && (
   <StepComplete registrationId={registrationId} qrValue={qrPayload} t={t} />
 )}
@@ -781,35 +780,39 @@ export function StepMedications({
       </div>
     </section>
   )
-}function StepEditPassword({
+}
+
+function StepEditPassword({
   form,
   onChange,
   error,
+  t,
 }: {
   form: RegistrationFormState
   onChange: (p: Partial<RegistrationFormState>) => void
   error: string | null
+  t: (key: string) => string
 }) {
   return (
     <section aria-labelledby="step-edit-password-title">
       <h2 id="step-edit-password-title" className="mb-6 text-lg font-bold text-stone-900">
-        編集用パスワード
+        {t('register.editPasswordTitle')}
       </h2>
       <FieldError message={error} />
       <div className="space-y-5">
         <div className="rounded-xl bg-stone-50 p-4 text-sm text-stone-700">
           <p className="mb-2 font-semibold text-stone-900">
-            登録内容を後から変更するために必要なパスワードです。
+            {t('register.editPasswordDescription')}
           </p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>数字4桁で設定してください</li>
-            <li>忘れないように必ずメモしてください</li>
-            <li>ご家族など、登録内容を変更したい方に伝えてください</li>
+            <li>{t('register.editPasswordRule1')}</li>
+            <li>{t('register.editPasswordRule2')}</li>
+            <li>{t('register.editPasswordRule3')}</li>
           </ul>
         </div>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
-            編集用パスワード（数字4桁）
+            {t('register.editPasswordLabel')}
           </span>
           <input
             type="password"
@@ -828,8 +831,7 @@ export function StepMedications({
       </div>
     </section>
   )
-}
-function StepComplete({
+}function StepComplete({
   registrationId,
   qrValue,
   t,

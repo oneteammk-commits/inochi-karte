@@ -94,6 +94,19 @@
     "labelEmergencyFurigana": "紧急联系人片假名",
     "placeholderEmergencyFurigana": "チョウ リー",
     "labelEmergencyPhone": "紧急联系人电话",
-    "placeholderEmergencyPhone": "090-1234-5678"  },
-  "language": "语言"
+"placeholderEmergencyPhone": "090-1234-5678",
+    "regionTitle": "现居住地·设施信息",
+    "labelPostalCode": "邮政编码",
+    "placeholderPostalCode": "例:123-4567",
+    "labelPrefecture": "都道府县",
+    "selectPlaceholder": "请选择",
+    "labelCity": "地址",
+    "placeholderCity": "○○市△△区",
+    "labelFacilityName": "设施名称",
+    "optional": "(可选)",
+    "placeholderFacilityName": "可不填写,直接进入下一步",
+    "labelFacilityType": "居住类型",
+    "labelOtherFacility": "请输入其他信息",
+    "placeholderOtherFacility": "例:自宅、团体家屋等"
+  },  "language": "语言"
 }

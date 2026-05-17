@@ -40,4 +40,14 @@
     "subtitle": "内容を変更して保存できます",
     "loading": "読み込み中...",
     "notFound": "データが見つかりませんでした",
-    "passwordPrompt": "編集パスワードを入力してくだ
+    "passwordPrompt": "編集パスワードを入力してください",
+    "passwordPlaceholder": "数字4桁",
+    "passwordSubmit": "認証する",
+    "passwordCancel": "キャンセル",
+    "passwordError": "パスワードが違います",
+    "step1": "基本情報",
+    "step2": "地域・施設",
+    "step3": "アレルギー・持病",
+    "step4": "投薬",
+    "buttonNext": "次へ",
+    "buttonBack": "戻

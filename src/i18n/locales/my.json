@@ -94,6 +94,19 @@
     "labelEmergencyFurigana": "အရေးပေါ်ဆက်သွယ်ရန် အသံထွက်",
     "placeholderEmergencyFurigana": "マ サン",
     "labelEmergencyPhone": "အရေးပေါ်ဆက်သွယ်ရန် ဖုန်းနံပါတ်",
-    "placeholderEmergencyPhone": "090-1234-5678"  },
-  "language": "ဘာသာစကား"
+"placeholderEmergencyPhone": "090-1234-5678",
+    "regionTitle": "လက်ရှိနေထိုင်ရာအိမ်/အဆောက်အအုံ အချက်အလက်",
+    "labelPostalCode": "စာတိုက်သင်္ကေတ",
+    "placeholderPostalCode": "ဥပမာ: 123-4567",
+    "labelPrefecture": "ပြည်နယ်/ခရိုင်",
+    "selectPlaceholder": "ရွေးပါ",
+    "labelCity": "လိပ်စာ",
+    "placeholderCity": "○○မြို့ △△ရပ်ကွက်",
+    "labelFacilityName": "အဆောက်အအုံအမည်",
+    "optional": "(မဖြစ်မနေမဟုတ်)",
+    "placeholderFacilityName": "မဖြည့်ဘဲ ဆက်လက်လုပ်ဆောင်နိုင်ပါသည်",
+    "labelFacilityType": "နေထိုင်မှုအမျိုးအစား",
+    "labelOtherFacility": "အခြားအချက်အလက် ဖြည့်စွက်ပါ",
+    "placeholderOtherFacility": "ဥပမာ: အိမ်၊ အုပ်စုလိုက်အိမ်ယာ စသည်"
+  },  "language": "ဘာသာစကား"
 }

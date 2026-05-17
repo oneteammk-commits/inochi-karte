@@ -128,4 +128,7 @@
     "optionalMultiple": "(များစွာဖြစ်နိုင်)",
     "tapToSelectImage": "ပုံများရွေးရန် တိုက်ပ်နှိပ်ပါ (များစွာ)",
     "altMedicineImage": "ဆေးပုံ {{num}}",
-    "buttonAddMedicine": "+ ဆေးထည့်ပါ"}
+"buttonAddMedicine": "+ ဆေးထည့်ပါ"
+  },
+  "language": "ဘာသာစကား"
+}

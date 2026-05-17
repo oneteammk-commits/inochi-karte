@@ -116,5 +116,16 @@
     "tagsChronicTitle": "Chronic Conditions / Medical History",
     "placeholderChronicOther": "Conditions not listed, treatment details, etc.",
     "labelDailyNotes": "Daily Living Notes",
-    "placeholderDailyNotes": "Swallowing precautions, wheelchair use, communication needs, etc."  },  "language": "Language"
-}
+"placeholderDailyNotes": "Swallowing precautions, wheelchair use, communication needs, etc.",
+    "medicationsTitle": "Medication Information",
+    "medicationsSubtitle": "You can enter medication names and images, or photograph pages from your medication record book.",
+    "medicineLabel": "Medicine {{num}}",
+    "buttonDeleteRow": "Remove this row",
+    "labelMedicineName": "Medicine name / Dosage notes",
+    "placeholderMedicineName": "Example: Amlodipine 5mg, 1 tablet morning",
+    "medicineNote": "Information from your medication record book is acceptable",
+    "labelMedicinePhotos": "Photos of medicine, medication record book, medical/welfare book, etc.",
+    "optionalMultiple": "(multiple allowed)",
+    "tapToSelectImage": "Tap to select images (multiple)",
+    "altMedicineImage": "Medicine image {{num}}",
+    "buttonAddMedicine": "+ Add Medicine"}

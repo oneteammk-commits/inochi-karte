@@ -116,5 +116,16 @@
     "tagsChronicTitle": "နာတာရှည်ရောဂါ·ရောဂါမှတ်တမ်း",
     "placeholderChronicOther": "tag တွင်မပါသောရောဂါအမည်၊ ကုသမှုအခြေအနေ စသည်",
     "labelDailyNotes": "နေ့စဉ်ဘဝတွင် ပြောကြားလိုသောအချက်",
-    "placeholderDailyNotes": "မျိုချမှုသတိပြုရန်၊ ဘီးတပ်ကုလားထိုင်အသုံးပြုခြင်း၊ ဆက်သွယ်ရေးနည်းလမ်း စသည်"  },  "language": "ဘာသာစကား"
-}
+"placeholderDailyNotes": "မျိုချမှုသတိပြုရန်၊ ဘီးတပ်ကုလားထိုင်အသုံးပြုခြင်း၊ ဆက်သွယ်ရေးနည်းလမ်း စသည်",
+    "medicationsTitle": "ဆေးဝါးအချက်အလက်",
+    "medicationsSubtitle": "ဆေးအမည်နှင့်ပုံများထည့်ခြင်း၊ ဆေးမှတ်စာအုပ်စာမျက်နှာများ ဓာတ်ပုံရိုက်ပြီး စာရင်းသွင်းနိုင်ပါသည်။",
+    "medicineLabel": "ဆေး {{num}}",
+    "buttonDeleteRow": "ဤလိုင်းကိုဖျက်ပါ",
+    "labelMedicineName": "ဆေးအမည်·သုံးစွဲမှုမှတ်ချက်",
+    "placeholderMedicineName": "ဥပမာ: Amlodipine 5mg မနက် ၁ လုံး",
+    "medicineNote": "ဆေးမှတ်စာအုပ်တွင်ဖော်ပြထားသောအချက်အလက်လည်းရပါသည်",
+    "labelMedicinePhotos": "ဆေး၊ ဆေးမှတ်စာအုပ်၊ ဆေးကုသမှု/လူမှုဖူလုံရေးစာအုပ် စသည်တို့၏ဓာတ်ပုံများ",
+    "optionalMultiple": "(များစွာဖြစ်နိုင်)",
+    "tapToSelectImage": "ပုံများရွေးရန် တိုက်ပ်နှိပ်ပါ (များစွာ)",
+    "altMedicineImage": "ဆေးပုံ {{num}}",
+    "buttonAddMedicine": "+ ဆေးထည့်ပါ"}

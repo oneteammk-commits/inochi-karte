@@ -16,5 +16,24 @@
     "callContactSub": "번호",
     "callContactNotSet": "미설정"
   },
+  "view": {
+    "headerTitle": "응급 정보 카드",
+    "headerSubtitle": "생명의 카르테",
+    "loading": "로딩 중...",
+    "notFound": "데이터를 찾을 수 없습니다",
+    "basicInfo": "기본 정보",
+    "birthDate": "생년월일",
+    "emergencyContact": "긴급 연락처",
+    "allergies": "알레르기",
+    "diseases": "기왕증·만성질환",
+    "medications": "복용 중인 약",
+    "dailyNotes": "특기사항",
+    "facility": "주치의·시설",
+    "noRegistration": "등록 없음",
+    "noPhoto": "사진 없음",
+    "other": "기타",
+    "buttonEdit": "✏️ 내용 변경",
+    "buttonHome": "🏠 홈으로 돌아가기"
+  },
   "language": "언어"
 }

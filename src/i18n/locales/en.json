@@ -128,4 +128,7 @@
     "optionalMultiple": "(multiple allowed)",
     "tapToSelectImage": "Tap to select images (multiple)",
     "altMedicineImage": "Medicine image {{num}}",
-    "buttonAddMedicine": "+ Add Medicine"}
+"buttonAddMedicine": "+ Add Medicine"
+  },
+  "language": "Language"
+}

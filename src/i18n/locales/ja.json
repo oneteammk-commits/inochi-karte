@@ -16,5 +16,24 @@
     "callContactSub": "番号",
     "callContactNotSet": "未設定"
   },
+  "view": {
+    "headerTitle": "救急情報カード",
+    "headerSubtitle": "命のカルテ",
+    "loading": "読み込み中...",
+    "notFound": "データが見つかりませんでした",
+    "basicInfo": "基本情報",
+    "birthDate": "生年月日",
+    "emergencyContact": "緊急連絡先",
+    "allergies": "アレルギー",
+    "diseases": "既往症・慢性疾患",
+    "medications": "服用中のお薬",
+    "dailyNotes": "特記事項",
+    "facility": "かかりつけ医・施設",
+    "noRegistration": "登録なし",
+    "noPhoto": "写真なし",
+    "other": "その他",
+    "buttonEdit": "✏️ 内容を変更する",
+    "buttonHome": "🏠 ホームに戻る"
+  },
   "language": "言語"
 }

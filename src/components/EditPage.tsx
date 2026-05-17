@@ -297,8 +297,7 @@ export function EditPage({ id }: { id: string }) {
 
           <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8">
             {editStep === 0 && (
-              <StepBasic form={form} onChange={updateForm} error={stepError} />
-            )}
+<StepBasic form={form} onChange={updateForm} error={stepError} t={t} />            )}
             {editStep === 1 && (
               <StepRegion form={form} onChange={updateForm} error={stepError} />
             )}

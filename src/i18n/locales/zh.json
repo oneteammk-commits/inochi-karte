@@ -16,5 +16,24 @@
     "callContactSub": "电话",
     "callContactNotSet": "未设定"
   },
+  "view": {
+    "headerTitle": "急救信息卡",
+    "headerSubtitle": "生命医疗卡",
+    "loading": "加载中...",
+    "notFound": "未找到数据",
+    "basicInfo": "基本信息",
+    "birthDate": "出生日期",
+    "emergencyContact": "紧急联系人",
+    "allergies": "过敏",
+    "diseases": "既往病史·慢性疾病",
+    "medications": "正在服用的药物",
+    "dailyNotes": "特别注意事项",
+    "facility": "常去医院·诊所",
+    "noRegistration": "未登记",
+    "noPhoto": "无照片",
+    "other": "其他",
+    "buttonEdit": "✏️ 修改内容",
+    "buttonHome": "🏠 返回首页"
+  },
   "language": "语言"
 }

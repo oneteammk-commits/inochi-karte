@@ -236,8 +236,7 @@ export function RegistrationForm() {
         <form onSubmit={handleFormSubmit} noValidate className="block">
           <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:p-8">
             {activeStep === 0 && (
-              <StepBasic form={form} onChange={updateForm} error={stepError} />
-            )}
+<StepBasic form={form} onChange={updateForm} error={stepError} t={t} />            )}
             {activeStep === 1 && (
               <StepRegion form={form} onChange={updateForm} error={stepError} />
             )}
@@ -336,109 +335,112 @@ export function StepBasic({
   form,
   onChange,
   error,
+  t,
 }: {
   form: RegistrationFormState
   onChange: (p: Partial<RegistrationFormState>) => void
   error: string | null
+  t: (key: string) => string
 }) {
   return (
     <section aria-labelledby="step-basic-title">
       <h2 id="step-basic-title" className="mb-6 text-lg font-bold text-stone-900">
-        基本情報
+        {t('register.basicTitle')}
       </h2>
       <FieldError message={error} />
       <div className="space-y-5">
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">お名前（フルネーム）</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelName')}</span>
           <input
             type="text"
             autoComplete="name"
             value={form.fullName}
             onChange={(e) => onChange({ fullName: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-            placeholder="山田 太郎"
+            placeholder={t('register.placeholderName')}
           />
-       <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-stone-700">フリガナ</span>
-            <input
-              type="text"
-              value={form.furigana}
-              onChange={(e) => onChange({ furigana: e.target.value })}
-              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              placeholder="ヤマダ タロウ"
-            />
-          </label>
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">生年月日</span><div className="flex gap-2 items-center">
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={4}
-                placeholder="1970"
-                value={form.birthDate.split('年')[0] ?? ''}
-                onChange={(e) => {
-                  const y = e.target.value
-                  const rest = form.birthDate.includes('年') ? form.birthDate.split('年')[1] : '月日'
-                  onChange({ birthDate: `${y}年${rest}` })
-                }}
-                className="w-24 rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              />
-              <span>年</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={2}
-                placeholder="1"
-                value={form.birthDate.includes('年') ? (form.birthDate.split('年')[1]?.split('月')[0] ?? '') : ''}
-                onChange={(e) => {
-                  const m = e.target.value
-                  const y = form.birthDate.split('年')[0] ?? ''
-                  const d = form.birthDate.includes('月') ? (form.birthDate.split('月')[1]?.replace('日','') ?? '') : ''
-                  onChange({ birthDate: `${y}年${m}月${d}日` })
-                }}
-                className="w-16 rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              />
-              <span>月</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={2}
-                placeholder="1"
-                value={form.birthDate.includes('月') ? (form.birthDate.split('月')[1]?.replace('日','') ?? '') : ''}
-                onChange={(e) => {
-                  const d = e.target.value
-                  const y = form.birthDate.split('年')[0] ?? ''
-                  const m = form.birthDate.includes('年') ? (form.birthDate.split('年')[1]?.split('月')[0] ?? '') : ''
-                  onChange({ birthDate: `${y}年${m}月${d}日` })
-                }}
-                className="w-16 rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              />
-              <span>日</span>
-            </div>
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">
-            緊急連絡先のお名前
-          </span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelFurigana')}</span>
+          <input
+            type="text"
+            value={form.furigana}
+            onChange={(e) => onChange({ furigana: e.target.value })}
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            placeholder={t('register.placeholderFurigana')}
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelBirthDate')}</span>
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={4}
+              placeholder={t('register.placeholderYear')}
+              value={form.birthDate.split('年')[0] ?? ''}
+              onChange={(e) => {
+                const y = e.target.value
+                const rest = form.birthDate.includes('年') ? form.birthDate.split('年')[1] : '月日'
+                onChange({ birthDate: `${y}年${rest}` })
+              }}
+              className="w-24 rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            />
+            <span>{t('register.unitYear')}</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={2}
+              placeholder={t('register.placeholderMonth')}
+              value={form.birthDate.includes('年') ? (form.birthDate.split('年')[1]?.split('月')[0] ?? '') : ''}
+              onChange={(e) => {
+                const m = e.target.value
+                const y = form.birthDate.split('年')[0] ?? ''
+                const d = form.birthDate.includes('月') ? (form.birthDate.split('月')[1]?.replace('日','') ?? '') : ''
+                onChange({ birthDate: `${y}年${m}月${d}日` })
+              }}
+              className="w-16 rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            />
+            <span>{t('register.unitMonth')}</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={2}
+              placeholder={t('register.placeholderDay')}
+              value={form.birthDate.includes('月') ? (form.birthDate.split('月')[1]?.replace('日','') ?? '') : ''}
+              onChange={(e) => {
+                const d = e.target.value
+                const y = form.birthDate.split('年')[0] ?? ''
+                const m = form.birthDate.includes('年') ? (form.birthDate.split('年')[1]?.split('月')[0] ?? '') : ''
+                onChange({ birthDate: `${y}年${m}月${d}日` })
+              }}
+              className="w-16 rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            />
+            <span>{t('register.unitDay')}</span>
+          </div>
+        </label>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelEmergencyName')}</span>
           <input
             type="text"
             value={form.emergencyContactName}
             onChange={(e) => onChange({ emergencyContactName: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-           placeholder="山田 花子（続柄：配偶者）"
-            />
+            placeholder={t('register.placeholderEmergencyName')}
+          />
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">緊急連絡先のフリガナ</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelEmergencyFurigana')}</span>
           <input
             type="text"
             value={form.emergencyContactFurigana}
             onChange={(e) => onChange({ emergencyContactFurigana: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-            placeholder="ヤマダ ハナコ"
+            placeholder={t('register.placeholderEmergencyFurigana')}
           />
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">緊急連絡先の電話番号</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelEmergencyPhone')}</span>
           <input
             type="tel"
             inputMode="tel"
@@ -446,14 +448,13 @@ export function StepBasic({
             value={form.emergencyContactPhone}
             onChange={(e) => onChange({ emergencyContactPhone: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-            placeholder="090-1234-5678"
+            placeholder={t('register.placeholderEmergencyPhone')}
           />
         </label>
       </div>
     </section>
   )
 }
-
 export function StepRegion({
   form,
   onChange,

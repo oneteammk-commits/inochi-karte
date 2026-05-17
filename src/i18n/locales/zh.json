@@ -128,7 +128,13 @@
     "optionalMultiple": "(可多张)",
     "tapToSelectImage": "点击选择图片(可多张)",
     "altMedicineImage": "药物图片 {{num}}",
-"buttonAddMedicine": "+ 添加药物"
+"buttonAddMedicine": "+ 添加药物",
+    "editPasswordTitle": "编辑密码",
+    "editPasswordDescription": "此密码用于以后修改您的注册信息。",
+    "editPasswordRule1": "请设置4位数字",
+    "editPasswordRule2": "请务必记下,以免忘记",
+    "editPasswordRule3": "请告知家人等可能需要修改您信息的人",
+    "editPasswordLabel": "编辑密码（4位数字)"
   },
   "language": "语言"
 }

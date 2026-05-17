@@ -35,5 +35,27 @@
     "buttonEdit": "✏️ Edit Information",
     "buttonHome": "🏠 Back to Home"
   },
+  "edit": {
+    "title": "Edit Card",
+    "subtitle": "You can edit and save your information",
+    "loading": "Loading...",
+    "notFound": "Data not found",
+    "passwordPrompt": "Please enter your edit password",
+    "passwordPlaceholder": "4-digit number",
+    "passwordSubmit": "Verify",
+    "passwordCancel": "Cancel",
+    "passwordError": "Incorrect password",
+    "step1": "Basic Info",
+    "step2": "Area / Facility",
+    "step3": "Allergies / Conditions",
+    "step4": "Medications",
+    "buttonNext": "Next",
+    "buttonBack": "Back",
+    "buttonSave": "Save Changes",
+    "saving": "Saving...",
+    "savedTitle": "Changes Saved",
+    "savedMessage": "Updated {{name}}'s card.",
+    "buttonViewCard": "Back to Card View"
+  },
   "language": "Language"
 }

@@ -16,5 +16,24 @@
     "callContactSub": "နံပါတ်",
     "callContactNotSet": "မသတ်မှတ်ရသေး"
   },
+  "view": {
+    "headerTitle": "အရေးပေါ်အချက်အလက်ကတ်",
+    "headerSubtitle": "အသက်ဆေးမှတ်တမ်း",
+    "loading": "ဖွင့်နေသည်...",
+    "notFound": "အချက်အလက်ရှာမတွေ့ပါ",
+    "basicInfo": "အခြေခံအချက်အလက်",
+    "birthDate": "မွေးနေ့",
+    "emergencyContact": "အရေးပေါ်ဆက်သွယ်ရန်",
+    "allergies": "ဓာတ်မတည့်ခြင်း",
+    "diseases": "ရောဂါရာဇဝင်",
+    "medications": "လက်ရှိသောက်နေသောဆေး",
+    "dailyNotes": "မှတ်ချက်",
+    "facility": "ဆေးခန်း·ဆေးရုံ",
+    "noRegistration": "မှတ်ပုံတင်ထားခြင်းမရှိ",
+    "noPhoto": "ဓာတ်ပုံမရှိ",
+    "other": "အခြား",
+    "buttonEdit": "✏️ အကြောင်းအရာပြောင်းရန်",
+    "buttonHome": "🏠 ပင်မစာမျက်နှာသို့ပြန်ရန်"
+  },
   "language": "ဘာသာစကား"
 }

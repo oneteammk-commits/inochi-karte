@@ -107,6 +107,14 @@
     "placeholderFacilityName": "可不填写,直接进入下一步",
     "labelFacilityType": "居住类型",
     "labelOtherFacility": "请输入其他信息",
-    "placeholderOtherFacility": "例:自宅、团体家屋等"
-  },  "language": "语言"
+"placeholderOtherFacility": "例:自宅、团体家屋等",
+    "medicalTagsTitle": "过敏·持续病症",
+    "medicalTagsSubtitle": "请点击选择适用项。可在自由填写栏补充说明。",
+    "tagsAllergyTitle": "过敏",
+    "labelOtherFreeInput": "其他(自由填写)",
+    "placeholderAllergyOther": "标签中没有的内容、检查结果、禁忌等补充",
+    "tagsChronicTitle": "持续病症·既往史",
+    "placeholderChronicOther": "标签中没有的病名、治疗情况等补充",
+    "labelDailyNotes": "希望在日常生活中传达的事项",
+    "placeholderDailyNotes": "吞咽注意、轮椅使用、沟通方式等"  },  "language": "语言"
 }

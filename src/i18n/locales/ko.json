@@ -128,7 +128,13 @@
     "optionalMultiple": "(여러 장 가능)",
     "tapToSelectImage": "탭하여 이미지 선택 (여러 장)",
     "altMedicineImage": "약 이미지 {{num}}",
-   "buttonAddMedicine": "+ 약 추가"
+   "buttonAddMedicine": "+ 약 추가",
+    "editPasswordTitle": "편집용 비밀번호",
+    "editPasswordDescription": "등록 내용을 나중에 변경하기 위해 필요한 비밀번호입니다.",
+    "editPasswordRule1": "숫자 4자리로 설정해 주세요",
+    "editPasswordRule2": "잊지 않도록 반드시 메모해 두세요",
+    "editPasswordRule3": "가족 등 등록 내용을 변경할 수 있는 분에게 알려주세요",
+    "editPasswordLabel": "편집용 비밀번호（숫자 4자리)"
   },
   "language": "언어"
 }

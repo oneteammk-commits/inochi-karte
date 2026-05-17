@@ -128,7 +128,7 @@
     "optionalMultiple": "(여러 장 가능)",
     "tapToSelectImage": "탭하여 이미지 선택 (여러 장)",
     "altMedicineImage": "약 이미지 {{num}}",
-    "buttonAddMedicine":"buttonAddMedicine": "+ 약 추가"
+   "buttonAddMedicine": "+ 약 추가"
   },
   "language": "언어"
-} "+ 약 추가"}
+}

@@ -299,8 +299,7 @@ export function EditPage({ id }: { id: string }) {
             {editStep === 0 && (
 <StepBasic form={form} onChange={updateForm} error={stepError} t={t} />            )}
             {editStep === 1 && (
-              <StepRegion form={form} onChange={updateForm} error={stepError} />
-            )}
+<StepRegion form={form} onChange={updateForm} error={stepError} t={t} />            )}
             {editStep === 2 && (
               <StepMedicalTags form={form} onChange={updateForm} error={stepError} />
             )}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { verifyPassword } from '../lib/passwordHash'
 import { updateRegistration } from '../lib/updateRegistration'
@@ -9,8 +10,6 @@ import {
   StepMedicalTags,
   StepMedications,
 } from './RegistrationForm'
-
-const STEP_LABELS_EDIT = ['基本情報', '地域・施設', 'アレルギー・持病', '投薬'] as const
 
 function createEmptyMedicationRow(): MedicationRow {
   return {
@@ -61,6 +60,7 @@ function dataToForm(data: any): RegistrationFormState {
 }
 
 export function EditPage({ id }: { id: string }) {
+  const { t, i18n } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [storedHash, setStoredHash] = useState<string | null>(null)
@@ -69,12 +69,20 @@ export function EditPage({ id }: { id: string }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [isChecking, setIsChecking] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
 
   const [form, setForm] = useState<RegistrationFormState | null>(null)
   const [editStep, setEditStep] = useState(0)
   const [stepError, setStepError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
+
+  const STEP_LABELS_EDIT = [t('edit.step1'), t('edit.step2'), t('edit.step3'), t('edit.step4')]
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng)
+    setLangOpen(false)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,7 +92,7 @@ export function EditPage({ id }: { id: string }) {
         .eq('id', id)
         .single()
       if (error || !data) {
-        setError('データが見つかりませんでした')
+        setError(t('edit.notFound'))
       } else {
         setStoredHash(data.edit_password_hash)
         setName(data.name)
@@ -93,17 +101,17 @@ export function EditPage({ id }: { id: string }) {
       setLoading(false)
     }
     fetchData()
-  }, [id])
+  }, [id, t])
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthError(null)
     if (!/^\d{4}$/.test(inputPassword)) {
-      setAuthError('編集用パスワードは数字4桁です。')
+      setAuthError(t('edit.passwordError'))
       return
     }
     if (!storedHash) {
-      setAuthError('このカルテにはパスワードが設定されていません。')
+      setAuthError(t('edit.passwordError'))
       return
     }
     setIsChecking(true)
@@ -112,10 +120,10 @@ export function EditPage({ id }: { id: string }) {
       if (ok) {
         setIsAuthenticated(true)
       } else {
-        setAuthError('パスワードが正しくありません。')
+        setAuthError(t('edit.passwordError'))
       }
     } catch {
-      setAuthError('照合中にエラーが発生しました。')
+      setAuthError(t('edit.passwordError'))
     } finally {
       setIsChecking(false)
     }
@@ -158,7 +166,7 @@ export function EditPage({ id }: { id: string }) {
       new Promise<string>((resolve, reject) => {
         const reader = new FileReader()
         reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '')
-        reader.onerror = () => reject(new Error('画像の読み込みに失敗しました。'))
+        reader.onerror = () => reject(new Error('image read failed'))
         reader.readAsDataURL(file)
       })
 
@@ -175,7 +183,7 @@ export function EditPage({ id }: { id: string }) {
           : prev
       )
     } catch {
-      setStepError('画像の読み込みに失敗しました。')
+      setStepError('error')
     }
   }
 
@@ -212,16 +220,32 @@ export function EditPage({ id }: { id: string }) {
       await updateRegistration(id, form)
       setIsSaved(true)
     } catch (e) {
-      setStepError(e instanceof Error ? e.message : '更新に失敗しました。')
+      setStepError(e instanceof Error ? e.message : 'error')
     } finally {
       setIsSaving(false)
     }
   }
 
+  const LanguageSwitcher = () => (
+    <div className="fixed top-2 right-2 z-50">
+      <button onClick={() => setLangOpen(!langOpen)} className="bg-white border-2 border-red-700 text-red-700 font-bold px-3 py-2 rounded-xl shadow-md text-sm">🌍 {t('language')}</button>
+      {langOpen && (
+        <div className="mt-2 bg-white border-2 border-stone-300 rounded-xl shadow-lg overflow-hidden">
+          <button onClick={() => changeLanguage('ja')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 border-b border-stone-200 text-black font-bold">日本語</button>
+          <button onClick={() => changeLanguage('en')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 border-b border-stone-200 text-black font-bold">English</button>
+          <button onClick={() => changeLanguage('zh')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 border-b border-stone-200 text-black font-bold">中文</button>
+          <button onClick={() => changeLanguage('ko')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 border-b border-stone-200 text-black font-bold">한국어</button>
+          <button onClick={() => changeLanguage('my')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 text-black font-bold">မြန်မာ</button>
+        </div>
+      )}
+    </div>
+  )
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>読み込み中...</p>
+        <LanguageSwitcher />
+        <p>{t('edit.loading')}</p>
       </div>
     )
   }
@@ -229,6 +253,7 @@ export function EditPage({ id }: { id: string }) {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <LanguageSwitcher />
         <p className="text-red-600">{error}</p>
       </div>
     )
@@ -238,10 +263,11 @@ export function EditPage({ id }: { id: string }) {
     const backUrl = "/card/" + id
     return (
       <div className="min-h-screen bg-stone-100 p-4">
+        <LanguageSwitcher />
         <div className="max-w-lg mx-auto bg-white rounded-2xl shadow p-6 mt-8 text-center">
-          <h1 className="text-2xl font-bold text-green-700 mb-4">変更を保存しました</h1>
-          <p className="mb-6 text-stone-700">{name} さんのカルテを更新しました。</p>
-          <a href={backUrl} className="block w-full bg-red-700 hover:bg-red-800 text-white text-center py-3 rounded-xl font-semibold">カルテ表示に戻る</a>
+          <h1 className="text-2xl font-bold text-green-700 mb-4">{t('edit.savedTitle')}</h1>
+          <p className="mb-6 text-stone-700">{t('edit.savedMessage', { name })}</p>
+          <a href={backUrl} className="block w-full bg-red-700 hover:bg-red-800 text-white text-center py-3 rounded-xl font-semibold">{t('edit.buttonViewCard')}</a>
         </div>
       </div>
     )
@@ -250,16 +276,17 @@ export function EditPage({ id }: { id: string }) {
   if (isAuthenticated && form) {
     return (
       <div className="min-h-screen bg-stone-100 pb-16 pt-6">
+        <LanguageSwitcher />
         <div className="mx-auto max-w-lg px-4">
-          <header className="mb-6 text-center">
-            <p className="text-sm font-medium text-red-700">登録内容の変更</p>
-            <h1 className="mt-1 text-2xl font-bold text-stone-900">命のカルテ</h1>
-            <p className="mt-2 text-sm text-stone-600">{name} さんのカルテを編集中</p>
+          <header className="mb-6 text-center mt-12">
+            <p className="text-sm font-medium text-red-700">{t('edit.title')}</p>
+            <h1 className="mt-1 text-2xl font-bold text-stone-900">{t('home.title')}</h1>
+            <p className="mt-2 text-sm text-stone-600">{t('edit.subtitle')}</p>
           </header>
 
           <div className="mb-6 flex justify-between items-center">
             {STEP_LABELS_EDIT.map((label, i) => (
-              <div key={label} className="flex-1 text-center">
+              <div key={i} className="flex-1 text-center">
                 <div className={"mx-auto w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold " + (i === editStep ? "bg-red-700 text-white" : i < editStep ? "bg-stone-400 text-white" : "bg-stone-200 text-stone-500")}>
                   {i + 1}
                 </div>
@@ -298,7 +325,7 @@ export function EditPage({ id }: { id: string }) {
               disabled={editStep === 0 || isSaving}
               className="flex-1 rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-40"
             >
-              戻る
+              {t('edit.buttonBack')}
             </button>
             {editStep < STEP_LABELS_EDIT.length - 1 ? (
               <button
@@ -306,7 +333,7 @@ export function EditPage({ id }: { id: string }) {
                 onClick={goNext}
                 className="flex-1 rounded-xl bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800"
               >
-                次へ
+                {t('edit.buttonNext')}
               </button>
             ) : (
               <button
@@ -315,7 +342,7 @@ export function EditPage({ id }: { id: string }) {
                 disabled={isSaving}
                 className="flex-1 rounded-xl bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
               >
-                {isSaving ? '保存中...' : '保存する'}
+                {isSaving ? t('edit.saving') : t('edit.buttonSave')}
               </button>
             )}
           </nav>
@@ -328,17 +355,18 @@ export function EditPage({ id }: { id: string }) {
 
   return (
     <div className="min-h-screen bg-stone-100 p-4">
+      <LanguageSwitcher />
       <div className="max-w-lg mx-auto">
-        <header className="mb-8 text-center mt-6">
-          <p className="text-sm font-medium text-red-700">登録内容の変更</p>
-          <h1 className="mt-1 text-2xl font-bold text-stone-900">命のカルテ</h1>
+        <header className="mb-8 text-center mt-12">
+          <p className="text-sm font-medium text-red-700">{t('edit.title')}</p>
+          <h1 className="mt-1 text-2xl font-bold text-stone-900">{t('home.title')}</h1>
         </header>
 
         <form onSubmit={handleVerify} className="bg-white rounded-2xl shadow p-6">
-          <h2 className="text-lg font-bold text-stone-900 mb-4">編集用パスワードを入力してください</h2>
+          <h2 className="text-lg font-bold text-stone-900 mb-4">{t('edit.passwordPrompt')}</h2>
 
           <p className="text-sm text-stone-600 mb-4">
-            <span className="font-semibold">{name}</span> さんのカルテです。
+            <span className="font-semibold">{name}</span>
           </p>
 
           {authError && (
@@ -346,7 +374,7 @@ export function EditPage({ id }: { id: string }) {
           )}
 
           <label className="block mb-6">
-            <span className="mb-1.5 block text-sm font-medium text-stone-700">編集用パスワード(数字4桁)</span>
+            <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('edit.passwordPlaceholder')}</span>
             <input
               type="password"
               inputMode="numeric"
@@ -360,13 +388,13 @@ export function EditPage({ id }: { id: string }) {
           </label>
 
           <div className="flex gap-3">
-            <a href={cancelUrl} className="flex-1 text-center rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50">キャンセル</a>
+            <a href={cancelUrl} className="flex-1 text-center rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50">{t('edit.passwordCancel')}</a>
             <button
               type="submit"
               disabled={isChecking}
               className="flex-1 rounded-xl bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
             >
-              {isChecking ? '確認中...' : '認証する'}
+              {isChecking ? t('edit.loading') : t('edit.passwordSubmit')}
             </button>
           </div>
         </form>

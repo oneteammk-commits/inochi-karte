@@ -116,5 +116,16 @@
     "tagsChronicTitle": "持续病症·既往史",
     "placeholderChronicOther": "标签中没有的病名、治疗情况等补充",
     "labelDailyNotes": "希望在日常生活中传达的事项",
-    "placeholderDailyNotes": "吞咽注意、轮椅使用、沟通方式等"  },  "language": "语言"
-}
+"placeholderDailyNotes": "吞咽注意、轮椅使用、沟通方式等",
+    "medicationsTitle": "用药信息",
+    "medicationsSubtitle": "可以输入药物名称和图片,也可以拍摄用药记录簿等页面进行图片登记。",
+    "medicineLabel": "药物 {{num}}",
+    "buttonDeleteRow": "删除此行",
+    "labelMedicineName": "药品名·用量备注",
+    "placeholderMedicineName": "例:氨氯地平 5mg 早晨1片",
+    "medicineNote": "用药记录簿上记载的信息也可以",
+    "labelMedicinePhotos": "药物、用药记录簿、医疗·福祉手册等的照片",
+    "optionalMultiple": "(可多张)",
+    "tapToSelectImage": "点击选择图片(可多张)",
+    "altMedicineImage": "药物图片 {{num}}",
+    "buttonAddMedicine": "+ 添加药物"}

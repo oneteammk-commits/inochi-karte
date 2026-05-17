@@ -35,5 +35,27 @@
     "buttonEdit": "✏️ 内容を変更する",
     "buttonHome": "🏠 ホームに戻る"
   },
+  "edit": {
+    "title": "カルテを編集",
+    "subtitle": "内容を変更して保存できます",
+    "loading": "読み込み中...",
+    "notFound": "データが見つかりませんでした",
+    "passwordPrompt": "編集パスワードを入力してください",
+    "passwordPlaceholder": "数字4桁",
+    "passwordSubmit": "認証する",
+    "passwordCancel": "キャンセル",
+    "passwordError": "パスワードが違います",
+    "step1": "基本情報",
+    "step2": "地域・施設",
+    "step3": "アレルギー・持病",
+    "step4": "投薬",
+    "buttonNext": "次へ",
+    "buttonBack": "戻る",
+    "buttonSave": "変更を保存する",
+    "saving": "保存中...",
+    "savedTitle": "変更を保存しました",
+    "savedMessage": "{{name}} さんのカルテを更新しました。",
+    "buttonViewCard": "カルテ表示に戻る"
+  },
   "language": "言語"
 }

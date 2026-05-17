@@ -128,7 +128,13 @@
     "optionalMultiple": "(multiple allowed)",
     "tapToSelectImage": "Tap to select images (multiple)",
     "altMedicineImage": "Medicine image {{num}}",
-"buttonAddMedicine": "+ Add Medicine"
+"buttonAddMedicine": "+ Add Medicine",
+    "editPasswordTitle": "Edit Password",
+    "editPasswordDescription": "This password lets you update your registration later.",
+    "editPasswordRule1": "Set a 4-digit number",
+    "editPasswordRule2": "Be sure to write it down so you don't forget",
+    "editPasswordRule3": "Share it with family members who may need to update your info",
+    "editPasswordLabel": "Edit Password (4 digits)"
   },
   "language": "Language"
 }

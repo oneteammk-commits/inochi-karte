@@ -128,7 +128,13 @@
     "optionalMultiple": "(များစွာဖြစ်နိုင်)",
     "tapToSelectImage": "ပုံများရွေးရန် တိုက်ပ်နှိပ်ပါ (များစွာ)",
     "altMedicineImage": "ဆေးပုံ {{num}}",
-"buttonAddMedicine": "+ ဆေးထည့်ပါ"
+"buttonAddMedicine": "+ ဆေးထည့်ပါ",
+    "editPasswordTitle": "ပြင်ဆင်ရန် စကားဝှက်",
+    "editPasswordDescription": "မှတ်ပုံတင်ထားသော အချက်အလက်များကို နောက်မှ ပြောင်းလဲရန် လိုအပ်သော စကားဝှက်ဖြစ်သည်။",
+    "editPasswordRule1": "ဂဏန်း ၄ လုံးဖြင့် သတ်မှတ်ပါ",
+    "editPasswordRule2": "မမေ့ရန် မှတ်သားထားပါ",
+    "editPasswordRule3": "မှတ်ပုံတင်အချက်အလက်ပြောင်းလဲလိုသူ မိသားစုကို ပြောကြားထားပါ",
+    "editPasswordLabel": "ပြင်ဆင်ရန် စကားဝှက်（ဂဏန်း ၄ လုံး)"
   },
   "language": "ဘာသာစကား"
 }

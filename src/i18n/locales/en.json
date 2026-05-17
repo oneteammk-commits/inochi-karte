@@ -94,6 +94,19 @@
     "labelEmergencyFurigana": "Emergency Contact Phonetic",
     "placeholderEmergencyFurigana": "JANE SMITH",
     "labelEmergencyPhone": "Emergency Contact Phone",
-    "placeholderEmergencyPhone": "090-1234-5678"  },
-  "language": "Language"
+"placeholderEmergencyPhone": "090-1234-5678",
+    "regionTitle": "Current Residence Information",
+    "labelPostalCode": "Postal Code",
+    "placeholderPostalCode": "Example: 123-4567",
+    "labelPrefecture": "Prefecture",
+    "selectPlaceholder": "Please select",
+    "labelCity": "Address",
+    "placeholderCity": "City, Ward, District",
+    "labelFacilityName": "Facility Name",
+    "optional": "(optional)",
+    "placeholderFacilityName": "You can proceed without filling this",
+    "labelFacilityType": "Residence Type",
+    "labelOtherFacility": "Please enter additional information",
+    "placeholderOtherFacility": "Example: Home, Group Home, etc."
+  },  "language": "Language"
 }

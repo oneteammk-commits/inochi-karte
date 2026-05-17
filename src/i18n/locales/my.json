@@ -107,6 +107,14 @@
     "placeholderFacilityName": "မဖြည့်ဘဲ ဆက်လက်လုပ်ဆောင်နိုင်ပါသည်",
     "labelFacilityType": "နေထိုင်မှုအမျိုးအစား",
     "labelOtherFacility": "အခြားအချက်အလက် ဖြည့်စွက်ပါ",
-    "placeholderOtherFacility": "ဥပမာ: အိမ်၊ အုပ်စုလိုက်အိမ်ယာ စသည်"
-  },  "language": "ဘာသာစကား"
+"placeholderOtherFacility": "ဥပမာ: အိမ်၊ အုပ်စုလိုက်အိမ်ယာ စသည်",
+    "medicalTagsTitle": "ဓာတ်မတည့်မှု·ရောဂါအနာတရ",
+    "medicalTagsSubtitle": "သက်ဆိုင်ရာများကို တို့ပြ၍ ရွေးချယ်ပါ။ လွတ်လပ်စွာဖြည့်စွက်နိုင်ပါသည်။",
+    "tagsAllergyTitle": "ဓာတ်မတည့်မှု",
+    "labelOtherFreeInput": "အခြား (လွတ်လပ်စွာဖြည့်ပါ)",
+    "placeholderAllergyOther": "tag တွင်မပါသောအကြောင်းအရာ၊ စစ်ဆေးရလဒ်၊ ရှောင်ရှားရန် စသည်",
+    "tagsChronicTitle": "နာတာရှည်ရောဂါ·ရောဂါမှတ်တမ်း",
+    "placeholderChronicOther": "tag တွင်မပါသောရောဂါအမည်၊ ကုသမှုအခြေအနေ စသည်",
+    "labelDailyNotes": "နေ့စဉ်ဘဝတွင် ပြောကြားလိုသောအချက်",
+    "placeholderDailyNotes": "မျိုချမှုသတိပြုရန်၊ ဘီးတပ်ကုလားထိုင်အသုံးပြုခြင်း၊ ဆက်သွယ်ရေးနည်းလမ်း စသည်"  },  "language": "ဘာသာစကား"
 }

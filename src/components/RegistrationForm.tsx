@@ -535,8 +535,7 @@ export function StepRegion({
             <option value="">{t('register.selectPlaceholder')}</option>
             {FACILITY_TYPES.map((type) => (
               <option key={type} value={type}>
-                {type}
-              </option>
+{t(`facilityTypes.${type}`)}              </option>
             ))}
           </select>
         </label>

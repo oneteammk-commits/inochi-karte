@@ -76,27 +76,7 @@ function validateRegistrationStep(s: number, data: RegistrationFormState, t: (ke
     default:
       return null
   }
-} case 1: {
-      if (!data.prefecture) return '都道府県を選択してください。'
-      if (!data.city.trim()) return '住所を入力してください。'
-      if (!data.facilityType) return '居住種別を選択してください。'
-      return null
-    }
-    case 2:
-      return null
-    case 3:
-      return null
-      case 4: {
-        if (!data.editPassword) return '編集用パスワードを入力してください。'
-        if (!/^\d{4}$/.test(data.editPassword)) return '編集用パスワードは数字4桁で入力してください。'
-        return null
-      }
-    default:
-      return null
-  }
-}
-
-type WizardState = {
+}type WizardState = {
   step: number
   registrationId: string | null
 }

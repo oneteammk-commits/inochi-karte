@@ -86,8 +86,7 @@ export function ViewPage({ id }: { id: string }) {
             <h2 className="text-lg font-bold text-orange-700 border-b-2 border-orange-200 pb-2 mb-3">⚠️ {t('view.allergies')}</h2>
             <div className="flex flex-wrap gap-2 mb-2">
               {data.allergies?.map((a: string) => (
-                <span key={a} className="bg-orange-200 text-orange-900 px-3 py-1 rounded-full text-base font-bold">{a}</span>
-              ))}
+<span key={a} className="bg-orange-200 text-orange-900 px-3 py-1 rounded-full text-base font-bold">{t(`allergyTags.${a}`)}</span>              ))}
             </div>
             {data.allergy_other && <p className="text-base text-black mt-2">{t('view.other')}: {data.allergy_other}</p>}
           </div>
@@ -98,8 +97,7 @@ export function ViewPage({ id }: { id: string }) {
             <h2 className="text-lg font-bold text-green-700 border-b-2 border-green-200 pb-2 mb-3">🏥 {t('view.diseases')}</h2>
             <div className="flex flex-wrap gap-2 mb-2">
               {data.diseases?.map((d: string) => (
-                <span key={d} className="bg-green-200 text-green-900 px-3 py-1 rounded-full text-base font-bold">{d}</span>
-              ))}
+<span key={d} className="bg-green-200 text-green-900 px-3 py-1 rounded-full text-base font-bold">{t(`chronicTags.${d}`)}</span>              ))}
             </div>
             {data.disease_other && <p className="text-base text-black mt-2">{t('view.other')}: {data.disease_other}</p>}
           </div>

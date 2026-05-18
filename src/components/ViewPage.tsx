@@ -135,8 +135,7 @@ export function ViewPage({ id }: { id: string }) {
             <h2 className="text-lg font-bold text-stone-700 border-b-2 border-stone-200 pb-2 mb-3">🏨 {t('view.facility')}</h2>
             {data.facility_name && <p className="text-base font-bold text-black">{data.facility_name}</p>}
 {data.facility_type && <p className="text-base text-stone-700">{t(`facilityTypes.${data.facility_type}`)}</p>}            {data.postal_code && <p className="text-sm text-stone-600 mt-1">〒{data.postal_code}</p>}
-            {(data.prefecture || data.city) && <p className="text-sm text-stone-600">{data.prefecture} {data.city}</p>}
-          </div>
+{(data.prefecture || data.city) && <p className="text-sm text-stone-600">{data.prefecture && t(`prefectures.${data.prefecture}`)} {data.city}</p>}          </div>
         )}
 
         <div className="mt-6 mb-4">

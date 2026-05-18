@@ -134,5 +134,13 @@
     "editPasswordRule3": "Share it with family members who may need to update your info",
     "editPasswordLabel": "Edit Password (4 digits)"
   },
-  "language": "Language"
-}
+"facilityTypes": {
+    "病院・診療所": "Hospital / Clinic",
+    "介護老人保健施設": "Geriatric Health Care Facility",
+    "特別養護老人ホーム": "Special Nursing Home",
+    "デイサービス・通所介護": "Day Care Service",
+    "グループホーム": "Group Home",
+    "学校・保育・こども園": "School / Childcare",
+    "その他": "Other"
+  },
+  "language": "Language"}

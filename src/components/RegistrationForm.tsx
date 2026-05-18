@@ -558,13 +558,15 @@ export function StepRegion({
   title,
   tags,
   selected,
-  onToggle,
-}: {
+onToggle,
+  t,
+  tKey,}: {
   title: string
   tags: readonly string[]
   selected: string[]
-  onToggle: (tag: string) => void
-}) {
+onToggle: (tag: string) => void
+  t: (key: string) => string
+  tKey: string}) {
   return (
     <div>
     <p className="mb-2 text-lg font-bold text-stone-700">{title}</p>
@@ -582,8 +584,7 @@ export function StepRegion({
                   : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-300'
               }`}
             >
-              {tag}
-            </button>
+{t(`${tKey}.${tag}`)}            </button>
           )
         })}
       </div>
@@ -617,8 +618,9 @@ export function StepMedicalTags({
             title={t('register.tagsAllergyTitle')}
             tags={ALLERGY_TAGS}
             selected={form.allergyTags}
-            onToggle={(tag) => onChange({ allergyTags: toggleInList(form.allergyTags, tag) })}
-          />
+onToggle={(tag) => onChange({ allergyTags: toggleInList(form.allergyTags, tag) })}
+            t={t}
+            tKey="allergyTags"          />
           <label className="mt-4 block">
             <span className="mb-1.5 block text-sm font-medium text-stone-700">
               {t('register.labelOtherFreeInput')}
@@ -637,8 +639,9 @@ export function StepMedicalTags({
             title={t('register.tagsChronicTitle')}
             tags={CHRONIC_TAGS}
             selected={form.chronicTags}
-            onToggle={(tag) => onChange({ chronicTags: toggleInList(form.chronicTags, tag) })}
-          />
+onToggle={(tag) => onChange({ chronicTags: toggleInList(form.chronicTags, tag) })}
+            t={t}
+            tKey="chronicTags"          />
           <label className="mt-4 block">
             <span className="mb-1.5 block text-sm font-medium text-stone-700">
               {t('register.labelOtherFreeInput')}

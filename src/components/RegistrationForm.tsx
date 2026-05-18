@@ -111,8 +111,9 @@ export function RegistrationForm() {
     if (submitLockRef.current) return
     const currentStep = wizardRef.current.step
     const data = formRef.current
-const err = validateRegistrationStep(currentStep, data, t)
-    setStepError(err)    if (err) return
+    const err = validateRegistrationStep(currentStep, data, t)
+    setStepError(err)
+    if (err) return
     setStepError(null)
 
     if (currentStep === 4) {

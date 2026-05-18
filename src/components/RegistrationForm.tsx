@@ -2,8 +2,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
 import {
-  ALLERGY_TAG
-  CHRONIC_TAGS,
+ALLERGY_TAGS,  CHRONIC_TAGS,
   FACILITY_TYPES,
   PREFECTURES,
   STEP_LABELS,

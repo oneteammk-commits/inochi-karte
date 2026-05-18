@@ -143,4 +143,30 @@
     "学校・保育・こども園": "School / Childcare",
     "その他": "Other"
   },
-  "language": "Language"}
+"allergyTags": {
+    "なし": "None",
+    "卵": "Egg",
+    "牛乳": "Milk",
+    "小麦": "Wheat",
+    "そば": "Buckwheat",
+    "落花生": "Peanut",
+    "エビ": "Shrimp",
+    "かに": "Crab",
+    "くるみ": "Walnut",
+    "キウイ・バナナ": "Kiwi / Banana",
+    "薬剤": "Medication",
+    "金属（ニッケル等）": "Metal (Nickel etc.)"
+  },
+  "chronicTags": {
+    "なし": "None",
+    "高血圧": "Hypertension",
+    "糖尿病": "Diabetes",
+    "心疾患": "Heart Disease",
+    "脳卒中既往": "History of Stroke",
+    "喘息": "Asthma",
+    "てんかん": "Epilepsy",
+    "腎臓病": "Kidney Disease",
+    "認知症": "Dementia",
+    "精神疾患": "Mental Illness"
+  },
+  "language": "Language"

@@ -498,8 +498,7 @@ export function StepRegion({
             <option value="">{t('register.selectPlaceholder')}</option>
             {PREFECTURES.map((p) => (
               <option key={p} value={p}>
-                {p}
-              </option>
+{t(`prefectures.${p}`)}              </option>
             ))}
           </select>
         </label>

@@ -103,6 +103,7 @@
     "labelCity": "Address",
     "placeholderCity": "City, Ward, District",
     "labelFacilityName": "Facility Name",
+    "labelFacilityType": "Residence Type",
     "optional": "(optional)",
 "placeholderFacilityName": "e.g. ABC Care Home",    "labelOtherFacility": "Please enter additional information",
 "placeholderOtherFacility": "Example: Home, Group Home, etc.",

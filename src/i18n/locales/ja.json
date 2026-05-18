@@ -103,6 +103,7 @@
     "labelCity": "住所",
     "placeholderCity": "〇〇市△△区",
     "labelFacilityName": "施設名",
+    "labelFacilityType": "居住種別",
     "optional": "(任意)",
 "placeholderFacilityName": "例: ○○ケアホーム",    "labelOtherFacility": "その他の情報を入力してください",
 "placeholderOtherFacility": "例:自宅、グループホームなど",

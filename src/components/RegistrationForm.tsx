@@ -2,7 +2,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
 import {
-  ALLERGY_TAGS,
+  ALLERGY_TAG
   CHRONIC_TAGS,
   FACILITY_TYPES,
   PREFECTURES,
@@ -50,16 +50,34 @@ function toggleInList(list: string[], value: string): string[] {
   return [...list, value]
 }
 
-function validateRegistrationStep(s: number, data: RegistrationFormState): string | null {
+function validateRegistrationStep(s: number, data: RegistrationFormState, t: (key: string) => string): string | null {
   switch (s) {
     case 0: {
-      if (!data.fullName.trim()) return 'お名前を入力してください。'
-      if (!data.birthDate) return '生年月日を選択してください。'
-      if (!data.emergencyContactName.trim()) return '緊急連絡先のお名前を入力してください。'
-      if (!data.emergencyContactPhone.trim()) return '緊急連絡先の電話番号を入力してください。'
+      if (!data.fullName.trim()) return t('register.errorName')
+      if (!data.birthDate) return t('register.errorBirthDate')
+      if (!data.emergencyContactName.trim()) return t('register.errorEmergencyName')
+      if (!data.emergencyContactPhone.trim()) return t('register.errorEmergencyPhone')
       return null
     }
     case 1: {
+      if (!data.prefecture) return t('register.errorPrefecture')
+      if (!data.city.trim()) return t('register.errorCity')
+      if (!data.facilityType) return t('register.errorFacilityType')
+      return null
+    }
+    case 2:
+      return null
+    case 3:
+      return null
+    case 4: {
+      if (!data.editPassword) return t('register.errorPassword')
+      if (!/^\d{4}$/.test(data.editPassword)) return t('register.errorPasswordFormat')
+      return null
+    }
+    default:
+      return null
+  }
+} case 1: {
       if (!data.prefecture) return '都道府県を選択してください。'
       if (!data.city.trim()) return '住所を入力してください。'
       if (!data.facilityType) return '居住種別を選択してください。'
@@ -114,8 +132,7 @@ export function RegistrationForm() {
     if (submitLockRef.current) return
     const currentStep = wizardRef.current.step
     const data = formRef.current
-    const err = validateRegistrationStep(currentStep, data)
-    setStepError(err)
+const err = validateRegistrationStep(currentStep, data, t)    setStepError(err)
     if (err) return
     setStepError(null)
 

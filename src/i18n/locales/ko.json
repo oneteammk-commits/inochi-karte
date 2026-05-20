@@ -17,7 +17,8 @@
     "callContactNotSet": "미설정"
   },
 "view": {
-    "qrCardTitle": "QR 코드",
+    "qrCardTitle": "QR ကုဒ်",
+    "qrCardInstruction": "အရေးပေါ်အခြေအနေတွင် ဤ QR ကုဒ်ကို ကယ်ဆယ်ရေးသမားများထံ ပြသပါ",    "qrCardTitle": "QR 코드",
     "qrCardInstruction": "응급 상황 시 구조자에게 이 QR 코드를 보여주세요",    "headerTitle": "응급 정보 카드",
     "headerSubtitle": "생명의 카르테",
     "loading": "로딩 중...",

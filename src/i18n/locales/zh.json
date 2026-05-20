@@ -16,8 +16,9 @@
     "callContactSub": "电话",
     "callContactNotSet": "未设定"
   },
-  "view": {
-    "headerTitle": "急救信息卡",
+"view": {
+    "qrCardTitle": "二维码",
+    "qrCardInstruction": "紧急时请向救助者出示此二维码",    "headerTitle": "急救信息卡",
     "headerSubtitle": "生命医疗卡",
     "loading": "加载中...",
     "notFound": "未找到数据",

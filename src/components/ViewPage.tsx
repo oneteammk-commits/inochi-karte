@@ -111,9 +111,8 @@ export function ViewPage({ id }: { id: string }) {
             medications.map((m: any, i: number) => (
               <div key={i} className="mb-4 border-b border-purple-100 pb-3 last:border-0">
                 <p className="font-bold text-lg text-black">{m.name}</p>
-{m.photoPreviews && m.photoPreviews.length > 0 ? (
-                  <div className="mt-2 grid grid-cols-2 gap-2">{m.photoPreviews.map((src: string, idx: number) => (<img key={idx} src={src} alt={m.name} className="w-full rounded-xl border-2 border-purple-200" />))}</div>
-                ) : (                  <p className="text-stone-500 text-sm">{t('view.noPhoto')}</p>
+{m.photo_urls && m.photo_urls.length > 0 ? (
+<div className="mt-2 grid grid-cols-2 gap-2">{m.photo_urls.map((src: string, idx: number) => (<img key={idx} src={src} alt={m.name} className="w-full rounded-xl border-2 border-purple-200" />))}</div>                ) : (                  <p className="text-stone-500 text-sm">{t('view.noPhoto')}</p>
                 )}
               </div>
             ))

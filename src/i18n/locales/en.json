@@ -16,8 +16,9 @@
     "callContactSub": "Number",
     "callContactNotSet": "Not set"
   },
-  "view": {
-    "headerTitle": "Emergency Info Card",
+"view": {
+    "qrCardTitle": "QR Code",
+    "qrCardInstruction": "Show this QR code to rescuers in an emergency",    "headerTitle": "Emergency Info Card",
     "headerSubtitle": "Medical ID Card",
     "loading": "Loading...",
     "notFound": "Data not found",

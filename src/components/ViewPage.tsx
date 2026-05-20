@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-
+import { QRCodeSVG } from 'qrcode.react'
 export function ViewPage({ id }: { id: string }) {
   const { t, i18n } = useTranslation()
   const [data, setData] = useState<any>(null)
@@ -136,8 +136,22 @@ export function ViewPage({ id }: { id: string }) {
 {(data.prefecture || data.city) && <p className="text-sm text-stone-600">{data.prefecture && t(`prefectures.${data.prefecture}`)} {data.city}</p>}          </div>
         )}
 
-        <div className="mt-6 mb-4">
-          <a href={"/edit/" + id} className="block w-full bg-stone-700 hover:bg-stone-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow">{t('view.buttonEdit')}</a>
+<div className="bg-white border-2 border-red-700 shadow-md p-5 mb-3 rounded-2xl">
+          <h2 className="text-lg font-bold text-red-700 text-center pb-2 mb-3">📱 {t('view.qrCardTitle')}</h2>
+          <div className="flex justify-center bg-stone-50 rounded-2xl p-4 mb-3">
+            <QRCodeSVG
+              value={`${window.location.origin}/card/${id}`}
+              size={200}
+              level="M"
+              includeMargin
+              fgColor="#C0392B"
+              bgColor="#ffffff"
+            />
+          </div>
+          <p className="text-sm text-stone-600 text-center">{t('view.qrCardInstruction')}</p>
+        </div>
+
+        <div className="mt-6 mb-4">          <a href={"/edit/" + id} className="block w-full bg-stone-700 hover:bg-stone-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow">{t('view.buttonEdit')}</a>
         </div>
 
         <div className="mt-4 mb-4">

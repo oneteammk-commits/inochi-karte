@@ -16,8 +16,9 @@
     "callContactSub": "နံပါတ်",
     "callContactNotSet": "မသတ်မှတ်ရသေး"
   },
-  "view": {
-    "headerTitle": "အရေးပေါ်အချက်အလက်ကတ်",
+"view": {
+    "qrCardTitle": "QR ကုဒ်",
+    "qrCardInstruction": "အရေးပေါ်အခြေအနေတွင် ဤ QR ကုဒ်ကို ကယ်ဆယ်ရေးသမားများထံ ပြသပါ",    "headerTitle": "အရေးပေါ်အချက်အလက်ကတ်",
     "headerSubtitle": "အသက်ဆေးမှတ်တမ်း",
     "loading": "ဖွင့်နေသည်...",
     "notFound": "အချက်အလက်ရှာမတွေ့ပါ",

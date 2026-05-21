@@ -92,7 +92,7 @@
     "placeholderEmergencyName": "မစန်း (အိမ်ထောင်ဖက်)",
   "labelEmergencyFurigana": "အရေးပေါ်ဆက်သွယ်ရန် အသံထွက်","placeholderEmergencyFurigana": "မမြ",    "labelEmergencyPhone": "အရေးပေါ်ဆက်သွယ်ရန် ဖုန်းနံပါတ်",
 "placeholderEmergencyPhone": "09012345678",    "labelPostalCode": "စာတိုက်သင်္ကေတ",
-    "placeholderPostalCode": "ဥပမာ: 123-4567",
+    "placeholderPostalCode": "ဥပမာ: 1234567",
     "labelPrefecture": "ပြည်နယ်/ခရိုင်",
     "selectPlaceholder": "ရွေးပါ",
     "labelCity": "လိပ်စာ",

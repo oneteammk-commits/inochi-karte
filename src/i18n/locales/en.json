@@ -94,7 +94,7 @@
   "labelEmergencyFurigana": "Emergency Contact Phonetic Reading",    "placeholderEmergencyFurigana": "JANE SMITH",
     "labelEmergencyPhone": "Emergency Contact Phone",
 "placeholderEmergencyPhone": "09012345678",    "labelPostalCode": "Postal Code",
-    "placeholderPostalCode": "Example: 123-4567",
+    "placeholderPostalCode": "Example: 1234567",
     "labelPrefecture": "Prefecture",
     "selectPlaceholder": "Please select",
     "labelCity": "Address",

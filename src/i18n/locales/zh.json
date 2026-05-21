@@ -92,7 +92,7 @@
     "placeholderEmergencyName": "张丽(配偶)",
  "labelEmergencyFurigana": "紧急联系人拼音","placeholderEmergencyFurigana": "李四",    "labelEmergencyPhone": "紧急联系人电话",
 "placeholderEmergencyPhone": "09012345678",    "labelPostalCode": "邮政编码",
-    "placeholderPostalCode": "例:123-4567",
+    "placeholderPostalCode": "例:1234567",
     "labelPrefecture": "都道府县",
     "selectPlaceholder": "请选择",
     "labelCity": "地址",

@@ -98,7 +98,7 @@
 "placeholderEmergencyPhone": "09012345678",
     "regionTitle": "現在お住まいのお家・施設などの情報",
     "labelPostalCode": "郵便番号",
-    "placeholderPostalCode": "例:123-4567",
+    "placeholderPostalCode": "例:1234567",
     "labelPrefecture": "都道府県",
     "selectPlaceholder": "選択してください",
     "labelCity": "住所",

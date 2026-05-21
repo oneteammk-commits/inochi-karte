@@ -481,8 +481,22 @@ export function StepRegion({
             maxLength={8}
             placeholder={t('register.placeholderPostalCode')}
             value={form.postalCode ?? ''}
-            onChange={(e) => onChange({ postalCode: e.target.value })}
-            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+onChange={(e) => {
+              const value = e.target.value
+              onChange({ postalCode: value })
+              const digits = value.replace(/[^0-9]/g, '')
+              if (digits.length === 7) {
+                fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${digits}`)
+                  .then((res) => res.json())
+                  .then((data) => {
+                    if (data.results && data.results[0]) {
+                      const r = data.results[0]
+                      onChange({ prefecture: r.address1, city: r.address2 + r.address3 })
+                    }
+                  })
+                  .catch(() => {})
+              }
+            }}            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
           />
         </label>
         <label className="block">

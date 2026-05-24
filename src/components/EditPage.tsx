@@ -32,9 +32,8 @@ function dataToForm(data: any): RegistrationFormState {
         return {
           id: Math.random().toString(36).slice(2),
           name: parsed.name || '',
-          photoPreviews: parsed.photo_url ? [parsed.photo_url] : [],
-        }
-      })
+photoPreviews: parsed.photo_urls || (parsed.photo_url ? [parsed.photo_url] : []),
+        }      })
     : [createEmptyMedicationRow()]
 
   return {

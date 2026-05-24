@@ -10,7 +10,7 @@ export async function updateRegistration(id: string, form: RegistrationFormState
 
   const medications: string[] = []
   for (const m of form.medications) {
-    if (!m.name.trim()) continue
+    if (!m.name.trim() && m.photoPreviews.length === 0) continue
     medications.push(JSON.stringify({ name: m.name.trim(), photo_urls: m.photoPreviews }))
   }
 

@@ -19,8 +19,8 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
 
   const medications: string[] = []
   for (const m of form.medications) {
-    if (!m.name.trim() && m.photoPreviews.length === 0) continue;if (!m.name.trim()) continue
-   medications.push(JSON.stringify({ name: m.name.trim(), photo_urls: m.photoPreviews }))
+    if (!m.name.trim() && m.photoPreviews.length === 0) continue
+    medications.push(JSON.stringify({ name: m.name.trim(), photo_urls: m.photoPreviews }))
   }
 
   const { data, error } = await supabase

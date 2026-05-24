@@ -11,8 +11,7 @@ export async function updateRegistration(id: string, form: RegistrationFormState
   const medications: string[] = []
   for (const m of form.medications) {
     if (!m.name.trim()) continue
-    const photo_url = m.photoPreviews.length > 0 ? m.photoPreviews[0] : null
-    medications.push(JSON.stringify({ name: m.name.trim(), photo_url }))
+    medications.push(JSON.stringify({ name: m.name.trim(), photo_urls: m.photoPreviews }))
   }
 
   const { error } = await supabase

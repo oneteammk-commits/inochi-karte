@@ -10,9 +10,10 @@ export type RegistrationFormState = {
   emergencyContactName: string
   emergencyContactFurigana: string
   emergencyContactPhone: string
+  postalCode: string
   prefecture: string
   city: string
-  postalCode: string
+  addressDetail: string
   facilityName: string
   facilityType: string
   allergyTags: string[]

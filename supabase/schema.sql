@@ -8,8 +8,10 @@ create table if not exists public.registrations (
   birth_date date not null,
   emergency_contact_name text not null,
   emergency_contact_phone text not null,
+  postal_code text,
   prefecture text not null,
   city text not null,
+  address_detail text,
   facility_name text,
   facility_type text not null,
   allergies text[] not null default '{}',
@@ -29,3 +31,11 @@ create policy "allow anon insert registrations"
   for insert
   to anon
   with check (true);
+
+-- カルテ表示（QR）用：登録データの参照
+drop policy if exists "allow anon select registrations" on public.registrations;
+create policy "allow anon select registrations"
+  on public.registrations
+  for select
+  to anon
+  using (true);

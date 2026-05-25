@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatDisplayAddress } from '../lib/formatAddress'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 export function ViewPage({ id }: { id: string }) {
@@ -39,6 +40,7 @@ export function ViewPage({ id }: { id: string }) {
   const medications = rawMeds.map((m: any) =>
     typeof m === 'string' ? JSON.parse(m) : m
   )
+  const addressLine = formatDisplayAddress(data.city, data.address_detail)
 
   return (
     <div className="min-h-screen bg-stone-100 p-4">
@@ -130,7 +132,12 @@ export function ViewPage({ id }: { id: string }) {
           <div className="bg-stone-50 border-l-4 border-stone-500 shadow-sm p-5 mb-3 rounded-r-2xl">
 <h2 className="text-lg font-bold text-stone-700 border-b-2 border-stone-200 pb-2 mb-3">🏠 {t('view.facility')}</h2>            {data.facility_name && <p className="text-base font-bold text-black">{data.facility_name}</p>}
 {data.facility_type && <p className="text-base text-stone-700">{t(`facilityTypes.${data.facility_type}`)}</p>}            {data.postal_code && <p className="text-sm text-stone-600 mt-1">〒{data.postal_code}</p>}
-{(data.prefecture || data.city) && <p className="text-sm text-stone-600">{data.prefecture && t(`prefectures.${data.prefecture}`)} {data.city}</p>}          </div>
+{(data.prefecture || addressLine) && (
+              <p className="text-sm text-stone-600">
+                {data.prefecture && t(`prefectures.${data.prefecture}`)}
+                {addressLine ? ` ${addressLine}` : ''}
+              </p>
+            )}          </div>
         )}
 
 <div className="bg-white border-2 border-red-700 shadow-md p-5 mb-3 rounded-2xl">

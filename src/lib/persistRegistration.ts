@@ -1,4 +1,4 @@
-import type { RegistrationFormState } from '../types/registration'
+﻿import type { RegistrationFormState } from '../types/registration'
 import { isSupabaseConfigured, supabase } from './supabase'
 import { hashPassword } from './passwordHash'
 
@@ -32,9 +32,10 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
       emergency_contact_name: form.emergencyContactName.trim(),
       emergency_contact_furigana: form.emergencyContactFurigana.trim() || null,
       emergency_contact_phone: form.emergencyContactPhone.trim(),
+      postal_code: form.postalCode.replace(/\D/g, ''),
       prefecture: form.prefecture,
       city: form.city.trim(),
-      postal_code: form.postalCode?.trim() || null,
+      address_detail: form.addressDetail.trim() || null,
       facility_name: form.facilityName.trim() || null,
       facility_type: form.facilityType,
       allergies: form.allergyTags,

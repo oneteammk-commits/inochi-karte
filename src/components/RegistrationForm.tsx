@@ -1,6 +1,7 @@
 import { QRCodeSVG } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
+import { lookupPostalCode } from '../lib/postalCodeLookup'
 import {
 ALLERGY_TAGS,  CHRONIC_TAGS,
   FACILITY_TYPES,
@@ -28,9 +29,10 @@ const initialForm: RegistrationFormState = {
   emergencyContactName: '',
   emergencyContactFurigana: '',
   emergencyContactPhone: '',
+  postalCode: '',
   prefecture: '',
   city: '',
-  postalCode: '',
+  addressDetail: '',
   facilityName: '',
   facilityType: '',
   allergyTags: [],
@@ -59,6 +61,9 @@ function validateRegistrationStep(s: number, data: RegistrationFormState, t: (ke
       return null
     }
     case 1: {
+      if (data.postalCode.replace(/\D/g, '').length !== 7) {
+        return t('register.errorPostalCode')
+      }
       if (!data.prefecture) return t('register.errorPrefecture')
       if (!data.city.trim()) return t('register.errorCity')
       if (!data.facilityType) return t('register.errorFacilityType')
@@ -466,6 +471,30 @@ export function StepRegion({
   error: string | null
   t: (key: string) => string
 }) {
+  const [postalLookupError, setPostalLookupError] = useState<string | null>(null)
+  const [postalLookupLoading, setPostalLookupLoading] = useState(false)
+  const lookupRequestId = useRef(0)
+
+  const handlePostalCodeChange = (raw: string) => {
+    onChange({ postalCode: raw })
+    setPostalLookupError(null)
+
+    const digits = raw.replace(/\D/g, '')
+    if (digits.length !== 7) return
+
+    const requestId = ++lookupRequestId.current
+    setPostalLookupLoading(true)
+    void lookupPostalCode(digits).then((result) => {
+      if (lookupRequestId.current !== requestId) return
+      setPostalLookupLoading(false)
+      if (!result) {
+        setPostalLookupError(t('register.postalLookupError'))
+        return
+      }
+      onChange({ prefecture: result.prefecture, city: result.city })
+    })
+  }
+
   return (
     <section aria-labelledby="step-region-title">
       <h2 id="step-region-title" className="mb-6 text-lg font-bold text-stone-900">
@@ -474,33 +503,30 @@ export function StepRegion({
       <FieldError message={error} />
       <div className="space-y-5">
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelPostalCode')}</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">
+            {t('register.labelPostalCode')}
+          </span>
           <input
             type="text"
             inputMode="numeric"
+            autoComplete="postal-code"
             maxLength={8}
             placeholder={t('register.placeholderPostalCode')}
             value={form.postalCode ?? ''}
-onChange={(e) => {
-              const value = e.target.value
-              onChange({ postalCode: value })
-              const digits = value.replace(/[^0-9]/g, '')
-              if (digits.length === 7) {
-                fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${digits}`)
-                  .then((res) => res.json())
-                  .then((data) => {
-                    if (data.results && data.results[0]) {
-                      const r = data.results[0]
-                      onChange({ prefecture: r.address1, city: r.address2 + r.address3 })
-                    }
-                  })
-                  .catch(() => {})
-              }
-            }}            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            onChange={(e) => handlePostalCodeChange(e.target.value)}
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
           />
+          {postalLookupLoading && (
+            <p className="mt-1.5 text-xs text-stone-500">{t('register.postalLookupLoading')}</p>
+          )}
+          {postalLookupError && (
+            <p className="mt-1.5 text-xs text-amber-700">{postalLookupError}</p>
+          )}
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelPrefecture')}</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">
+            {t('register.labelPrefecture')}
+          </span>
           <select
             value={form.prefecture}
             onChange={(e) => onChange({ prefecture: e.target.value })}
@@ -514,14 +540,35 @@ onChange={(e) => {
           </select>
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelCity')}</span>
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">
+            {t('register.labelCity')}
+          </span>
           <input
             type="text"
             value={form.city}
             onChange={(e) => onChange({ city: e.target.value })}
-            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderCity')}
           />
+          <p className="mt-1.5 text-xs leading-relaxed text-stone-500">
+            {t('register.hintCity')}
+          </p>
+        </label>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">
+            {t('register.labelAddressDetail')}
+            <span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
+          </span>
+          <input
+            type="text"
+            value={form.addressDetail}
+            onChange={(e) => onChange({ addressDetail: e.target.value })}
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            placeholder={t('register.placeholderAddressDetail')}
+          />
+          <p className="mt-1.5 text-xs leading-relaxed text-stone-500">
+            {t('register.hintAddressDetail')}
+          </p>
         </label>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">

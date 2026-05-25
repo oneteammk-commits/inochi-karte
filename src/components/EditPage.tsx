@@ -45,6 +45,7 @@ photoPreviews: parsed.photo_urls || (parsed.photo_url ? [parsed.photo_url] : [])
     emergencyContactPhone: data.emergency_contact_phone || '',
     prefecture: data.prefecture || '',
     city: data.city || '',
+    addressDetail: data.address_detail || '',
     postalCode: data.postal_code || '',
     facilityName: data.facility_name || '',
     facilityType: data.facility_type || '',

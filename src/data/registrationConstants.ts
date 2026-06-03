@@ -76,6 +76,33 @@ export const CHRONIC_TAGS = [
   '精神疾患',
 ] as const
 
+export const EMERGENCY_RELATIONSHIP_KEYS = [
+  'spouse_partner',
+  'child',
+  'parent',
+  'sibling',
+  'grandchild',
+  'relative',
+  'friend',
+  'facility_staff',
+] as const
+
+export type EmergencyRelationshipPresetKey = (typeof EMERGENCY_RELATIONSHIP_KEYS)[number]
+
+export const EMERGENCY_RELATIONSHIP_OTHER_KEY = 'other' as const
+
+/** DB・カード表示用の日本語ラベル（言語設定に依存しない） */
+export const EMERGENCY_RELATIONSHIP_JA_VALUES: Record<EmergencyRelationshipPresetKey, string> = {
+  spouse_partner: '配偶者・パートナー',
+  child: '子',
+  parent: '親',
+  sibling: '兄弟姉妹',
+  grandchild: '孫',
+  relative: '親戚',
+  friend: '友人',
+  facility_staff: '施設職員・ケアマネージャー',
+}
+
 export const FACILITY_TYPES = [
   '病院・診療所',
   '介護老人保健施設',

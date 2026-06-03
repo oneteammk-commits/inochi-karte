@@ -1,4 +1,5 @@
 ﻿import type { RegistrationFormState } from '../types/registration'
+import { resolveEmergencyRelationshipForSave } from './emergencyRelationship'
 import { isSupabaseConfigured, supabase } from './supabase'
 import { hashPassword } from './passwordHash'
 
@@ -29,6 +30,10 @@ export async function persistRegistration(form: RegistrationFormState): Promise<
       name: form.fullName.trim(),
       furigana: form.furigana.trim() || null,
       birth_date: form.birthDate,
+      emergency_contact_relationship: resolveEmergencyRelationshipForSave(
+        form.emergencyContactRelationshipKey,
+        form.emergencyContactRelationshipOther,
+      ),
       emergency_contact_name: form.emergencyContactName.trim(),
       emergency_contact_furigana: form.emergencyContactFurigana.trim() || null,
       emergency_contact_phone: form.emergencyContactPhone.trim(),

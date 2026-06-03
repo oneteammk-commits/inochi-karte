@@ -3,25 +3,44 @@ import { useTranslation } from 'react-i18next'
 import { formatDisplayAddress } from '../lib/formatAddress'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
+import { PetViewSection } from './PetViewSection'
+import type { PetRegistrationRow } from '../types/petRegistration'
+
 export function ViewPage({ id }: { id: string }) {
   const { t, i18n } = useTranslation()
   const [data, setData] = useState<any>(null)
+  const [pets, setPets] = useState<PetRegistrationRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [langOpen, setLangOpen] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data, error } = await supabase
+      const { data: registration, error: registrationError } = await supabase
         .from('registrations')
         .select('*')
         .eq('id', id)
         .single()
-      if (error) setError(t('view.notFound'))
-      else setData(data)
+
+      if (registrationError) {
+        setError(t('view.notFound'))
+        setLoading(false)
+        return
+      }
+
+      setData(registration)
+
+      const { data: petRows } = await supabase
+        .from('pet_registrations')
+        .select(
+          'id, pet_name, species, breed, age, sex, medical_history, medications, allergies, vet_clinic, vaccine_info, microchip, food, medication_photo_url, owner_id',
+        )
+        .eq('owner_id', String(id))
+
+      setPets((petRows as PetRegistrationRow[] | null) ?? [])
       setLoading(false)
     }
-    fetchData()
+    void fetchData()
   }, [id, t])
 
   const changeLanguage = (lng: string) => {
@@ -79,7 +98,13 @@ export function ViewPage({ id }: { id: string }) {
 
         <div className="bg-pink-50 border-l-4 border-pink-500 shadow-sm p-5 mb-3 rounded-r-2xl">
           <h2 className="text-lg font-bold text-pink-700 border-b-2 border-pink-200 pb-2 mb-3">🆘 {t('view.emergencyContact')}</h2>
-          <p className="text-xl font-bold text-black">{data.emergency_contact_name}</p>
+          {data.emergency_contact_relationship && (
+            <p className="text-base text-black">
+              {t('view.labelEmergencyRelationship')}:{' '}
+              <span className="font-bold">{data.emergency_contact_relationship}</span>
+            </p>
+          )}
+          <p className="text-xl font-bold text-black mt-1">{data.emergency_contact_name}</p>
           {data.emergency_contact_furigana && <p className="text-base text-stone-700">{data.emergency_contact_furigana}</p>}
           <a href={"tel:" + data.emergency_contact_phone} className="mt-3 inline-block text-2xl font-bold text-blue-700 underline">📞 {data.emergency_contact_phone}</a>
         </div>
@@ -140,6 +165,8 @@ export function ViewPage({ id }: { id: string }) {
               </p>
             )}          </div>
         )}
+
+        <PetViewSection pets={pets} t={t} />
 
 <div className="bg-white border-2 border-red-700 shadow-md p-5 mb-3 rounded-2xl">
           <h2 className="text-lg font-bold text-red-700 text-center pb-2 mb-3">📱 {t('view.qrCardTitle')}</h2>

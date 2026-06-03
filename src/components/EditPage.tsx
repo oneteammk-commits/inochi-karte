@@ -3,13 +3,19 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { verifyPassword } from '../lib/passwordHash'
 import { updateRegistration } from '../lib/updateRegistration'
+import { syncPetRegistrations } from '../lib/syncPetRegistrations'
+import { petRegistrationToFormRow } from '../lib/petFormMapper'
+import { parseEmergencyRelationshipFromDb } from '../lib/emergencyRelationship'
+import { createEmptyPetRow, type PetRow } from '../types/pet'
 import type { RegistrationFormState, MedicationRow } from '../types/registration'
+import { ImeAwareInput } from './ImeAwareField'
 import {
   StepBasic,
   StepRegion,
   StepMedicalTags,
   StepMedications,
 } from './RegistrationForm'
+import { StepPetSection } from './StepPetSection'
 
 function createEmptyMedicationRow(): MedicationRow {
   return {
@@ -30,16 +36,21 @@ function dataToForm(data: any): RegistrationFormState {
     ? rawMeds.map((m: any) => {
         const parsed = typeof m === 'string' ? JSON.parse(m) : m
         return {
-          id: Math.random().toString(36).slice(2),
+          id: crypto.randomUUID(),
           name: parsed.name || '',
-photoPreviews: parsed.photo_urls || (parsed.photo_url ? [parsed.photo_url] : []),
-        }      })
+          photoPreviews: parsed.photo_urls || (parsed.photo_url ? [parsed.photo_url] : []),
+        }
+      })
     : [createEmptyMedicationRow()]
+
+  const relationship = parseEmergencyRelationshipFromDb(data.emergency_contact_relationship || '')
 
   return {
     fullName: data.name || '',
     furigana: data.furigana || '',
     birthDate: data.birth_date || '',
+    emergencyContactRelationshipKey: relationship.key,
+    emergencyContactRelationshipOther: relationship.other,
     emergencyContactName: data.emergency_contact_name || '',
     emergencyContactFurigana: data.emergency_contact_furigana || '',
     emergencyContactPhone: data.emergency_contact_phone || '',
@@ -55,6 +66,8 @@ photoPreviews: parsed.photo_urls || (parsed.photo_url ? [parsed.photo_url] : [])
     chronicOther: data.disease_other || '',
     dailyNotes: data.daily_notes || '',
     medications,
+    registerPetsEnabled: false,
+    pets: [],
     editPassword: '',
   }
 }
@@ -77,7 +90,13 @@ export function EditPage({ id }: { id: string }) {
   const [isSaving, setIsSaving] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
 
-  const STEP_LABELS_EDIT = [t('edit.step1'), t('edit.step2'), t('edit.step3'), t('edit.step4')]
+  const STEP_LABELS_EDIT = [
+    t('edit.step1'),
+    t('edit.step2'),
+    t('edit.step3'),
+    t('edit.step4'),
+    t('edit.step5'),
+  ]
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng)
@@ -93,14 +112,28 @@ export function EditPage({ id }: { id: string }) {
         .single()
       if (error || !data) {
         setError(t('edit.notFound'))
-      } else {
-        setStoredHash(data.edit_password_hash)
-        setName(data.name)
-        setForm(dataToForm(data))
+        setLoading(false)
+        return
       }
+
+      const { data: petRows } = await supabase
+        .from('pet_registrations')
+        .select(
+          'id, pet_name, species, breed, age, sex, medical_history, medications, allergies, vet_clinic, vaccine_info, microchip, food, medication_photo_url, owner_id',
+        )
+        .eq('owner_id', String(id))
+
+      const pets = (petRows ?? []).map((row) => petRegistrationToFormRow(row))
+      setStoredHash(data.edit_password_hash)
+      setName(data.name)
+      setForm({
+        ...dataToForm(data),
+        registerPetsEnabled: pets.length > 0,
+        pets: pets.length > 0 ? pets : [],
+      })
       setLoading(false)
     }
-    fetchData()
+    void fetchData()
   }, [id, t])
 
   const handleVerify = async (e: React.FormEvent) => {
@@ -187,6 +220,72 @@ export function EditPage({ id }: { id: string }) {
     }
   }
 
+  const addPetRow = () => {
+    setForm((prev) =>
+      prev ? { ...prev, pets: [...prev.pets, createEmptyPetRow()] } : prev,
+    )
+  }
+
+  const removePetRow = (pid: string) => {
+    setForm((prev) => {
+      if (!prev) return prev
+      return { ...prev, pets: prev.pets.filter((p) => p.id !== pid) }
+    })
+  }
+
+  const updatePet = (pid: string, patch: Partial<Omit<PetRow, 'id'>>) => {
+    setForm((prev) =>
+      prev
+        ? { ...prev, pets: prev.pets.map((p) => (p.id === pid ? { ...p, ...patch } : p)) }
+        : prev,
+    )
+  }
+
+  const addPetPhoto = async (pid: string, files: FileList | null) => {
+    if (!files || files.length === 0) return
+    const file = files[0]
+    const toBase64 = () =>
+      new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '')
+        reader.onerror = () => reject(new Error('image read failed'))
+        reader.readAsDataURL(file)
+      })
+    try {
+      const encoded = await toBase64()
+      if (!encoded) return
+      setForm((prev) =>
+        prev
+          ? {
+              ...prev,
+              pets: prev.pets.map((p) =>
+                p.id === pid
+                  ? { ...p, medicationPhotoPreview: encoded, medicationPhotoUrl: null }
+                  : p,
+              ),
+            }
+          : prev,
+      )
+    } catch {
+      setStepError('error')
+    }
+  }
+
+  const removePetPhoto = (pid: string) => {
+    setForm((prev) =>
+      prev
+        ? {
+            ...prev,
+            pets: prev.pets.map((p) =>
+              p.id === pid
+                ? { ...p, medicationPhotoPreview: null, medicationPhotoUrl: null }
+                : p,
+            ),
+          }
+        : prev,
+    )
+  }
+
   const removeMedicationPhoto = (mid: string, index: number) => {
     setForm((prev) =>
       prev
@@ -218,6 +317,7 @@ export function EditPage({ id }: { id: string }) {
     setIsSaving(true)
     try {
       await updateRegistration(id, form)
+      await syncPetRegistrations(id, form.registerPetsEnabled, form.pets)
       setIsSaved(true)
     } catch (e) {
       setStepError(e instanceof Error ? e.message : 'error')
@@ -311,8 +411,21 @@ export function EditPage({ id }: { id: string }) {
                 onUpdateMedication={updateMedication}
                 onAddPhotos={updateMedicationPhotos}
                 onRemovePhoto={removeMedicationPhoto}
-error={stepError}
-    t={t}              />
+                error={stepError}
+                t={t}
+              />
+            )}
+            {editStep === 4 && (
+              <StepPetSection
+                form={form}
+                onChange={updateForm}
+                onAddPet={addPetRow}
+                onRemovePet={removePetRow}
+                onUpdatePet={updatePet}
+                onAddPetPhoto={addPetPhoto}
+                onRemovePetPhoto={removePetPhoto}
+                t={t}
+              />
             )}
           </div>
 
@@ -373,13 +486,13 @@ error={stepError}
 
           <label className="block mb-6">
             <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('edit.passwordPlaceholder')}</span>
-            <input
+            <ImeAwareInput
               type="password"
               inputMode="numeric"
               maxLength={4}
               autoComplete="off"
               value={inputPassword}
-              onChange={(e) => setInputPassword(e.target.value.replace(/[^0-9]/g, ''))}
+              onValueChange={(v) => setInputPassword(v.replace(/[^0-9]/g, ''))}
               className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-widest text-stone-900 focus:border-red-700 focus:outline-none"
               placeholder="----"
             />

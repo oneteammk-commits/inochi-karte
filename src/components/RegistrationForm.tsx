@@ -2,6 +2,11 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
 import { lookupPostalCode } from '../lib/postalCodeLookup'
+import { EmergencyRelationshipField } from './EmergencyRelationshipField'
+import { ImeAwareInput } from './ImeAwareField'
+import { MedicalFreeTextField } from './MedicalFreeTextField'
+import { MedicationBlock } from './MedicationBlock'
+import { resolveEmergencyRelationshipForSave } from '../lib/emergencyRelationship'
 import {
 ALLERGY_TAGS,  CHRONIC_TAGS,
   FACILITY_TYPES,
@@ -9,7 +14,11 @@ ALLERGY_TAGS,  CHRONIC_TAGS,
   STEP_LABELS,
 } from '../data/registrationConstants'
 import { persistRegistration } from '../lib/persistRegistration'
+import { persistPetRegistrations } from '../lib/persistPetRegistrations'
 import { saveMyCardId } from '../lib/storage'
+import { StepPetSection } from './StepPetSection'
+import { createEmptyPetRow } from '../types/pet'
+import type { PetRow } from '../types/pet'
 import type { MedicationRow, RegistrationFormState } from '../types/registration'
 
 export type { MedicationRow, RegistrationFormState }
@@ -26,6 +35,8 @@ const initialForm: RegistrationFormState = {
   fullName: '',
   furigana: '',
   birthDate: '',
+  emergencyContactRelationshipKey: '',
+  emergencyContactRelationshipOther: '',
   emergencyContactName: '',
   emergencyContactFurigana: '',
   emergencyContactPhone: '',
@@ -41,6 +52,8 @@ const initialForm: RegistrationFormState = {
   chronicOther: '',
   dailyNotes: '',
   medications: [createEmptyMedicationRow()],
+  registerPetsEnabled: false,
+  pets: [],
   editPassword: '',
 }
 
@@ -56,6 +69,14 @@ function validateRegistrationStep(s: number, data: RegistrationFormState, t: (ke
     case 0: {
       if (!data.fullName.trim()) return t('register.errorName')
       if (!data.birthDate) return t('register.errorBirthDate')
+      if (
+        !resolveEmergencyRelationshipForSave(
+          data.emergencyContactRelationshipKey,
+          data.emergencyContactRelationshipOther,
+        )
+      ) {
+        return t('register.errorEmergencyRelationship')
+      }
       if (!data.emergencyContactName.trim()) return t('register.errorEmergencyName')
       if (!data.emergencyContactPhone.trim()) return t('register.errorEmergencyPhone')
       return null
@@ -126,6 +147,9 @@ export function RegistrationForm() {
       setIsSubmitting(true)
       try {
         const savedId = await persistRegistration(data)
+        if (data.registerPetsEnabled) {
+          await persistPetRegistrations(savedId, data.pets)
+        }
         saveMyCardId(savedId)
         setWizard((w) => ({
           step: Math.min(w.step + 1, STEP_LABELS.length - 1),
@@ -158,14 +182,14 @@ export function RegistrationForm() {
     void goNext()
   }
 
-  const addMedicationRow = () => {
+  const addMedicationRow = useCallback(() => {
     setForm((prev) => ({
       ...prev,
       medications: [...prev.medications, createEmptyMedicationRow()],
     }))
-  }
+  }, [])
 
-  const removeMedicationRow = (id: string) => {
+  const removeMedicationRow = useCallback((id: string) => {
     setForm((prev) => {
       const next = prev.medications.filter((m) => m.id !== id)
       return {
@@ -173,16 +197,16 @@ export function RegistrationForm() {
         medications: next.length ? next : [createEmptyMedicationRow()],
       }
     })
-  }
+  }, [])
 
-  const updateMedication = (id: string, patch: Partial<Omit<MedicationRow, 'id'>>) => {
+  const updateMedication = useCallback((id: string, patch: Partial<Omit<MedicationRow, 'id'>>) => {
     setForm((prev) => ({
       ...prev,
       medications: prev.medications.map((m) => (m.id === id ? { ...m, ...patch } : m)),
     }))
-  }
+  }, [])
 
-  const updateMedicationPhotos = async (id: string, files: FileList | null) => {
+  const updateMedicationPhotos = useCallback(async (id: string, files: FileList | null) => {
     if (!files || files.length === 0) return
     const toBase64 = (file: File) =>
       new Promise<string>((resolve, reject) => {
@@ -205,9 +229,71 @@ export function RegistrationForm() {
     } catch {
       setStepError('画像の読み込みに失敗しました。別の画像でお試しください。')
     }
+  }, [])
+
+  const addPetRow = useCallback(() => {
+    setForm((prev) => ({
+      ...prev,
+      pets: [...prev.pets, createEmptyPetRow()],
+    }))
+  }, [])
+
+  const removePetRow = useCallback((id: string) => {
+    setForm((prev) => {
+      const next = prev.pets.filter((p) => p.id !== id)
+      return { ...prev, pets: next }
+    })
+  }, [])
+
+  const updatePet = useCallback((id: string, patch: Partial<Omit<PetRow, 'id'>>) => {
+    setForm((prev) => ({
+      ...prev,
+      pets: prev.pets.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    }))
+  }, [])
+
+  const addPetPhoto = async (id: string, files: FileList | null) => {
+    if (!files || files.length === 0) return
+    const file = files[0]
+    const toBase64 = () =>
+      new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '')
+        reader.onerror = () => reject(new Error('画像の読み込みに失敗しました。'))
+        reader.readAsDataURL(file)
+      })
+    try {
+      const encoded = await toBase64()
+      if (!encoded) return
+      setForm((prev) => ({
+        ...prev,
+        pets: prev.pets.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                medicationPhotoPreview: encoded,
+                medicationPhotoUrl: null,
+              }
+            : p,
+        ),
+      }))
+    } catch {
+      setStepError('画像の読み込みに失敗しました。別の画像でお試しください。')
+    }
   }
 
-  const removeMedicationPhoto = (id: string, index: number) => {
+  const removePetPhoto = useCallback((id: string) => {
+    setForm((prev) => ({
+      ...prev,
+      pets: prev.pets.map((p) =>
+        p.id === id
+          ? { ...p, medicationPhotoPreview: null, medicationPhotoUrl: null }
+          : p,
+      ),
+    }))
+  }, [])
+
+  const removeMedicationPhoto = useCallback((id: string, index: number) => {
     setForm((prev) => ({
       ...prev,
       medications: prev.medications.map((m) =>
@@ -216,7 +302,7 @@ export function RegistrationForm() {
           : m,
       ),
     }))
-  }
+  }, [])
 
   return (
     <div className="min-h-screen bg-stone-100 pb-16 pt-6 sm:pt-10">
@@ -255,7 +341,20 @@ error={stepError}
     t={t}  />
 )}
 {activeStep === 4 && (
-<StepEditPassword form={form} onChange={updateForm} error={stepError} t={t} />)}
+              <>
+                <StepPetSection
+                  form={form}
+                  onChange={updateForm}
+                  onAddPet={addPetRow}
+                  onRemovePet={removePetRow}
+                  onUpdatePet={updatePet}
+                  onAddPetPhoto={addPetPhoto}
+                  onRemovePetPhoto={removePetPhoto}
+                  t={t}
+                />
+                <StepEditPassword form={form} onChange={updateForm} error={stepError} t={t} />
+              </>
+            )}
 {activeStep === 5 && registrationId && (
   <StepComplete registrationId={registrationId} qrValue={qrPayload} t={t} />
 )}
@@ -350,21 +449,19 @@ export function StepBasic({
       <div className="space-y-5">
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelName')}</span>
-          <input
-            type="text"
+          <ImeAwareInput
             autoComplete="name"
             value={form.fullName}
-            onChange={(e) => onChange({ fullName: e.target.value })}
+            onValueChange={(v) => onChange({ fullName: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderName')}
           />
         </label>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelFurigana')}</span>
-          <input
-            type="text"
+          <ImeAwareInput
             value={form.furigana}
-            onChange={(e) => onChange({ furigana: e.target.value })}
+            onValueChange={(v) => onChange({ furigana: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderFurigana')}
           />
@@ -374,14 +471,12 @@ export function StepBasic({
          <div className="grid grid-cols-3 gap-3">
             <div>
               <span className="mb-1 block text-xs font-medium text-stone-500">{t('register.unitYear')}</span>
-              <input
-                type="text"
+              <ImeAwareInput
                 inputMode="numeric"
                 maxLength={4}
                 placeholder={t('register.placeholderYear')}
                 value={form.birthDate.split('年')[0] ?? ''}
-                onChange={(e) => {
-                  const y = e.target.value
+                onValueChange={(y) => {
                   const rest = form.birthDate.includes('年') ? form.birthDate.split('年')[1] : '月日'
                   onChange({ birthDate: `${y}年${rest}` })
                 }}
@@ -390,14 +485,12 @@ export function StepBasic({
             </div>
             <div>
               <span className="mb-1 block text-xs font-medium text-stone-500">{t('register.unitMonth')}</span>
-              <input
-                type="text"
+              <ImeAwareInput
                 inputMode="numeric"
                 maxLength={2}
                 placeholder={t('register.placeholderMonth')}
                 value={form.birthDate.includes('年') ? (form.birthDate.split('年')[1]?.split('月')[0] ?? '') : ''}
-                onChange={(e) => {
-                  const m = e.target.value
+                onValueChange={(m) => {
                   const y = form.birthDate.split('年')[0] ?? ''
                   const d = form.birthDate.includes('月') ? (form.birthDate.split('月')[1]?.replace('日','') ?? '') : ''
                   onChange({ birthDate: `${y}年${m}月${d}日` })
@@ -407,14 +500,12 @@ export function StepBasic({
             </div>
             <div>
               <span className="mb-1 block text-xs font-medium text-stone-500">{t('register.unitDay')}</span>
-              <input
-                type="text"
+              <ImeAwareInput
                 inputMode="numeric"
                 maxLength={2}
                 placeholder={t('register.placeholderDay')}
                 value={form.birthDate.includes('月') ? (form.birthDate.split('月')[1]?.replace('日','') ?? '') : ''}
-                onChange={(e) => {
-                  const d = e.target.value
+                onValueChange={(d) => {
                   const y = form.birthDate.split('年')[0] ?? ''
                   const m = form.birthDate.includes('年') ? (form.birthDate.split('年')[1]?.split('月')[0] ?? '') : ''
                   onChange({ birthDate: `${y}年${m}月${d}日` })
@@ -425,21 +516,32 @@ export function StepBasic({
           </div>
         </label>
         <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">
+            {t('register.labelEmergencyRelationship')}
+          </span>
+          <EmergencyRelationshipField
+            relationshipKey={form.emergencyContactRelationshipKey}
+            relationshipOther={form.emergencyContactRelationshipOther}
+            onChange={onChange}
+            t={t}
+          />
+        </label>
+        <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelEmergencyName')}</span>
-          <input
+          <ImeAwareInput
             type="text"
             value={form.emergencyContactName}
-            onChange={(e) => onChange({ emergencyContactName: e.target.value })}
+            onValueChange={(v) => onChange({ emergencyContactName: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderEmergencyName')}
           />
         </label>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelEmergencyFurigana')}</span>
-          <input
+          <ImeAwareInput
             type="text"
             value={form.emergencyContactFurigana}
-            onChange={(e) => onChange({ emergencyContactFurigana: e.target.value })}
+            onValueChange={(v) => onChange({ emergencyContactFurigana: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderEmergencyFurigana')}
           />
@@ -506,14 +608,12 @@ export function StepRegion({
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
             {t('register.labelPostalCode')}
           </span>
-          <input
-            type="text"
-            inputMode="numeric"
+          <ImeAwareInput
             autoComplete="postal-code"
             maxLength={8}
             placeholder={t('register.placeholderPostalCode')}
             value={form.postalCode ?? ''}
-            onChange={(e) => handlePostalCodeChange(e.target.value)}
+            onValueChange={handlePostalCodeChange}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
           />
           {postalLookupLoading && (
@@ -543,10 +643,9 @@ export function StepRegion({
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
             {t('register.labelCity')}
           </span>
-          <input
-            type="text"
+          <ImeAwareInput
             value={form.city}
-            onChange={(e) => onChange({ city: e.target.value })}
+            onValueChange={(v) => onChange({ city: v })}
             className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderCity')}
           />
@@ -559,10 +658,9 @@ export function StepRegion({
             {t('register.labelAddressDetail')}
             <span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
           </span>
-          <input
-            type="text"
+          <ImeAwareInput
             value={form.addressDetail}
-            onChange={(e) => onChange({ addressDetail: e.target.value })}
+            onValueChange={(v) => onChange({ addressDetail: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderAddressDetail')}
           />
@@ -574,10 +672,9 @@ export function StepRegion({
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
             {t('register.labelFacilityName')}<span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
           </span>
-          <input
-            type="text"
+          <ImeAwareInput
             value={form.facilityName}
-            onChange={(e) => onChange({ facilityName: e.target.value })}
+            onValueChange={(v) => onChange({ facilityName: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderFacilityName')}
           />
@@ -599,10 +696,9 @@ export function StepRegion({
         {form.facilityType.includes('その他') && (
           <label className="block">
             <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelOtherFacility')}</span>
-            <input
-              type="text"
+            <ImeAwareInput
               value={form.facilityName}
-              onChange={(e) => onChange({ facilityName: e.target.value })}
+              onValueChange={(v) => onChange({ facilityName: v })}
               className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
               placeholder={t('register.placeholderOtherFacility')}
             />
@@ -678,18 +774,12 @@ export function StepMedicalTags({
 onToggle={(tag) => onChange({ allergyTags: toggleInList(form.allergyTags, tag) })}
             t={t}
             tKey="allergyTags"          />
-          <label className="mt-4 block">
-            <span className="mb-1.5 block text-sm font-medium text-stone-700">
-              {t('register.labelOtherFreeInput')}
-            </span>
-            <textarea
-              value={form.allergyOther}
-              onChange={(e) => onChange({ allergyOther: e.target.value })}
-              rows={3}
-              className="w-full resize-y rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              placeholder={t('register.placeholderAllergyOther')}
-            />
-          </label>
+          <MedicalFreeTextField
+            label={t('register.labelOtherFreeInput')}
+            value={form.allergyOther}
+            onValueChange={(v) => onChange({ allergyOther: v })}
+            placeholder={t('register.placeholderAllergyOther')}
+          />
         </div>
         <div>
           <TagGrid
@@ -699,35 +789,25 @@ onToggle={(tag) => onChange({ allergyTags: toggleInList(form.allergyTags, tag) }
 onToggle={(tag) => onChange({ chronicTags: toggleInList(form.chronicTags, tag) })}
             t={t}
             tKey="chronicTags"          />
-          <label className="mt-4 block">
-            <span className="mb-1.5 block text-sm font-medium text-stone-700">
-              {t('register.labelOtherFreeInput')}
-            </span>
-            <textarea
-              value={form.chronicOther}
-              onChange={(e) => onChange({ chronicOther: e.target.value })}
-              rows={3}
-              className="w-full resize-y rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              placeholder={t('register.placeholderChronicOther')}
-            />
-          </label>
-        </div>
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">
-            {t('register.labelDailyNotes')}
-          </span>
-          <textarea
-            value={form.dailyNotes}
-            onChange={(e) => onChange({ dailyNotes: e.target.value })}
-            rows={4}
-            className="w-full resize-y rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-            placeholder={t('register.placeholderDailyNotes')}
+          <MedicalFreeTextField
+            label={t('register.labelOtherFreeInput')}
+            value={form.chronicOther}
+            onValueChange={(v) => onChange({ chronicOther: v })}
+            placeholder={t('register.placeholderChronicOther')}
           />
-        </label>
+        </div>
+        <MedicalFreeTextField
+          label={t('register.labelDailyNotes')}
+          value={form.dailyNotes}
+          onValueChange={(v) => onChange({ dailyNotes: v })}
+          placeholder={t('register.placeholderDailyNotes')}
+          rows={4}
+        />
       </div>
     </section>
   )
   }
+
 export function StepMedications({
   form,
   onAddRow,
@@ -759,81 +839,17 @@ export function StepMedications({
 
       <div className="space-y-6">
         {form.medications.map((med, index) => (
-          <div
+          <MedicationBlock
             key={med.id}
-            className="rounded-xl border border-stone-200 bg-stone-50/80 p-4"
-          >
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <span className="text-sm font-semibold text-stone-800">
-                {t('register.medicineLabel', { num: index + 1 })}
-                <span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
-              </span>
-              {form.medications.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => onRemoveRow(med.id)}
-                  className="text-xs font-medium text-red-600 hover:underline"
-                >
-                  {t('register.buttonDeleteRow')}
-                </button>
-              )}
-            </div>
-            <label className="block">
-              <span className="mb-1 block text-xs font-medium text-stone-600">
-                {t('register.labelMedicineName')}<span className="font-normal text-stone-500">{t('register.optional')}</span>
-              </span>
-              <input
-                type="text"
-                value={med.name}
-                onChange={(e) => onUpdateMedication(med.id, { name: e.target.value })}
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
-                placeholder={t('register.placeholderMedicineName')}
-              />
-              <p className="mt-2 text-xs leading-relaxed text-stone-500">
-                {t('register.medicineNote')}
-              </p>
-            </label>
-            <div className="mt-4">
-              <span className="mb-1 block text-xs font-medium text-stone-600">
-                {t('register.labelMedicinePhotos')}<span className="font-normal text-stone-500">{t('register.optionalMultiple')}</span>
-              </span>
-              <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-stone-300 bg-white px-4 py-5 transition hover:border-brand/50 hover:bg-brand-50/20">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={(e) => {
-                    void onAddPhotos(med.id, e.target.files)
-                    e.currentTarget.value = ''
-                  }}
-                />
-                <span className="text-center text-sm text-stone-500">
-                  {t('register.tapToSelectImage')}
-                </span>
-              </label>
-              
-              {med.photoPreviews.length > 0 && (
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {med.photoPreviews.map((src, idx) => (
-                    <div key={`${med.id}-img-${idx}`} className="relative">
-                      <img
-                        src={src}
-                        alt={t('register.altMedicineImage', { num: idx + 1 })}
-                        className="h-24 w-full rounded-md border border-stone-200 object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => onRemovePhoto(med.id, idx)}
-                        className="absolute right-1 top-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+            med={med}
+            index={index}
+            canRemove={form.medications.length > 1}
+            onRemoveRow={onRemoveRow}
+            onUpdateMedication={onUpdateMedication}
+            onAddPhotos={onAddPhotos}
+            onRemovePhoto={onRemovePhoto}
+            t={t}
+          />
         ))}
         <button
           type="button"
@@ -879,16 +895,13 @@ function StepEditPassword({
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
             {t('register.editPasswordLabel')}
           </span>
-          <input
+          <ImeAwareInput
             type="password"
             inputMode="numeric"
             maxLength={4}
             autoComplete="off"
             value={form.editPassword}
-            onChange={(e) => {
-              const value = e.target.value.replace(/[^0-9]/g, '')
-              onChange({ editPassword: value })
-            }}
+            onValueChange={(v) => onChange({ editPassword: v.replace(/[^0-9]/g, '') })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-[0.5em] text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder="••••"
           />

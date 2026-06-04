@@ -291,17 +291,17 @@ export function StepPetSection({
   return (
     <section
       aria-labelledby="step-pet-title"
-      className="mb-8 border-t border-stone-200 pt-8"
+      className="mb-8 mt-8 rounded-2xl border-2 border-brand bg-amber-100/50 p-5 sm:p-6"
     >
-      <div className="mb-4 rounded-xl bg-amber-50/80 px-4 py-3 ring-1 ring-amber-100">
+      <div className="mb-4 rounded-xl bg-amber-100/80 px-4 py-3 ring-1 ring-amber-200/70">
         <h2 id="step-pet-title" className="text-lg font-bold text-amber-900">
-          {t('register.petsSectionTitle')}
+          🐾 {t('register.petsSectionTitle')}
         </h2>
         <p className="mt-1 text-sm text-amber-800/90">{t('register.petsSectionSubtitle')}</p>
       </div>
 
       <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
-        <span className="text-sm font-medium text-stone-800">
+        <span className="text-sm font-bold text-stone-800">
           {t('register.petsToggleLabel')}
         </span>
         <span className="relative inline-flex shrink-0">

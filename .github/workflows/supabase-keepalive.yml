@@ -1,7 +1,7 @@
 name: Supabase Keep-Alive
 
-# 週2回（月・木）、Supabaseプロジェクトを軽く叩いて自動停止(Pause)を防ぐ見守りping。
-# うまく応答しなかった場合は GitHub から通知メールが届く（早期発見のおまけ付き）。
+# 週2回（月・木）、Supabaseの実テーブルを軽く読んで自動停止(Pause)を防ぐ見守りping。
+# プロジェクトから応答が返れば成功。まったく繋がらない時だけ失敗＝通知メールで早期発見。
 
 on:
   schedule:
@@ -12,20 +12,18 @@ jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping all Supabase projects
+      - name: Ping Supabase projects
         env:
           U1: ${{ secrets.SUPABASE_URL_TASUKE }}
           K1: ${{ secrets.SUPABASE_KEY_TASUKE }}
           U2: ${{ secrets.SUPABASE_URL_SITTE }}
           K2: ${{ secrets.SUPABASE_KEY_SITTE }}
-          U3: ${{ secrets.SUPABASE_URL_MISHIKAL }}
-          K3: ${{ secrets.SUPABASE_KEY_MISHIKAL }}
         run: |
           set -u
           fail=0
 
           ping() {
-            name="$1"; url="$2"; key="$3"
+            name="$1"; url="$2"; key="$3"; table="$4"
             if [ -z "$url" ] || [ -z "$key" ]; then
               echo "[$name] スキップ（URLかキーが未設定）"
               return 0
@@ -33,20 +31,22 @@ jobs:
             code=$(curl -s -o /dev/null -w "%{http_code}" \
               -H "apikey: $key" \
               -H "Authorization: Bearer $key" \
-              "${url%/}/rest/v1/")
+              "${url%/}/rest/v1/${table}?select=*&limit=1")
             echo "[$name] HTTP $code"
-            if [ "$code" -lt 200 ] || [ "$code" -ge 400 ]; then
-              echo "[$name] ⚠️ 応答が異常です"
+            # 000 = そもそも繋がらない（＝停止の疑い）。5xx = サーバ異常。それ以外は「応答あり＝起きている」
+            if [ "$code" = "000" ] || [ "$code" -ge 500 ]; then
+              echo "[$name] ⚠️ 応答なし／サーバ異常"
               fail=1
             fi
           }
 
-          ping "たすけAI" "$U1" "$K1"
-          ping "sitte"    "$U2" "$K2"
-          ping "ミシカル"  "$U3" "$K3"
+          # たすけAI（テーブル: members）
+          ping "たすけAI"      "$U1" "$K1" "members"
+          # sitte と ミシカルは同じプロジェクト（テーブル: registrations）
+          ping "sitte/ミシカル" "$U2" "$K2" "registrations"
 
           if [ "$fail" -ne 0 ]; then
-            echo "一部のプロジェクトで異常がありました"
+            echo "一部プロジェクトに繋がりませんでした"
             exit 1
           fi
-          echo "全プロジェクト正常にping完了 ✅"
+          echo "全プロジェクト起きています ✅"

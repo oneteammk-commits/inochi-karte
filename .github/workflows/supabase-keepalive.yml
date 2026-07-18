@@ -1,13 +1,13 @@
 name: Supabase Keep-Alive
 
-# 週2回（月・木）、Supabaseの実テーブルを軽く読んで自動停止(Pause)を防ぐ見守りping。
-# 新方式キー（sb_publishable_…）と旧方式キー（eyJ…）の両方に自動対応。
-# 失敗時は「どこを直せばいいか」を日本語でログに表示します。
+# 毎日1回、Supabaseの実テーブルを軽く読んで自動停止(Pause)を防ぐ見守りping。
+# URLはこのファイルに直接記載（公開情報のため）→ Secretの貼り間違いが起きない構造。
+# 正常応答（200番台）以外はすべて失敗として、日本語で原因をログに表示します。
 
 on:
   schedule:
-    - cron: '0 3 * * 1,4'   # 毎週 月曜・木曜 03:00 UTC（日本時間 昼12:00ごろ）
-  workflow_dispatch: {}       # Actionsタブから手動で実行できるボタン
+    - cron: '0 3 * * *'   # 毎日 03:00 UTC（日本時間 昼12:00ごろ）
+  workflow_dispatch: {}    # Actionsタブから手動で実行できるボタン
 
 jobs:
   keep-alive:
@@ -15,60 +15,63 @@ jobs:
     steps:
       - name: Ping Supabase projects
         env:
-          U1: ${{ secrets.SUPABASE_URL_TASUKE }}
           K1: ${{ secrets.SUPABASE_KEY_TASUKE }}
-          U2: ${{ secrets.SUPABASE_URL_SITTE }}
           K2: ${{ secrets.SUPABASE_KEY_SITTE }}
         run: |
           set -u
           fail=0
 
+          # URLは固定（Secretは使わない。入れ違い防止のため変更しないこと）
+          URL_TASUKE="https://wncooulzhwxlqdpusjmi.supabase.co"
+          URL_SITTE="https://esuvecruxlbovlnjgvyb.supabase.co"
+
           check() {
             name="$1"; url="$2"; key="$3"; table="$4"
 
-            if [ -z "$url" ] || [ -z "$key" ]; then
-              echo "[$name] ❌ Secret が空です → Settings → Secrets and variables → Actions を確認"
+            if [ -z "$key" ]; then
+              echo "[$name] ❌ 鍵のSecretが空です → Settings → Secrets and variables → Actions を確認"
               fail=1
               return 0
             fi
 
-            # 鍵の先頭と長さだけ表示（貼り間違い・欠けの確認用。全体は表示しません）
+            # 鍵の先頭と長さだけ表示（貼り間違い確認用。全体は表示しません）
             prefix=$(printf '%s' "$key" | cut -c1-15)
-            echo "[$name] 鍵の先頭: ${prefix}…（長さ ${#key} 文字）"
+            echo "[$name] 接続先: $url ／ 鍵の先頭: ${prefix}…（長さ ${#key} 文字）"
 
             if printf '%s' "$key" | grep -q '^sb_publishable_'; then
-              # 新方式キー：apikey ヘッダーのみ
               code=$(curl -s -o /dev/null -w "%{http_code}" \
                 -H "apikey: $key" \
-                "${url%/}/rest/v1/${table}?select=*&limit=1")
+                "${url}/rest/v1/${table}?select=*&limit=1")
             else
-              # 旧方式キー（eyJ…）：従来どおり2ヘッダー
               code=$(curl -s -o /dev/null -w "%{http_code}" \
                 -H "apikey: $key" \
                 -H "Authorization: Bearer $key" \
-                "${url%/}/rest/v1/${table}?select=*&limit=1")
+                "${url}/rest/v1/${table}?select=*&limit=1")
             fi
             echo "[$name] HTTP $code"
 
             case "$code" in
+              2*)
+                echo "[$name] ✅ 起きています（データ取得OK）" ;;
               000)
-                echo "[$name] ⚠️ 接続できません（プロジェクト停止の疑い → ダッシュボードで Restore）"
+                echo "[$name] ⚠️ 接続できません → プロジェクト停止の疑い。Supabaseダッシュボードで Restore project を実行"
                 fail=1 ;;
               401|403)
-                echo "[$name] ❌ 鍵が受け付けられていません → Supabase の Settings → API Keys で sb_publishable_… キーをCopyし、Secret を上書きしてください"
+                echo "[$name] ❌ この鍵は $name のプロジェクトで受け付けられていません → Supabaseの【$name のプロジェクト】→ Settings → API Keys の sb_publishable_… をCopyし、対応するSecretを上書き"
                 fail=1 ;;
-              5*)
-                echo "[$name] ⚠️ サーバ異常"
+              404)
+                echo "[$name] ❌ テーブル ${table} が見つかりません → テーブル名かプロジェクトの対応を確認"
                 fail=1 ;;
               *)
-                echo "[$name] ✅ 起きています" ;;
+                echo "[$name] ❌ 想定外の応答（HTTP $code）→ この画面ごとClaudeに見せてください"
+                fail=1 ;;
             esac
           }
 
-          # たすけAI（テーブル: members）
-          check "たすけAI" "$U1" "$K1" "members"
-          # sitte と ミシカルは同じプロジェクト（テーブル: registrations）
-          check "sitte-ミシカル" "$U2" "$K2" "registrations"
+          # たすけAI（プロジェクト: tasuke-ai / テーブル: members）
+          check "たすけAI" "$URL_TASUKE" "$K1" "members"
+          # sitte と ミシカルは同じプロジェクトを共用（テーブル: registrations）
+          check "sitte-ミシカル" "$URL_SITTE" "$K2" "registrations"
 
           if [ "$fail" -ne 0 ]; then
             echo "❌ 対応が必要です。上の日本語メッセージのとおり直してください。"

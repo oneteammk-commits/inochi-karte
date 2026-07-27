@@ -1,13 +1,14 @@
 name: Supabase Keep-Alive
 
-# 毎日1回、Supabaseの実テーブルを軽く読んで自動停止(Pause)を防ぐ見守りping。
+# 1日4回（6時間ごと）、各プロジェクトの2テーブルを軽く読んで自動停止(Pause)を防ぐ見守りping。
+# Supabase公式基準「1日に数回のリクエスト」を確実に満たすためのアクセス量（各プロジェクト1日8回）。
 # URLはこのファイルに直接記載（公開情報のため）→ Secretの貼り間違いが起きない構造。
 # 正常応答（200番台）以外はすべて失敗として、日本語で原因をログに表示します。
 
 on:
   schedule:
-    - cron: '0 3 * * *'   # 毎日 03:00 UTC（日本時間 昼12:00ごろ）
-  workflow_dispatch: {}    # Actionsタブから手動で実行できるボタン
+    - cron: '0 0,6,12,18 * * *'   # 毎日 0,6,12,18時 UTC（日本時間 9,15,21,3時ごろ）
+  workflow_dispatch: {}            # Actionsタブから手動で実行できるボタン
 
 jobs:
   keep-alive:
@@ -34,9 +35,8 @@ jobs:
               return 0
             fi
 
-            # 鍵の先頭と長さだけ表示（貼り間違い確認用。全体は表示しません）
             prefix=$(printf '%s' "$key" | cut -c1-15)
-            echo "[$name] 接続先: $url ／ 鍵の先頭: ${prefix}…（長さ ${#key} 文字）"
+            echo "[$name/$table] 接続先: $url ／ 鍵の先頭: ${prefix}…"
 
             if printf '%s' "$key" | grep -q '^sb_publishable_'; then
               code=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -48,30 +48,32 @@ jobs:
                 -H "Authorization: Bearer $key" \
                 "${url}/rest/v1/${table}?select=*&limit=1")
             fi
-            echo "[$name] HTTP $code"
+            echo "[$name/$table] HTTP $code"
 
             case "$code" in
               2*)
-                echo "[$name] ✅ 起きています（データ取得OK）" ;;
+                echo "[$name/$table] ✅ 起きています（データ取得OK）" ;;
               000)
-                echo "[$name] ⚠️ 接続できません → プロジェクト停止の疑い。Supabaseダッシュボードで Restore project を実行"
+                echo "[$name/$table] ⚠️ 接続できません → プロジェクト停止の疑い。Supabaseダッシュボードで Restore project を実行"
                 fail=1 ;;
               401|403)
-                echo "[$name] ❌ この鍵は $name のプロジェクトで受け付けられていません → Supabaseの【$name のプロジェクト】→ Settings → API Keys の sb_publishable_… をCopyし、対応するSecretを上書き"
+                echo "[$name/$table] ❌ この鍵は $name のプロジェクトで受け付けられていません → Supabaseの【$name のプロジェクト】→ Settings → API Keys の sb_publishable_… をCopyし、対応するSecretを上書き"
                 fail=1 ;;
               404)
-                echo "[$name] ❌ テーブル ${table} が見つかりません → テーブル名かプロジェクトの対応を確認"
+                echo "[$name/$table] ❌ テーブル ${table} が見つかりません → テーブル名かプロジェクトの対応を確認"
                 fail=1 ;;
               *)
-                echo "[$name] ❌ 想定外の応答（HTTP $code）→ この画面ごとClaudeに見せてください"
+                echo "[$name/$table] ❌ 想定外の応答（HTTP $code）→ この画面ごとClaudeに見せてください"
                 fail=1 ;;
             esac
           }
 
-          # たすけAI（プロジェクト: tasuke-ai / テーブル: members）
+          # たすけAI（プロジェクト: tasuke-ai）
           check "たすけAI" "$URL_TASUKE" "$K1" "members"
-          # sitte と ミシカルは同じプロジェクトを共用（テーブル: registrations）
+          check "たすけAI" "$URL_TASUKE" "$K1" "requests"
+          # sitte と ミシカルは同じプロジェクトを共用
           check "sitte-ミシカル" "$URL_SITTE" "$K2" "registrations"
+          check "sitte-ミシカル" "$URL_SITTE" "$K2" "pet_registrations"
 
           if [ "$fail" -ne 0 ]; then
             echo "❌ 対応が必要です。上の日本語メッセージのとおり直してください。"

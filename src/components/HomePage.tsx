@@ -1,33 +1,39 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getMyCardId } from '../lib/storage'
+import { getMyCards, updateMyCardNames, type MyCard } from '../lib/storage'
 import { supabase } from '../lib/supabase'
 
 export function HomePage() {
   const { t, i18n } = useTranslation()
-  const [myCardId, setMyCardId] = useState<string | null>(null)
+  const [myCards, setMyCards] = useState<MyCard[]>([])
   const [emergencyPhone, setEmergencyPhone] = useState<string | null>(null)
   const [langOpen, setLangOpen] = useState(false)
 
   useEffect(() => {
-    const id = getMyCardId()
-    setMyCardId(id)
-    if (id) {
+    const cards = getMyCards()
+    setMyCards(cards)
+    if (cards.length > 0) {
+      const ids = cards.map((c) => c.id)
       supabase
         .from('registrations')
-        .select('emergency_contact_phone')
-        .eq('id', id)
-        .single()
+        .select('id, name, emergency_contact_phone')
+        .in('id', ids)
         .then(({ data }) => {
-          if (data && data.emergency_contact_phone) {
-            setEmergencyPhone(data.emergency_contact_phone)
+          if (!data) return
+          const names = data
+            .filter((row) => row && row.id && row.name)
+            .map((row) => ({ id: row.id as string, name: row.name as string }))
+          if (names.length > 0) {
+            updateMyCardNames(names)
+            setMyCards(getMyCards())
+          }
+          const first = data.find((row) => row.id === cards[0].id)
+          if (first && first.emergency_contact_phone) {
+            setEmergencyPhone(first.emergency_contact_phone)
           }
         })
     }
   }, [])
-
-  const viewUrl = myCardId ? "/card/" + myCardId : "#"
-  const editUrl = myCardId ? "/edit/" + myCardId : "#"
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng)
@@ -76,17 +82,30 @@ export function HomePage() {
         </div>
 
         <div className="space-y-4">
-          <a href="/register" className="block w-full bg-red-700 hover:bg-red-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow-md">{t('home.buttonRegister')}</a>
+          <a href="/register" className="block w-full bg-red-700 hover:bg-red-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow-md">
+            {myCards.length > 0 ? t('home.buttonRegisterFamily') : t('home.buttonRegister')}
+          </a>
 
-          {myCardId && (
-            <a href={viewUrl} className="block w-full bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-5 rounded-2xl text-lg font-bold shadow-sm">{t('home.buttonViewCard')}</a>
+          {myCards.length > 0 && (
+            <div className="pt-2">
+              <h2 className="mb-3 text-center text-lg font-bold text-black">{t('home.familyTitle')}</h2>
+              <div className="space-y-3">
+                {myCards.map((card) => (
+                  <div key={card.id} className="rounded-2xl border-2 border-stone-300 bg-white p-4 shadow-sm">
+                    <p className="mb-3 text-center text-lg font-bold text-black">
+                      {card.name ? card.name : t('home.familyNoName')}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <a href={"/card/" + card.id} className="block bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-3 rounded-xl text-base font-bold shadow-sm">{t('home.familyView')}</a>
+                      <a href={"/edit/" + card.id} className="block bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-3 rounded-xl text-base font-bold shadow-sm">{t('home.familyEdit')}</a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
-          {myCardId && (
-            <a href={editUrl} className="block w-full bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-5 rounded-2xl text-lg font-bold shadow-sm">{t('home.buttonEdit')}</a>
-          )}
-
-          {!myCardId && (
+          {myCards.length === 0 && (
             <div className="text-center text-base text-black mt-6 font-medium">
               <p>{t('home.notRegistered1')}</p>
               <p>{t('home.notRegistered2')}</p>

@@ -15,7 +15,7 @@ ALLERGY_TAGS,  CHRONIC_TAGS,
 } from '../data/registrationConstants'
 import { persistRegistration } from '../lib/persistRegistration'
 import { persistPetRegistrations } from '../lib/persistPetRegistrations'
-import { saveMyCardId } from '../lib/storage'
+import { addMyCard } from '../lib/storage'
 import { StepPetSection } from './StepPetSection'
 import { createEmptyPetRow } from '../types/pet'
 import type { PetRow } from '../types/pet'
@@ -150,7 +150,7 @@ export function RegistrationForm() {
         if (data.registerPetsEnabled) {
           await persistPetRegistrations(savedId, data.pets)
         }
-        saveMyCardId(savedId)
+        addMyCard(savedId, data.fullName.trim())
         setWizard((w) => ({
           step: Math.min(w.step + 1, STEP_LABELS.length - 1),
           registrationId: savedId,

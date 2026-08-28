@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getMyCards, updateMyCardNames, type MyCard } from '../lib/storage'
+import { getMyCards, updateMyCardNames, removeMyCard, type MyCard } from '../lib/storage'
+import { deleteRegistration } from '../lib/deleteRegistration'
 import { supabase } from '../lib/supabase'
 
 export function HomePage() {
@@ -8,6 +9,37 @@ export function HomePage() {
   const [myCards, setMyCards] = useState<MyCard[]>([])
   const [emergencyPhone, setEmergencyPhone] = useState<string | null>(null)
   const [langOpen, setLangOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<MyCard | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState(false)
+
+  const openDeleteDialog = (card: MyCard) => {
+    setDeleteError(false)
+    setDeleteTarget(card)
+  }
+
+  const closeDeleteDialog = () => {
+    if (deleting) return
+    setDeleteTarget(null)
+    setDeleteError(false)
+  }
+
+  const handleDelete = async () => {
+    if (!deleteTarget || deleting) return
+    setDeleting(true)
+    setDeleteError(false)
+    try {
+      await deleteRegistration(deleteTarget.id)
+      removeMyCard(deleteTarget.id)
+      setMyCards(getMyCards())
+      setDeleteTarget(null)
+    } catch (e) {
+      console.error('delete failed:', e)
+      setDeleteError(true)
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   useEffect(() => {
     const cards = getMyCards()
@@ -99,6 +131,9 @@ export function HomePage() {
                       <a href={"/card/" + card.id} className="block bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-3 rounded-xl text-base font-bold shadow-sm">{t('home.familyView')}</a>
                       <a href={"/edit/" + card.id} className="block bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-3 rounded-xl text-base font-bold shadow-sm">{t('home.familyEdit')}</a>
                     </div>
+                    <div className="mt-3 text-center">
+                      <button onClick={() => openDeleteDialog(card)} className="text-sm font-bold text-red-700 underline underline-offset-2">{t('home.familyDelete')}</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -117,6 +152,28 @@ export function HomePage() {
           <p>{t('home.qrInfo')}</p>
         </div>
       </div>
+
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={closeDeleteDialog}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-3 text-center text-xl font-bold text-black">{t('home.deleteTitle')}</h3>
+            <p className="mb-5 text-base leading-relaxed text-black">
+              {t('home.deleteConfirm', { name: deleteTarget.name || t('home.familyNoName') })}
+            </p>
+            {deleteError && (
+              <p className="mb-4 rounded-xl border-2 border-red-300 bg-red-50 p-3 text-sm font-bold text-red-700">{t('home.deleteError')}</p>
+            )}
+            <div className="space-y-3">
+              <button onClick={handleDelete} disabled={deleting} className="block w-full rounded-xl bg-red-700 py-4 text-center text-base font-bold text-white shadow-md hover:bg-red-800 disabled:opacity-60">
+                {deleting ? t('home.deleting') : t('home.deleteYes')}
+              </button>
+              <button onClick={closeDeleteDialog} disabled={deleting} className="block w-full rounded-xl border-2 border-stone-400 bg-white py-4 text-center text-base font-bold text-black shadow-sm hover:bg-stone-50 disabled:opacity-60">
+                {t('home.deleteNo')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

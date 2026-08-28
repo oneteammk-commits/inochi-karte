@@ -44,6 +44,8 @@ function writeCards(cards: MyCard[]): void {
     if (firstId) {
       const oneYear = 365 * 24 * 60 * 60
       document.cookie = KEY + '=' + encodeURIComponent(firstId) + '; max-age=' + oneYear + '; path=/; SameSite=Lax'
+    } else {
+      document.cookie = KEY + '=; max-age=0; path=/; SameSite=Lax'
     }
   } catch (e) {
     console.error('cookie save failed:', e)
@@ -92,6 +94,12 @@ export function addMyCard(id: string, name: string): void {
     return
   }
   cards.push({ id, name })
+  writeCards(cards)
+}
+
+// 家族を1人、この端末の一覧から取り除く（完全削除の仕上げに呼ぶ）
+export function removeMyCard(id: string): void {
+  const cards = getMyCards().filter((c) => c.id !== id)
   writeCards(cards)
 }
 

@@ -124,3 +124,18 @@ create policy "allow public read pet-meds"
   for select
   to public
   using (bucket_id = 'pet-meds');
+
+-- 4. 登録の完全削除（家族削除機能用）
+drop policy if exists "allow anon delete registrations" on public.registrations;
+create policy "allow anon delete registrations"
+  on public.registrations
+  for delete
+  to anon
+  using (true);
+
+drop policy if exists "allow anon delete pet-meds" on storage.objects;
+create policy "allow anon delete pet-meds"
+  on storage.objects
+  for delete
+  to anon
+  using (bucket_id = 'pet-meds');

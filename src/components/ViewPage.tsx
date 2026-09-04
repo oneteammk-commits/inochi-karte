@@ -1,8 +1,9 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDisplayAddress } from '../lib/formatAddress'
 import { supabase } from '../lib/supabase'
-import { QRCodeSVG } from 'qrcode.react'
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
+import { downloadOmamoriCard } from '../lib/omamoriCard'
 import { PetViewSection } from './PetViewSection'
 import type { PetRegistrationRow } from '../types/petRegistration'
 
@@ -13,6 +14,7 @@ export function ViewPage({ id }: { id: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [langOpen, setLangOpen] = useState(false)
+  const [savingCard, setSavingCard] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,6 +48,17 @@ export function ViewPage({ id }: { id: string }) {
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng)
     setLangOpen(false)
+  }
+
+  const handleSaveOmamori = async () => {
+    const src = document.getElementById('omamori-qr-src') as HTMLCanvasElement | null
+    if (!src) return
+    setSavingCard(true)
+    try {
+      await downloadOmamoriCard(src)
+    } finally {
+      setSavingCard(false)
+    }
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-lg font-bold">{t('view.loading')}</p></div>
@@ -181,6 +194,11 @@ export function ViewPage({ id }: { id: string }) {
             />
           </div>
           <p className="text-sm text-stone-600 text-center">{t('view.qrCardInstruction')}</p>
+          <button onClick={handleSaveOmamori} disabled={savingCard} className="mt-3 block w-full bg-[#1B3A5C] hover:opacity-90 disabled:opacity-60 text-white text-center py-4 rounded-2xl text-base font-bold shadow">🐶 {t('view.omamoriSave', 'お守りカードを保存')}</button>
+        </div>
+
+        <div aria-hidden="true" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+          <QRCodeCanvas id="omamori-qr-src" value={`${window.location.origin}/card/${id}`} size={296} level="M" marginSize={0} fgColor="#000000" bgColor="#FFFFFF" />
         </div>
 
         <div className="mt-6 mb-4">          <a href={"/edit/" + id} className="block w-full bg-stone-700 hover:bg-stone-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow">{t('view.buttonEdit')}</a>

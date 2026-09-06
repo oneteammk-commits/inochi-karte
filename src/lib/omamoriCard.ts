@@ -56,67 +56,105 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 }
 
 export async function downloadOmamoriCard(qrCanvas: HTMLCanvasElement): Promise<void> {
+  // L判(コンビニ写真プリント 89x127mm・300dpi)ぴったりのテンプレートに、
+  // クレジットカードより小さいカード(約52x82mm)を切り取り線付きで2枚配置する
+  const LW = 1500
+  const LH = 1051
   const W = 1276
   const H = 2022
+  const scale = 0.47874
+  const cardW = Math.round(W * scale)
+  const cardH = Math.round(H * scale)
+  const gap = 60
+  const y0 = Math.round((LH - cardH) / 2) + 10
+  const x0a = Math.round((LW - cardW * 2 - gap) / 2)
+  const x0b = x0a + cardW + gap
+
   const canvas = document.createElement('canvas')
-  canvas.width = W
-  canvas.height = H
+  canvas.width = LW
+  canvas.height = LH
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
-  ctx.fillStyle = BG
-  ctx.fillRect(0, 0, W, H)
-  ctx.lineWidth = 20
-  ctx.strokeStyle = FRAME
-  roundRect(ctx, 20, 20, W - 40, H - 40, 80)
-  ctx.stroke()
-  ctx.lineWidth = 8
-  ctx.strokeStyle = GOLD
-  roundRect(ctx, 52, 52, W - 104, H - 104, 60)
-  ctx.stroke()
-
-  ctx.fillStyle = FRAME
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'top'
-  ctx.font = `bold 72px ${JP_FONT}`
-  ctx.fillText('命のカルテ sitte', W / 2, 64)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(0, 0, LW, LH)
 
   const char = await loadImage(MITEWAN_RESCUE_DATAURL)
-  const ch = 1480
-  const cw = Math.round((ch * char.width) / char.height)
-  const charX = Math.round(W / 2 - cw / 2)
-  const charY = 236
-  ctx.drawImage(char, charX, charY, cw, ch)
-
-  // お腹の白パネル + 角丸・紺の二次元コード（実測済みの内接位置）
-  const qrSide = 425
-  const pad = 20
-  const px = Math.round(W / 2 - qrSide / 2)
-  const panelTop = Math.round(charY + (468 / 846) * ch) + pad
-  ctx.fillStyle = BG
-  ctx.strokeStyle = NAVY
-  ctx.lineWidth = 8
-  roundRect(ctx, px - pad, panelTop - pad, qrSide + pad * 2, qrSide + pad * 2, 28)
-  ctx.fill()
-  ctx.stroke()
-
   const m = readMatrix(qrCanvas)
-  const n = m.length
-  const mod = qrSide / n
-  const r = mod * 0.32
-  ctx.fillStyle = NAVY
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      if (!m[i][j]) continue
-      roundRect(ctx, px + j * mod, panelTop + i * mod, mod + 0.4, mod + 0.4, r)
-      ctx.fill()
+
+  const drawCard = () => {
+    ctx.fillStyle = BG
+    ctx.fillRect(0, 0, W, H)
+    ctx.lineWidth = 20
+    ctx.strokeStyle = FRAME
+    roundRect(ctx, 20, 20, W - 40, H - 40, 80)
+    ctx.stroke()
+    ctx.lineWidth = 8
+    ctx.strokeStyle = GOLD
+    roundRect(ctx, 52, 52, W - 104, H - 104, 60)
+    ctx.stroke()
+
+    ctx.fillStyle = FRAME
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'top'
+    ctx.font = `bold 72px ${JP_FONT}`
+    ctx.fillText('命のカルテ sitte', W / 2, 64)
+
+    const ch = 1480
+    const cw = Math.round((ch * char.width) / char.height)
+    const charX = Math.round(W / 2 - cw / 2)
+    const charY = 236
+    ctx.drawImage(char, charX, charY, cw, ch)
+
+    const qrSide = 425
+    const pad = 20
+    const px = Math.round(W / 2 - qrSide / 2)
+    const panelTop = Math.round(charY + (468 / 846) * ch) + pad
+    ctx.fillStyle = BG
+    ctx.strokeStyle = NAVY
+    ctx.lineWidth = 8
+    roundRect(ctx, px - pad, panelTop - pad, qrSide + pad * 2, qrSide + pad * 2, 28)
+    ctx.fill()
+    ctx.stroke()
+
+    const n = m.length
+    const mod = qrSide / n
+    const r = mod * 0.32
+    ctx.fillStyle = NAVY
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if (!m[i][j]) continue
+        roundRect(ctx, px + j * mod, panelTop + i * mod, mod + 0.4, mod + 0.4, r)
+        ctx.fill()
+      }
     }
+
+    ctx.fillStyle = '#1E1E1E'
+    ctx.font = `bold 60px ${JP_FONT}`
+    ctx.fillText('緊急時には二次元コードを読み込んで', W / 2, H - 250)
+    ctx.fillText('健康情報をみてください', W / 2, H - 158)
   }
 
-  ctx.fillStyle = '#1E1E1E'
-  ctx.font = `bold 60px ${JP_FONT}`
-  ctx.fillText('緊急時には二次元コードを読み込んで', W / 2, H - 250)
-  ctx.fillText('健康情報をみてください', W / 2, H - 158)
+  for (const x0 of [x0a, x0b]) {
+    ctx.save()
+    ctx.translate(x0, y0)
+    ctx.scale(scale, scale)
+    drawCard()
+    ctx.restore()
+    // 切り取り線
+    ctx.save()
+    ctx.strokeStyle = '#B8B2A8'
+    ctx.lineWidth = 2
+    ctx.setLineDash([12, 10])
+    ctx.strokeRect(x0 - 10, y0 - 10, cardW + 20, cardH + 20)
+    ctx.restore()
+  }
+
+  ctx.fillStyle = '#8A8478'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'top'
+  ctx.font = `bold 26px ${JP_FONT}`
+  ctx.fillText('― 点線で切りとってお使いください(1枚はお財布に・1枚は予備に) ―', LW / 2, 6)
 
   await new Promise<void>((resolve) => {
     canvas.toBlob((blob) => {

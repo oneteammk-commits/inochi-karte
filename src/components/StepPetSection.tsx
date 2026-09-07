@@ -329,7 +329,7 @@ export function StepPetSection({
               key={pet.id}
               pet={pet}
               index={index}
-              canRemove={form.pets.length > 1}
+              canRemove={form.pets.length > 0}
               onRemovePet={onRemovePet}
               onUpdatePet={onUpdatePet}
               onAddPetPhoto={onAddPetPhoto}

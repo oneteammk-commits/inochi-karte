@@ -453,6 +453,10 @@ export function EditPage({ id }: { id: string }) {
             )}
           </div>
 
+          {stepError && (
+            <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">{stepError}</div>
+          )}
+
           <nav className="mt-6 flex gap-3">
             <button
               type="button"

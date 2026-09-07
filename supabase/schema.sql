@@ -6,6 +6,7 @@ create table if not exists public.registrations (
   created_at timestamptz not null default now(),
   name text not null,
   birth_date date not null,
+  edit_password_hash text,
   emergency_contact_relationship text,
   emergency_contact_name text not null,
   emergency_contact_phone text not null,

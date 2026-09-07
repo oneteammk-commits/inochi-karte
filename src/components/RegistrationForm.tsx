@@ -6,6 +6,7 @@ import { EmergencyRelationshipField } from './EmergencyRelationshipField'
 import { ImeAwareInput } from './ImeAwareField'
 import { MedicalFreeTextField } from './MedicalFreeTextField'
 import { MedicationBlock } from './MedicationBlock'
+import { uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
 import { resolveEmergencyRelationshipForSave } from '../lib/emergencyRelationship'
 import {
 ALLERGY_TAGS,  CHRONIC_TAGS,
@@ -208,26 +209,17 @@ export function RegistrationForm() {
 
   const updateMedicationPhotos = useCallback(async (id: string, files: FileList | null) => {
     if (!files || files.length === 0) return
-    const toBase64 = (file: File) =>
-      new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '')
-        reader.onerror = () => reject(new Error('画像の読み込みに失敗しました。'))
-        reader.readAsDataURL(file)
-      })
-
     try {
-      const encoded = (await Promise.all(Array.from(files).map((f) => toBase64(f)))).filter(
-        Boolean,
-      )
+      // 写真は圧縮してストレージへ保存し、カルテにはURLだけを持たせる(枚数が増えても軽い)
+      const uploaded = await Promise.all(Array.from(files).map((f) => uploadMedicationPhoto(f)))
       setForm((prev) => ({
         ...prev,
         medications: prev.medications.map((m) =>
-          m.id === id ? { ...m, photoPreviews: [...m.photoPreviews, ...encoded] } : m,
+          m.id === id ? { ...m, photoPreviews: [...m.photoPreviews, ...uploaded] } : m,
         ),
       }))
     } catch {
-      setStepError('画像の読み込みに失敗しました。別の画像でお試しください。')
+      setStepError('画像のアップロードに失敗しました。通信環境の良い場所でもう一度お試しください。')
     }
   }, [])
 

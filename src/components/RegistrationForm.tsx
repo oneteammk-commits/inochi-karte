@@ -843,7 +843,7 @@ export function StepMedications({
             key={med.id}
             med={med}
             index={index}
-            canRemove={form.medications.length > 1}
+            canRemove={form.medications.length > 0}
             onRemoveRow={onRemoveRow}
             onUpdateMedication={onUpdateMedication}
             onAddPhotos={onAddPhotos}

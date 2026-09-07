@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-import { verifyPassword } from '../lib/passwordHash'
+import { verifyPassword, hashPassword } from '../lib/passwordHash'
 import { updateRegistration } from '../lib/updateRegistration'
 import { syncPetRegistrations } from '../lib/syncPetRegistrations'
 import { petRegistrationToFormRow } from '../lib/petFormMapper'
@@ -144,7 +144,25 @@ export function EditPage({ id }: { id: string }) {
       return
     }
     if (!storedHash) {
-      setAuthError(t('edit.passwordError'))
+      // パスワード機能より前の登録は未設定のため、初回入力をそのまま設定する
+      setIsChecking(true)
+      try {
+        const newHash = await hashPassword(inputPassword)
+        const { error } = await supabase
+          .from('registrations')
+          .update({ edit_password_hash: newHash })
+          .eq('id', id)
+        if (error) {
+          setAuthError(t('edit.passwordError'))
+        } else {
+          setStoredHash(newHash)
+          setIsAuthenticated(true)
+        }
+      } catch {
+        setAuthError(t('edit.passwordError'))
+      } finally {
+        setIsChecking(false)
+      }
       return
     }
     setIsChecking(true)
@@ -484,6 +502,10 @@ export function EditPage({ id }: { id: string }) {
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">{authError}</div>
           )}
 
+          {!storedHash && (
+            <div className="mb-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800 border border-amber-200">{t('edit.passwordFirstTime', 'このカルテはまだ編集用パスワードが未設定です。ここで入力した数字4桁が、そのまま編集用パスワードとして設定されます(必ずメモしてください)。')}</div>
+          )}
+
           <label className="block mb-6">
             <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('edit.passwordPlaceholder')}</span>
             <ImeAwareInput
@@ -492,7 +514,7 @@ export function EditPage({ id }: { id: string }) {
               maxLength={4}
               autoComplete="off"
               value={inputPassword}
-              onValueChange={(v) => setInputPassword(v.replace(/[^0-9]/g, ''))}
+              onValueChange={(v) => setInputPassword(v.replace(/[\uFF10-\uFF19]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0)).replace(/[^0-9]/g, ''))}
               className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-widest text-stone-900 focus:border-red-700 focus:outline-none"
               placeholder="----"
             />

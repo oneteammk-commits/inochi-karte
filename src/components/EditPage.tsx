@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { verifyPassword, hashPassword } from '../lib/passwordHash'
 import { getMyCards } from '../lib/storage'
+import { uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
 import { updateRegistration } from '../lib/updateRegistration'
 import { syncPetRegistrations } from '../lib/syncPetRegistrations'
 import { petRegistrationToFormRow } from '../lib/petFormMapper'
@@ -219,28 +220,21 @@ export function EditPage({ id }: { id: string }) {
 
   const updateMedicationPhotos = async (mid: string, files: FileList | null) => {
     if (!files || files.length === 0) return
-    const toBase64 = (file: File) =>
-      new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '')
-        reader.onerror = () => reject(new Error('image read failed'))
-        reader.readAsDataURL(file)
-      })
-
     try {
-      const encoded = (await Promise.all(Array.from(files).map((f) => toBase64(f)))).filter(Boolean)
+      // 写真は圧縮してストレージへ保存し、カルテにはURLだけを持たせる(枚数が増えても軽い)
+      const uploaded = await Promise.all(Array.from(files).map((f) => uploadMedicationPhoto(f)))
       setForm((prev) =>
         prev
           ? {
               ...prev,
               medications: prev.medications.map((m) =>
-                m.id === mid ? { ...m, photoPreviews: [...m.photoPreviews, ...encoded] } : m
+                m.id === mid ? { ...m, photoPreviews: [...m.photoPreviews, ...uploaded] } : m
               ),
             }
           : prev
       )
     } catch {
-      setStepError('error')
+      setStepError(t('edit.photoUploadError', '画像のアップロードに失敗しました。通信環境の良い場所でもう一度お試しください。'))
     }
   }
 

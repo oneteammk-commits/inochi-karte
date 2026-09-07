@@ -142,7 +142,7 @@ export function EditPage({ id }: { id: string }) {
     e.preventDefault()
     setAuthError(null)
     if (!/^\d{4}$/.test(inputPassword)) {
-      setAuthError(t('edit.passwordError'))
+      setAuthError(t('edit.passwordFormatError', '数字4桁を入力してください') + '（いま読み取れた数字: ' + inputPassword.length + '桁）')
       return
     }
     if (!storedHash) {
@@ -177,7 +177,7 @@ export function EditPage({ id }: { id: string }) {
       if (ok) {
         setIsAuthenticated(true)
       } else {
-        setAuthError(t('edit.passwordError'))
+        setAuthError(t('edit.passwordMismatch', 'パスワードが一致しません（登録時に決めた4桁と異なります）'))
       }
     } catch {
       setAuthError(t('edit.passwordError'))
@@ -518,7 +518,7 @@ export function EditPage({ id }: { id: string }) {
               type="password"
               inputMode="numeric"
               maxLength={4}
-              autoComplete="off"
+              autoComplete="one-time-code"
               value={inputPassword}
               onValueChange={(v) => setInputPassword(v.replace(/[\uFF10-\uFF19]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0)).replace(/[^0-9]/g, ''))}
               className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-widest text-stone-900 focus:border-red-700 focus:outline-none"

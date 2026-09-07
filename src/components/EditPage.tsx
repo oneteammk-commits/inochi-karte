@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { verifyPassword, hashPassword } from '../lib/passwordHash'
+import { getMyCards } from '../lib/storage'
 import { updateRegistration } from '../lib/updateRegistration'
 import { syncPetRegistrations } from '../lib/syncPetRegistrations'
 import { petRegistrationToFormRow } from '../lib/petFormMapper'
@@ -79,6 +80,7 @@ export function EditPage({ id }: { id: string }) {
   const [storedHash, setStoredHash] = useState<string | null>(null)
   const [name, setName] = useState<string>('')
   const [inputPassword, setInputPassword] = useState('')
+  const [isOwnDevice] = useState(() => getMyCards().some((c) => c.id === id))
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [isChecking, setIsChecking] = useState(false)
@@ -144,7 +146,11 @@ export function EditPage({ id }: { id: string }) {
       return
     }
     if (!storedHash) {
-      // パスワード機能より前の登録は未設定のため、初回入力をそのまま設定する
+      // パスワード機能より前の登録は未設定。安全のため、初回設定は本人の端末(登録に使った端末)でのみ許可する
+      if (!isOwnDevice) {
+        setAuthError(t('edit.passwordNotOwnDevice', 'このカルテは編集用パスワードが未設定です。登録したご本人のスマホ(登録に使った端末)から開くと、パスワードを設定できます。'))
+        return
+      }
       setIsChecking(true)
       try {
         const newHash = await hashPassword(inputPassword)
@@ -502,7 +508,7 @@ export function EditPage({ id }: { id: string }) {
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">{authError}</div>
           )}
 
-          {!storedHash && (
+          {!storedHash && isOwnDevice && (
             <div className="mb-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800 border border-amber-200">{t('edit.passwordFirstTime', 'このカルテはまだ編集用パスワードが未設定です。ここで入力した数字4桁が、そのまま編集用パスワードとして設定されます(必ずメモしてください)。')}</div>
           )}
 

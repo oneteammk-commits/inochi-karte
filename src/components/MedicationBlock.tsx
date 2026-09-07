@@ -84,7 +84,8 @@ export const MedicationBlock = memo(function MedicationBlock({
                 <button
                   type="button"
                   onClick={() => onRemovePhoto(med.id, idx)}
-                  className="absolute right-1 top-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white"
+                  aria-label="delete photo"
+                  className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-base font-bold text-white shadow-md"
                 >
                   ×
                 </button>

@@ -35,7 +35,7 @@ export function ViewPage({ id }: { id: string }) {
       const { data: petRows } = await supabase
         .from('pet_registrations')
         .select(
-          'id, pet_name, species, breed, age, sex, medical_history, medications, allergies, vet_clinic, vaccine_info, microchip, food, medication_photo_url, owner_id',
+          'id, pet_name, species, breed, age, sex, medical_history, medications, allergies, vet_clinic, vaccine_info, microchip, food, medication_photo_url, photo_url, features, owner_id',
         )
         .eq('owner_id', String(id))
 

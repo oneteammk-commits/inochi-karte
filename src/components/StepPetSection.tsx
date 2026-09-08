@@ -29,7 +29,6 @@ const PetFormBlock = memo(function PetFormBlock({
       <div className="mb-4 flex items-center justify-between gap-2">
         <span className="text-sm font-semibold text-stone-800">
           {t('register.petLabel', { num: index + 1 })}
-          <span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
         </span>
         {canRemove && (
           <button
@@ -45,7 +44,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelPetName')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareInput
             value={pet.petName}
@@ -58,7 +56,6 @@ const PetFormBlock = memo(function PetFormBlock({
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-stone-600">
               {t('register.labelSpecies')}
-              <span className="font-normal text-stone-500">{t('register.optional')}</span>
             </span>
             <select
               value={pet.speciesKind}
@@ -91,7 +88,6 @@ const PetFormBlock = memo(function PetFormBlock({
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-stone-600">
               {t('register.labelBreed')}
-              <span className="font-normal text-stone-500">{t('register.optional')}</span>
             </span>
             <ImeAwareInput
               value={pet.breed}
@@ -103,7 +99,6 @@ const PetFormBlock = memo(function PetFormBlock({
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-stone-600">
               {t('register.labelPetAge')}
-              <span className="font-normal text-stone-500">{t('register.optional')}</span>
             </span>
             <ImeAwareInput
               value={pet.age}
@@ -115,7 +110,6 @@ const PetFormBlock = memo(function PetFormBlock({
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-stone-600">
               {t('register.labelPetSex')}
-              <span className="font-normal text-stone-500">{t('register.optional')}</span>
             </span>
             <select
               value={pet.sex}
@@ -132,7 +126,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelPetMedicalHistory')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareTextarea
             value={pet.medicalHistory}
@@ -145,7 +138,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelPetMedications')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareTextarea
             value={pet.medications}
@@ -158,7 +150,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <div>
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelPetMedicinePhoto')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-amber-300 bg-white px-4 py-5 transition hover:border-brand/50 hover:bg-brand-50/20">
             <input
@@ -194,7 +185,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelPetAllergies')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareTextarea
             value={pet.allergies}
@@ -207,7 +197,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelVetClinic')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareInput
             value={pet.vetClinic}
@@ -219,7 +208,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelVaccineInfo')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareInput
             value={pet.vaccineInfo}
@@ -231,7 +219,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelMicrochip')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareInput
             value={pet.microchip}
@@ -243,7 +230,6 @@ const PetFormBlock = memo(function PetFormBlock({
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelPetFood')}
-            <span className="font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareInput
             value={pet.food}

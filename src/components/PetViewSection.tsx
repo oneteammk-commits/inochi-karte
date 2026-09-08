@@ -46,7 +46,15 @@ export function PetViewSection({ pets, t }: PetViewSectionProps) {
             <p className="mb-3 text-base font-bold text-amber-900">
               {t('view.petLabel', { num: index + 1 })}
             </p>
+            {pet.photo_url && (
+              <img
+                src={pet.photo_url}
+                alt="pet"
+                className="mb-3 h-32 w-32 rounded-xl border border-amber-200 object-cover"
+              />
+            )}
             <PetField label={t('view.labelPetName')} value={pet.pet_name} />
+            <PetField label="特徴" value={pet.features} />
             <PetField label={t('view.labelPetSpecies')} value={pet.species} />
             <PetField label={t('view.labelPetBreed')} value={pet.breed} />
             <PetField label={t('view.labelPetAge')} value={pet.age} />

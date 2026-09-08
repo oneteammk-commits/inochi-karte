@@ -18,6 +18,8 @@ export type PetRow = {
   vaccineInfo: string
   microchip: string
   food: string
+  features: string
+  photoUrl: string | null
   medicationPhotoPreview: string | null
   medicationPhotoUrl: string | null
 }
@@ -38,6 +40,8 @@ export function createEmptyPetRow(): PetRow {
     vaccineInfo: '',
     microchip: '',
     food: '',
+    features: '',
+    photoUrl: null,
     medicationPhotoPreview: null,
     medicationPhotoUrl: null,
   }
@@ -58,6 +62,8 @@ export function petRowHasAnyData(pet: PetRow): boolean {
     pet.vaccineInfo.trim() ||
     pet.microchip.trim() ||
     pet.food.trim() ||
+    pet.features.trim() ||
+    pet.photoUrl ||
     pet.medicationPhotoPreview ||
     pet.medicationPhotoUrl
   )

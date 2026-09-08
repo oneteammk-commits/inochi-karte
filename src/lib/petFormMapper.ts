@@ -26,6 +26,8 @@ export function petRegistrationToFormRow(row: PetRegistrationRow): PetRow {
     vaccineInfo: row.vaccine_info ?? '',
     microchip: row.microchip ?? '',
     food: row.food ?? '',
+    features: row.features ?? '',
+    photoUrl: row.photo_url ?? null,
     medicationPhotoPreview: row.medication_photo_url ?? null,
     medicationPhotoUrl: row.medication_photo_url ?? null,
   }

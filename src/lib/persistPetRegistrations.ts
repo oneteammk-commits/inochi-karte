@@ -41,6 +41,8 @@ function petToInsertRow(pet: PetRow, ownerId: string, medicationPhotoUrl: string
     microchip: pet.microchip.trim() || null,
     food: pet.food.trim() || null,
     medication_photo_url: medicationPhotoUrl,
+    photo_url: pet.photoUrl || null,
+    features: pet.features.trim() || null,
     owner_id: String(ownerId),
   }
 }

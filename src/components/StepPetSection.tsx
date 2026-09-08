@@ -2,6 +2,7 @@ import { memo } from 'react'
 import type { PetRow } from '../types/pet'
 import type { RegistrationFormState } from '../types/registration'
 import { ImeAwareInput, ImeAwareTextarea } from './ImeAwareField'
+import { uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
 
 type PetFormBlockProps = {
   pet: PetRow
@@ -50,6 +51,49 @@ const PetFormBlock = memo(function PetFormBlock({
             onValueChange={(v) => onUpdatePet(pet.id, { petName: v })}
             className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderPetName')}
+          />
+        </label>
+        {/* ペットの写真(迷子時の特定用) */}
+        <div className="mb-4">
+          <span className="mb-1 block text-xs font-medium text-stone-600">ペットの写真</span>
+          {pet.photoUrl ? (
+            <div className="relative inline-block">
+              <img src={pet.photoUrl} alt="pet" className="h-28 w-28 rounded-lg border border-stone-200 object-cover" />
+              <button
+                type="button"
+                onClick={() => onUpdatePet(pet.id, { photoUrl: null })}
+                aria-label="delete photo"
+                className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-base font-bold text-white shadow-md"
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-stone-300 bg-white px-4 py-4">
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(e) => {
+                  const f = e.target.files && e.target.files[0]
+                  e.currentTarget.value = ''
+                  if (!f) return
+                  void uploadMedicationPhoto(f).then((url) => onUpdatePet(pet.id, { photoUrl: url }))
+                }}
+              />
+              <span className="text-center text-sm text-stone-500">タップして写真を選択</span>
+            </label>
+          )}
+          <p className="mt-1 text-xs text-stone-500">災害時に迷子になったとき、保護された子の特定に役立ちます</p>
+        </div>
+        <label className="mb-4 block">
+          <span className="mb-1 block text-xs font-medium text-stone-600">特徴(色・模様・首輪・性格など)</span>
+          <ImeAwareTextarea
+            value={pet.features}
+            onValueChange={(v) => onUpdatePet(pet.id, { features: v })}
+            rows={2}
+            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
+            placeholder="例:茶白のハチワレ、赤い首輪、人なつっこい"
           />
         </label>
         <div className="grid gap-4 sm:grid-cols-2">

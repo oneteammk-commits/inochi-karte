@@ -13,5 +13,7 @@ export type PetRegistrationRow = {
   microchip: string | null
   food: string | null
   medication_photo_url: string | null
+  photo_url?: string | null
+  features?: string | null
   owner_id: string
 }

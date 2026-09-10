@@ -220,3 +220,55 @@ export async function downloadQrOnly(qrCanvas: HTMLCanvasElement): Promise<void>
     }, 'image/png')
   })
 }
+
+/**
+ * Apple Watch表示用の二次元コード画像を保存する。
+ * コードを中央56%に配置した大余白設計のため、Watchの縦長画面で
+ * 自動トリミングされても、時刻やボタンが重なっても、コード本体と
+ * 余白(クワイエットゾーン)が必ず無傷で残る。写真文字盤にも最適。
+ */
+export async function downloadWatchQr(qrCanvas: HTMLCanvasElement): Promise<void> {
+  const m = readMatrix(qrCanvas)
+  const n = m.length
+  const SIZE = 1000
+  const qrSide = 560
+  const margin = (SIZE - qrSide) / 2
+  const canvas = document.createElement('canvas')
+  canvas.width = SIZE
+  canvas.height = SIZE
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(0, 0, SIZE, SIZE)
+
+  const mod = qrSide / n
+  const r = mod * 0.32
+  ctx.fillStyle = NAVY
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (!m[i][j]) continue
+      roundRect(ctx, margin + j * mod, margin + i * mod, mod + 0.4, mod + 0.4, r)
+      ctx.fill()
+    }
+  }
+
+  ctx.fillStyle = '#8A8478'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.font = `bold 28px ${JP_FONT}`
+  ctx.fillText('命のカルテ sitte', SIZE / 2, SIZE - margin + 60)
+
+  await new Promise<void>((resolve) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = 'watch-sitte.png'
+        a.click()
+        setTimeout(() => URL.revokeObjectURL(a.href), 10000)
+      }
+      resolve()
+    }, 'image/png')
+  })
+}

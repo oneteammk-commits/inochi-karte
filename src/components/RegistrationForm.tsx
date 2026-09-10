@@ -1,6 +1,6 @@
 import { QRCodeSVG } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
-import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { lookupPostalCode } from '../lib/postalCodeLookup'
 import { EmergencyRelationshipField } from './EmergencyRelationshipField'
 import { ImeAwareInput } from './ImeAwareField'
@@ -108,6 +108,8 @@ function validateRegistrationStep(s: number, data: RegistrationFormState, t: (ke
   registrationId: string | null
 }
 
+const DRAFT_KEY = 'sitte_registration_draft_v1'
+
 export function RegistrationForm() {
   const { t } = useTranslation()
   const [wizard, setWizard] = useState<WizardState>({ step: 0, registrationId: null })
@@ -119,6 +121,50 @@ export function RegistrationForm() {
   formRef.current = form
   const wizardRef = useRef(wizard)
   wizardRef.current = wizard
+
+  // 自動下書き保存: 入力途中で画面が作り直されても、続きから再開できる
+  const [draftAvailable, setDraftAvailable] = useState<boolean>(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (!raw) return false
+      const d = JSON.parse(raw)
+      return !!(d && d.form && typeof d.form === 'object')
+    } catch {
+      return false
+    }
+  })
+  useEffect(() => {
+    if (wizard.registrationId) return
+    if (draftAvailable) return
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ form, step: wizard.step, savedAt: Date.now() }))
+    } catch {
+      // 保存できない環境でも入力は継続できる
+    }
+  }, [form, wizard.step, wizard.registrationId, draftAvailable])
+  const restoreDraft = () => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (raw) {
+        const d = JSON.parse(raw)
+        if (d && d.form && typeof d.form === 'object') {
+          setForm({ ...initialForm, ...d.form })
+          setWizard((w) => ({ ...w, step: typeof d.step === 'number' ? d.step : 0 }))
+        }
+      }
+    } catch {
+      // 壊れた下書きは無視して最初から
+    }
+    setDraftAvailable(false)
+  }
+  const discardDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_KEY)
+    } catch {
+      // noop
+    }
+    setDraftAvailable(false)
+  }
 
   const activeStep = wizard.step
   const registrationId = wizard.registrationId
@@ -152,6 +198,11 @@ export function RegistrationForm() {
           await persistPetRegistrations(savedId, data.pets)
         }
         addMyCard(savedId, data.fullName.trim())
+        try {
+          localStorage.removeItem(DRAFT_KEY)
+        } catch {
+          // noop
+        }
         setWizard((w) => ({
           step: Math.min(w.step + 1, STEP_LABELS.length - 1),
           registrationId: savedId,
@@ -312,6 +363,30 @@ export function RegistrationForm() {
                       </header>
 
         <StepIndicator current={activeStep} labels={[t('register.step1'), t('register.step2'), t('register.step3'), t('register.step4'), t('register.step5'), t('register.step6')]} />
+
+        {draftAvailable && !registrationId && (
+          <div className="mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
+            <p className="mb-3 text-sm font-semibold text-amber-900">
+              入力途中のデータがあります。続きから入力しますか?
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={restoreDraft}
+                className="flex-1 rounded-xl bg-red-700 py-2.5 text-sm font-bold text-white hover:bg-red-800"
+              >
+                続きから入力する
+              </button>
+              <button
+                type="button"
+                onClick={discardDraft}
+                className="flex-1 rounded-xl border border-stone-300 bg-white py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+              >
+                最初から入力する
+              </button>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleFormSubmit} noValidate className="block">
           <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:p-8">

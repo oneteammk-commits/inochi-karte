@@ -169,3 +169,54 @@ export async function downloadOmamoriCard(qrCanvas: HTMLCanvasElement): Promise<
     }, 'image/png')
   })
 }
+
+/**
+ * 二次元コードだけを正方形の高解像度PNGで保存する。
+ * 余白(クワイエットゾーン)込みなので、好きな大きさに印刷しても読み取れる。
+ * Apple Watchの写真同期や、アームバンド等のグッズ作成にも使える。
+ */
+export async function downloadQrOnly(qrCanvas: HTMLCanvasElement): Promise<void> {
+  const m = readMatrix(qrCanvas)
+  const n = m.length
+  const SIZE = 1000
+  const qrSide = 840
+  const margin = (SIZE - qrSide) / 2
+  const canvas = document.createElement('canvas')
+  canvas.width = SIZE
+  canvas.height = SIZE
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(0, 0, SIZE, SIZE)
+
+  const mod = qrSide / n
+  const r = mod * 0.32
+  ctx.fillStyle = NAVY
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (!m[i][j]) continue
+      roundRect(ctx, margin + j * mod, margin + i * mod, mod + 0.4, mod + 0.4, r)
+      ctx.fill()
+    }
+  }
+
+  ctx.fillStyle = '#8A8478'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.font = `bold 34px ${JP_FONT}`
+  ctx.fillText('命のカルテ sitte', SIZE / 2, SIZE - margin / 2)
+
+  await new Promise<void>((resolve) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = 'qr-sitte.png'
+        a.click()
+        setTimeout(() => URL.revokeObjectURL(a.href), 10000)
+      }
+      resolve()
+    }, 'image/png')
+  })
+}

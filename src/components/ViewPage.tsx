@@ -217,8 +217,8 @@ export function ViewPage({ id }: { id: string }) {
           </div>
           <p className="text-sm text-stone-600 text-center">{t('view.qrCardInstruction')}</p>
           <button onClick={handleSaveOmamori} disabled={savingCard} style={{ color: '#ffffff' }} className="mt-3 block w-full bg-[#1B3A5C] hover:opacity-90 disabled:opacity-60 text-white text-center py-4 rounded-2xl text-base font-bold shadow">🐶 {t('view.omamoriSave', 'お守りカードを保存')}</button>
-          <button onClick={handleSaveQrOnly} disabled={savingQr} style={{ color: '#1B3A5C' }} className="mt-2 block w-full bg-white border-2 border-[#1B3A5C] hover:bg-stone-50 disabled:opacity-60 text-center py-3 rounded-2xl text-sm font-bold">{t('view.qrOnlySave', '二次元コードだけを保存')}</button>
-          <button onClick={handleSaveWatchQr} disabled={savingWatch} className="mt-2 block w-full bg-white border border-stone-300 hover:bg-stone-50 disabled:opacity-60 text-stone-700 text-center py-2.5 rounded-2xl text-sm font-semibold">⌚ {t('view.watchQrSave', 'Apple Watch用に保存')}</button>
+          <button onClick={handleSaveQrOnly} disabled={savingQr} style={{ color: '#ffffff' }} className="mt-2 block w-full bg-[#0F766E] hover:opacity-90 disabled:opacity-60 text-white text-center py-3 rounded-2xl text-sm font-bold shadow">{t('view.qrOnlySave', '二次元コードだけを保存')}</button>
+          <button onClick={handleSaveWatchQr} disabled={savingWatch} style={{ color: '#ffffff' }} className="mt-2 block w-full bg-[#57534E] hover:opacity-90 disabled:opacity-60 text-white text-center py-2.5 rounded-2xl text-sm font-bold shadow">⌚ {t('view.watchQrSave', 'Apple Watch用に保存')}</button>
         </div>
 
         <div aria-hidden="true" style={{ position: 'fixed', left: '-9999px', top: 0 }}>

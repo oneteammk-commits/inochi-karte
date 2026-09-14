@@ -83,7 +83,8 @@ export function HomePage() {
             <button onClick={() => changeLanguage('id')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 border-b border-stone-200 text-black font-bold">Bahasa Indonesia</button>
             <button onClick={() => changeLanguage('zh')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 border-b border-stone-200 text-black font-bold">中文</button>
             <button onClick={() => changeLanguage('ko')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 border-b border-stone-200 text-black font-bold">한국어</button>
-            <button onClick={() => changeLanguage('my')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 text-black font-bold">မြန်မာ</button>
+            <button onClick={() => changeLanguage('my')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 border-b border-stone-200 text-black font-bold">မြန်မာ</button>
+          <button onClick={() => changeLanguage('fr')} className="block w-full text-left px-4 py-3 hover:bg-stone-100 text-black font-bold">Français</button>
           </div>
         )}
       </div>

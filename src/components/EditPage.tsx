@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../lib/supabase'
-import { verifyPassword, hashPassword } from '../lib/passwordHash'
+import { fetchCard, verifyCardPassword, isValidPasswordFormat } from '../lib/cardApi'
 import { getMyCards } from '../lib/storage'
 import { uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
 import { updateRegistration } from '../lib/updateRegistration'
@@ -78,7 +77,7 @@ export function EditPage({ id }: { id: string }) {
   const { t, i18n } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [storedHash, setStoredHash] = useState<string | null>(null)
+  const [hasPassword, setHasPassword] = useState(true)
   const [name, setName] = useState<string>('')
   const [inputPassword, setInputPassword] = useState('')
   const [isOwnDevice] = useState(() => getMyCards().some((c) => c.id === id))
@@ -108,26 +107,17 @@ export function EditPage({ id }: { id: string }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data, error } = await supabase
-        .from('registrations')
-        .select('*')
-        .eq('id', id)
-        .single()
-      if (error || !data) {
+      // テーブルを直接読まず、IDを1件渡して1件だけ返す関数を使う
+      const bundle = await fetchCard(id)
+      if (!bundle) {
         setError(t('edit.notFound'))
         setLoading(false)
         return
       }
 
-      const { data: petRows } = await supabase
-        .from('pet_registrations')
-        .select(
-          'id, pet_name, species, breed, age, sex, medical_history, medications, allergies, vet_clinic, vaccine_info, microchip, food, medication_photo_url, photo_url, features, owner_id',
-        )
-        .eq('owner_id', String(id))
-
-      const pets = (petRows ?? []).map((row) => petRegistrationToFormRow(row))
-      setStoredHash(data.edit_password_hash)
+      const data = bundle.registration
+      const pets = bundle.pets.map((row) => petRegistrationToFormRow(row))
+      setHasPassword(bundle.hasPassword)
       setName(data.name)
       setForm({
         ...dataToForm(data),
@@ -139,46 +129,47 @@ export function EditPage({ id }: { id: string }) {
     void fetchData()
   }, [id, t])
 
+  const authMessage = (reason?: string): string => {
+    switch (reason) {
+      case 'locked':
+        return t(
+          'edit.passwordLocked',
+          'パスワードの入力を続けて間違えたため、しばらく編集できません。15分ほど時間をおいてから、もう一度お試しください。',
+        )
+      case 'notset':
+        return t(
+          'edit.passwordNotOwnDevice',
+          'このカルテは編集用パスワードが未設定です。登録したご本人のスマホ(登録に使った端末)から開くと、パスワードを設定できます。',
+        )
+      case 'notfound':
+        return t('edit.notFound')
+      case 'format':
+        return t('edit.passwordFormatError', '数字4桁を入力してください')
+      default:
+        return t('edit.passwordMismatch', 'パスワードが一致しません（登録時に決めた4桁と異なります）')
+    }
+  }
+
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthError(null)
-    if (!/^\d{4}$/.test(inputPassword)) {
-      setAuthError(t('edit.passwordFormatError', '数字4桁を入力してください') + '（いま読み取れた数字: ' + inputPassword.length + '桁）')
-      return
-    }
-    if (!storedHash) {
-      // パスワード機能より前の登録は未設定。安全のため、初回設定は本人の端末(登録に使った端末)でのみ許可する
-      if (!isOwnDevice) {
-        setAuthError(t('edit.passwordNotOwnDevice', 'このカルテは編集用パスワードが未設定です。登録したご本人のスマホ(登録に使った端末)から開くと、パスワードを設定できます。'))
-        return
-      }
-      setIsChecking(true)
-      try {
-        const newHash = await hashPassword(inputPassword)
-        const { error } = await supabase
-          .from('registrations')
-          .update({ edit_password_hash: newHash })
-          .eq('id', id)
-        if (error) {
-          setAuthError(t('edit.passwordError'))
-        } else {
-          setStoredHash(newHash)
-          setIsAuthenticated(true)
-        }
-      } catch {
-        setAuthError(t('edit.passwordError'))
-      } finally {
-        setIsChecking(false)
-      }
+    if (!isValidPasswordFormat(inputPassword)) {
+      setAuthError(
+        t('edit.passwordFormatError', '数字4桁を入力してください') +
+          '（いま読み取れた数字: ' + inputPassword.length + '桁）',
+      )
       return
     }
     setIsChecking(true)
     try {
-      const ok = await verifyPassword(inputPassword, storedHash)
-      if (ok) {
+      // 照合はデータベース側で行う。パスワードのハッシュはブラウザに渡らない。
+      // 未設定カルテの初回設定は、これまでどおり登録に使った端末でのみ許可する。
+      const result = await verifyCardPassword(id, inputPassword, isOwnDevice)
+      if (result.ok) {
+        setHasPassword(true)
         setIsAuthenticated(true)
       } else {
-        setAuthError(t('edit.passwordMismatch', 'パスワードが一致しません（登録時に決めた4桁と異なります）'))
+        setAuthError(authMessage(result.reason))
       }
     } catch {
       setAuthError(t('edit.passwordError'))
@@ -334,8 +325,8 @@ export function EditPage({ id }: { id: string }) {
     setStepError(null)
     setIsSaving(true)
     try {
-      await updateRegistration(id, form)
-      await syncPetRegistrations(id, form.registerPetsEnabled, form.pets)
+      await updateRegistration(id, form, inputPassword)
+      await syncPetRegistrations(id, form.registerPetsEnabled, form.pets, inputPassword)
       setIsSaved(true)
     } catch (e) {
       setStepError(e instanceof Error ? e.message : 'error')
@@ -507,7 +498,7 @@ export function EditPage({ id }: { id: string }) {
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">{authError}</div>
           )}
 
-          {!storedHash && isOwnDevice && (
+          {!hasPassword && isOwnDevice && (
             <div className="mb-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800 border border-amber-200">{t('edit.passwordFirstTime', 'このカルテはまだ編集用パスワードが未設定です。ここで入力した数字4桁が、そのまま編集用パスワードとして設定されます(必ずメモしてください)。')}</div>
           )}
 

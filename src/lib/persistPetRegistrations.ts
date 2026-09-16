@@ -1,55 +1,13 @@
 import type { PetRow } from '../types/pet'
-import { petRowHasAnyData } from '../types/pet'
-import { isSupabaseConfigured, supabase } from './supabase'
-import { uploadPetMedicationPhoto } from './uploadPetMedPhoto'
+import { isSupabaseConfigured } from './supabase'
+import { buildPetRows } from './petPayload'
+import { saveCardPets, authErrorMessage } from './cardApi'
 
-function resolveSpecies(pet: PetRow): string | null {
-  if (pet.speciesKind === 'dog') return '犬'
-  if (pet.speciesKind === 'cat') return '猫'
-  if (pet.speciesKind === 'other') return pet.speciesOther.trim() || null
-  return null
-}
-
-async function resolveMedicationPhotoUrl(
-  ownerId: string,
-  pet: PetRow,
-): Promise<string | null> {
-  if (pet.medicationPhotoUrl && !pet.medicationPhotoUrl.startsWith('data:')) {
-    return pet.medicationPhotoUrl
-  }
-  const preview = pet.medicationPhotoPreview
-  if (!preview) return null
-  if (preview.startsWith('http')) return preview
-  if (preview.startsWith('data:')) {
-    return uploadPetMedicationPhoto(ownerId, pet.id, preview)
-  }
-  return null
-}
-
-function petToInsertRow(pet: PetRow, ownerId: string, medicationPhotoUrl: string | null) {
-  return {
-    pet_name: pet.petName.trim() || null,
-    species: resolveSpecies(pet),
-    breed: pet.breed.trim() || null,
-    age: pet.age.trim() || null,
-    sex: pet.sex.trim() || null,
-    medical_history: pet.medicalHistory.trim() || null,
-    medications: pet.medications.trim() || null,
-    allergies: pet.allergies.trim() || null,
-    vet_clinic: pet.vetClinic.trim() || null,
-    vaccine_info: pet.vaccineInfo.trim() || null,
-    microchip: pet.microchip.trim() || null,
-    food: pet.food.trim() || null,
-    medication_photo_url: medicationPhotoUrl,
-    photo_url: pet.photoUrl || null,
-    features: pet.features.trim() || null,
-    owner_id: String(ownerId),
-  }
-}
-
+/** 新規登録時: ペット情報をまとめて保存する */
 export async function persistPetRegistrations(
   ownerId: string,
   pets: PetRow[],
+  password: string,
 ): Promise<void> {
   if (!isSupabaseConfigured) {
     throw new Error(
@@ -57,18 +15,11 @@ export async function persistPetRegistrations(
     )
   }
 
-  const rowsWithData = pets.filter(petRowHasAnyData)
-  if (rowsWithData.length === 0) return
+  const rows = await buildPetRows(ownerId, pets)
+  if (rows.length === 0) return
 
-  const rows = await Promise.all(
-    rowsWithData.map(async (pet) => {
-      const photoUrl = await resolveMedicationPhotoUrl(ownerId, pet)
-      return petToInsertRow(pet, ownerId, photoUrl)
-    }),
-  )
-
-  const { error } = await supabase.from('pet_registrations').insert(rows)
-  if (error) {
-    throw new Error(error.message || 'ペット情報の保存に失敗しました。')
+  const result = await saveCardPets(ownerId, password, true, rows)
+  if (!result.ok) {
+    throw new Error(authErrorMessage(result))
   }
 }

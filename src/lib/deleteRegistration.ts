@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { deleteCard } from './cardApi'
 
 // ペットのお薬写真をストレージから削除（失敗しても本体の削除は続行する）
 async function deletePetPhotos(ownerId: string): Promise<void> {
@@ -31,33 +32,10 @@ async function deletePetPhotos(ownerId: string): Promise<void> {
 
 /**
  * 登録を完全に削除する。
- * ペットのお薬写真 → ペット登録 → 本人登録 の順に削除し、
- * 削除後もサーバーに本人登録が残っている場合はエラーにする
- * （Supabase側の削除許可設定が未実施のケースを検知するため）。
+ * ペットのお薬写真 → 登録本体（ペット登録も同時に削除）の順で消す。
+ * 本体の削除はデータベース側の関数が行い、消え残りがあればエラーを返す。
  */
 export async function deleteRegistration(id: string): Promise<void> {
   await deletePetPhotos(String(id))
-
-  const { error: petError } = await supabase
-    .from('pet_registrations')
-    .delete()
-    .eq('owner_id', String(id))
-  if (petError) {
-    throw new Error(petError.message || 'ペット登録の削除に失敗しました。')
-  }
-
-  const { error } = await supabase.from('registrations').delete().eq('id', id)
-  if (error) {
-    throw new Error(error.message || '登録の削除に失敗しました。')
-  }
-
-  // 本当に消えたか確認（削除ポリシー未設定だとエラーなしで0件削除になるため）
-  const { data: still } = await supabase
-    .from('registrations')
-    .select('id')
-    .eq('id', id)
-    .maybeSingle()
-  if (still) {
-    throw new Error('サーバー側で削除が許可されていません。管理者にお問い合わせください。')
-  }
+  await deleteCard(id)
 }

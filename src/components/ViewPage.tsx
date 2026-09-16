@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDisplayAddress } from '../lib/formatAddress'
-import { supabase } from '../lib/supabase'
+import { fetchCard } from '../lib/cardApi'
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
 import { downloadOmamoriCard, downloadQrOnly, downloadWatchQr } from '../lib/omamoriCard'
 import { PetViewSection } from './PetViewSection'
@@ -18,28 +18,15 @@ export function ViewPage({ id }: { id: string }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: registration, error: registrationError } = await supabase
-        .from('registrations')
-        .select('*')
-        .eq('id', id)
-        .single()
-
-      if (registrationError) {
+      // テーブルを直接読まず、IDを1件渡して1件だけ返す関数を使う
+      const bundle = await fetchCard(id)
+      if (!bundle) {
         setError(t('view.notFound'))
         setLoading(false)
         return
       }
-
-      setData(registration)
-
-      const { data: petRows } = await supabase
-        .from('pet_registrations')
-        .select(
-          'id, pet_name, species, breed, age, sex, medical_history, medications, allergies, vet_clinic, vaccine_info, microchip, food, medication_photo_url, photo_url, features, owner_id',
-        )
-        .eq('owner_id', String(id))
-
-      setPets((petRows as PetRegistrationRow[] | null) ?? [])
+      setData(bundle.registration)
+      setPets(bundle.pets)
       setLoading(false)
     }
     void fetchData()

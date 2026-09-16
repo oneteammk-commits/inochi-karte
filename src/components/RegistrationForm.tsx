@@ -195,7 +195,7 @@ export function RegistrationForm() {
       try {
         const savedId = await persistRegistration(data)
         if (data.registerPetsEnabled) {
-          await persistPetRegistrations(savedId, data.pets)
+          await persistPetRegistrations(savedId, data.pets, data.editPassword)
         }
         addMyCard(savedId, data.fullName.trim())
         try {

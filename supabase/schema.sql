@@ -1,14 +1,31 @@
--- 命のカルテ: Supabase ダッシュボードの SQL Editor で実行してください
+-- ============================================================
+-- 命のカルテ (sitte) データベース定義
+-- Supabase ダッシュボードの SQL Editor で実行してください
+--
+-- ★セキュリティ方針★
+--   アプリはテーブルを直接読み書きしません。
+--   「二次元コードのID(UUID)を1件渡すと、その1件だけ返す」関数を経由します。
+--   そのため registrations / pet_registrations には
+--   匿名ユーザー向けのポリシーを1つも作りません（= 直接アクセス不可）。
+--
+--   関数の定義は security_step1_functions.sql
+--   直接アクセスの停止は security_step2_lockdown.sql
+--   元に戻すときは   security_rollback.sql
+-- ============================================================
 
+-- ------------------------------------------------------------
 -- 1. 登録テーブル
+-- ------------------------------------------------------------
 create table if not exists public.registrations (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   name text not null,
-  birth_date date not null,
+  furigana text,
+  birth_date text not null,
   edit_password_hash text,
   emergency_contact_relationship text,
   emergency_contact_name text not null,
+  emergency_contact_furigana text,
   emergency_contact_phone text not null,
   postal_code text,
   prefecture text not null,
@@ -21,28 +38,20 @@ create table if not exists public.registrations (
   allergy_other text,
   disease_other text,
   daily_notes text,
-  medications jsonb not null default '[]'::jsonb
+  medications text[] not null default '{}'
 );
 
-alter table public.registrations enable row level security;
+-- 既存DB向け（列が無い場合のみ追加）
+alter table public.registrations add column if not exists furigana text;
+alter table public.registrations add column if not exists emergency_contact_furigana text;
+alter table public.registrations add column if not exists emergency_contact_relationship text;
+alter table public.registrations add column if not exists edit_password_hash text;
+alter table public.registrations add column if not exists address_detail text;
+alter table public.registrations add column if not exists postal_code text;
 
--- 匿名（フォーム）からの登録のみ許可
-drop policy if exists "allow anon insert registrations" on public.registrations;
-create policy "allow anon insert registrations"
-  on public.registrations
-  for insert
-  to anon
-  with check (true);
-
--- カルテ表示（QR）用：登録データの参照
-drop policy if exists "allow anon select registrations" on public.registrations;
-create policy "allow anon select registrations"
-  on public.registrations
-  for select
-  to anon
-  using (true);
-
+-- ------------------------------------------------------------
 -- 2. ペット登録テーブル
+-- ------------------------------------------------------------
 create table if not exists public.pet_registrations (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
@@ -61,53 +70,28 @@ create table if not exists public.pet_registrations (
   microchip text,
   food text,
   medication_photo_url text,
+  photo_url text,
+  features text,
   owner_id text not null
 );
 
--- 既存DB向け（列が無い場合のみ追加）
-alter table public.registrations add column if not exists emergency_contact_relationship text;
 alter table public.pet_registrations add column if not exists medication_photo_url text;
+alter table public.pet_registrations add column if not exists photo_url text;
+alter table public.pet_registrations add column if not exists features text;
 
+-- ------------------------------------------------------------
+-- 3. 行レベルセキュリティ
+--    ポリシーを作らない = 匿名ユーザーからは一切アクセスできない。
+--    アプリからの読み書きは security_step1_functions.sql の関数経由。
+-- ------------------------------------------------------------
+alter table public.registrations     enable row level security;
 alter table public.pet_registrations enable row level security;
 
-drop policy if exists "allow anon insert pet_registrations" on public.pet_registrations;
-create policy "allow anon insert pet_registrations"
-  on public.pet_registrations
-  for insert
-  to anon
-  with check (true);
-
-drop policy if exists "allow anon select pet_registrations" on public.pet_registrations;
-create policy "allow anon select pet_registrations"
-  on public.pet_registrations
-  for select
-  to anon
-  using (true);
-
-drop policy if exists "allow anon update pet_registrations" on public.pet_registrations;
-create policy "allow anon update pet_registrations"
-  on public.pet_registrations
-  for update
-  to anon
-  using (true)
-  with check (true);
-
-drop policy if exists "allow anon delete pet_registrations" on public.pet_registrations;
-create policy "allow anon delete pet_registrations"
-  on public.pet_registrations
-  for delete
-  to anon
-  using (true);
-
-drop policy if exists "allow anon update registrations" on public.registrations;
-create policy "allow anon update registrations"
-  on public.registrations
-  for update
-  to anon
-  using (true)
-  with check (true);
-
--- 3. ペットお薬写真ストレージ
+-- ------------------------------------------------------------
+-- 4. ペット・お薬の写真ストレージ
+--    ※ URLを知っていれば誰でも閲覧できる公開バケットです。
+--      非公開化（署名付きURL）は今後の課題。
+-- ------------------------------------------------------------
 insert into storage.buckets (id, name, public)
 values ('pet-meds', 'pet-meds', true)
 on conflict (id) do update set public = true;
@@ -126,17 +110,14 @@ create policy "allow public read pet-meds"
   to public
   using (bucket_id = 'pet-meds');
 
--- 4. 登録の完全削除（家族削除機能用）
-drop policy if exists "allow anon delete registrations" on public.registrations;
-create policy "allow anon delete registrations"
-  on public.registrations
-  for delete
-  to anon
-  using (true);
-
 drop policy if exists "allow anon delete pet-meds" on storage.objects;
 create policy "allow anon delete pet-meds"
   on storage.objects
   for delete
   to anon
   using (bucket_id = 'pet-meds');
+
+-- ------------------------------------------------------------
+-- 5. 関数の作成
+--    続けて security_step1_functions.sql を実行してください。
+-- ------------------------------------------------------------

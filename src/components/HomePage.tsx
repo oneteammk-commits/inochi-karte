@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getMyCards, updateMyCardNames, removeMyCard, type MyCard } from '../lib/storage'
 import { deleteRegistration } from '../lib/deleteRegistration'
-import { supabase } from '../lib/supabase'
+import { fetchCardsSummary } from '../lib/cardApi'
 
 export function HomePage() {
   const { t, i18n } = useTranslation()
@@ -46,24 +46,21 @@ export function HomePage() {
     setMyCards(cards)
     if (cards.length > 0) {
       const ids = cards.map((c) => c.id)
-      supabase
-        .from('registrations')
-        .select('id, name, emergency_contact_phone')
-        .in('id', ids)
-        .then(({ data }) => {
-          if (!data) return
-          const names = data
-            .filter((row) => row && row.id && row.name)
-            .map((row) => ({ id: row.id as string, name: row.name as string }))
-          if (names.length > 0) {
-            updateMyCardNames(names)
-            setMyCards(getMyCards())
-          }
-          const first = data.find((row) => row.id === cards[0].id)
-          if (first && first.emergency_contact_phone) {
-            setEmergencyPhone(first.emergency_contact_phone)
-          }
-        })
+      // 自分の端末に保存したIDの分だけを問い合わせる
+      void fetchCardsSummary(ids).then((rows) => {
+        if (rows.length === 0) return
+        const names = rows
+          .filter((row) => row && row.id && row.name)
+          .map((row) => ({ id: row.id, name: row.name }))
+        if (names.length > 0) {
+          updateMyCardNames(names)
+          setMyCards(getMyCards())
+        }
+        const first = rows.find((row) => row.id === cards[0].id)
+        if (first && first.emergency_contact_phone) {
+          setEmergencyPhone(first.emergency_contact_phone)
+        }
+      })
     }
   }, [])
 

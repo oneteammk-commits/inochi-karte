@@ -1,18 +1,21 @@
-// パスワードをハッシュ化（暗号化）する処理
-// SHA-256という方式で、4桁の数字を64文字の文字列に変換する
-// 元のパスワードには戻せないので、漏れても安全
+// 【注意】このファイルは現在どこからも使われていません。
+//
+// 以前はブラウザ側で編集用パスワードを照合していましたが、
+// 4桁の数字をソルトなしでSHA-256にかけただけのハッシュは、
+// 10,000通りを総当たりすれば元の数字が復元できてしまいます。
+// そのためハッシュをブラウザに渡すこと自体をやめ、
+// 照合はデータベース側の関数 verify_card_password が行う方式に変更しました。
+//
+// 参照が無いことを確認のうえ、いずれ削除して構いません。
 
 export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder()
   const data = encoder.encode(password)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-  return hashHex
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
-// 入力されたパスワードが、保存されているハッシュと一致するかチェック
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  const inputHash = await hashPassword(password)
-  return inputHash === hash
+  return (await hashPassword(password)) === hash
 }

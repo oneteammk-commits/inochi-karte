@@ -21,7 +21,8 @@ export async function uploadPetMedicationPhoto(
 
   const { error } = await supabase.storage.from('pet-meds').upload(path, blob, {
     cacheControl: '3600',
-    upsert: true,
+    // 追加のみ許可（上書きはしない）。パスに時刻が入るため重複しない。
+    upsert: false,
   })
   if (error) {
     throw new Error(error.message || 'ペットのお薬写真のアップロードに失敗しました。')

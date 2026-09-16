@@ -26,7 +26,10 @@
     "call119Sub": "Urgences",
     "callContact": "Contact",
     "callContactSub": "enregistré",
-    "callContactNotSet": "Non défini"
+    "callContactNotSet": "Non défini",
+    "deletePasswordLabel": "Mot de passe de modification (4 chiffres)",
+    "deletePasswordHint": "Il s'agit des 4 chiffres choisis lors de l'inscription. Cela garantit que vous seul pouvez supprimer cette fiche.",
+    "deletePasswordFormat": "Veuillez saisir les 4 chiffres définis lors de l'inscription."
   },
   "view": {
     "qrCardTitle": "Code QR",
@@ -86,7 +89,8 @@
     "saving": "Enregistrement...",
     "savedTitle": "Modifications enregistrées",
     "savedMessage": "La carte de {{name}} a été mise à jour.",
-    "buttonViewCard": "Retour à la carte"
+    "buttonViewCard": "Retour à la carte",
+    "passwordLocked": "Trop de tentatives incorrectes. Veuillez patienter environ 15 minutes, puis réessayer."
   },
   "register": {
     "headerLabel": "Enregistrement des informations de santé",

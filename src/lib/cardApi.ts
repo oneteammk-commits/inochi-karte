@@ -20,7 +20,7 @@ export type CardBundle = {
 export type AuthResult = {
   ok: boolean
   /** format=4桁でない / notfound=IDが無い / locked=試行回数超過 / notset=未設定 / mismatch=不一致 */
-  reason?: 'format' | 'notfound' | 'locked' | 'notset' | 'mismatch'
+  reason?: 'format' | 'notfound' | 'locked' | 'notset' | 'mismatch' | 'notdeleted'
   initialSet?: boolean
 }
 
@@ -117,13 +117,18 @@ export async function saveCardPets(
   return ((data ?? { ok: false }) as AuthResult)
 }
 
-/** 登録の完全削除（本人情報＋ペット） */
-export async function deleteCard(id: string): Promise<void> {
-  const { data, error } = await supabase.rpc('delete_card', { p_id: id })
+/**
+ * 登録の完全削除（本人情報＋ペット＋写真）。
+ * 編集用パスワードが合っているときだけ実行される。
+ * 写真の削除もデータベース側の関数がまとめて行う。
+ */
+export async function deleteCard(id: string, password: string): Promise<AuthResult> {
+  const { data, error } = await supabase.rpc('delete_card', {
+    p_id: id,
+    p_password: password,
+  })
   if (error) throw new Error(error.message || '登録の削除に失敗しました。')
-  if (!(data as any)?.ok) {
-    throw new Error('サーバー側で削除が許可されていません。管理者にお問い合わせください。')
-  }
+  return ((data ?? { ok: false }) as AuthResult)
 }
 
 /** パスワード照合の結果を、画面に出す日本語メッセージに変換する */
@@ -137,6 +142,8 @@ export function authErrorMessage(result: AuthResult): string {
       return 'カルテが見つかりませんでした。'
     case 'notset':
       return 'このカルテは編集用パスワードが未設定です。登録したご本人のスマホ(登録に使った端末)から開くと、パスワードを設定できます。'
+    case 'notdeleted':
+      return 'サーバー側で削除が完了しませんでした。通信環境をご確認のうえ、もう一度お試しください。'
     default:
       return 'パスワードが一致しません（登録時に決めた4桁と異なります）'
   }

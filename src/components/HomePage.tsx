@@ -11,31 +11,42 @@ export function HomePage() {
   const [langOpen, setLangOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<MyCard | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const [deleteError, setDeleteError] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deletePassword, setDeletePassword] = useState('')
 
   const openDeleteDialog = (card: MyCard) => {
-    setDeleteError(false)
+    setDeleteError(null)
+    setDeletePassword('')
     setDeleteTarget(card)
   }
 
   const closeDeleteDialog = () => {
     if (deleting) return
     setDeleteTarget(null)
-    setDeleteError(false)
+    setDeleteError(null)
+    setDeletePassword('')
   }
 
   const handleDelete = async () => {
     if (!deleteTarget || deleting) return
+    if (!/^\d{4}$/.test(deletePassword)) {
+      setDeleteError(
+        t('home.deletePasswordFormat', '登録時に決めた数字4桁を入力してください。'),
+      )
+      return
+    }
     setDeleting(true)
-    setDeleteError(false)
+    setDeleteError(null)
     try {
-      await deleteRegistration(deleteTarget.id)
+      // 編集用パスワードが合っているときだけ削除される
+      await deleteRegistration(deleteTarget.id, deletePassword)
       removeMyCard(deleteTarget.id)
       setMyCards(getMyCards())
       setDeleteTarget(null)
+      setDeletePassword('')
     } catch (e) {
       console.error('delete failed:', e)
-      setDeleteError(true)
+      setDeleteError(e instanceof Error ? e.message : t('home.deleteError'))
     } finally {
       setDeleting(false)
     }
@@ -158,8 +169,34 @@ export function HomePage() {
             <p className="mb-5 text-base leading-relaxed text-black">
               {t('home.deleteConfirm', { name: deleteTarget.name || t('home.familyNoName') })}
             </p>
+            <label className="mb-4 block">
+              <span className="mb-2 block text-sm font-bold text-black">
+                {t('home.deletePasswordLabel', '編集用パスワード（数字4桁）')}
+              </span>
+              <input
+                type="tel"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={4}
+                value={deletePassword}
+                onChange={(e) =>
+                  setDeletePassword(
+                    e.target.value
+                      .replace(/[\uFF10-\uFF19]/g, (c) =>
+                        String.fromCharCode(c.charCodeAt(0) - 0xfee0),
+                      )
+                      .replace(/[^0-9]/g, ''),
+                  )
+                }
+                className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-widest text-stone-900 focus:border-red-700 focus:outline-none"
+                placeholder="----"
+              />
+              <span className="mt-2 block text-xs leading-relaxed text-stone-600">
+                {t('home.deletePasswordHint', '登録するときに決めた4桁の数字です。ご本人以外が削除できないようにするための確認です。')}
+              </span>
+            </label>
             {deleteError && (
-              <p className="mb-4 rounded-xl border-2 border-red-300 bg-red-50 p-3 text-sm font-bold text-red-700">{t('home.deleteError')}</p>
+              <p className="mb-4 rounded-xl border-2 border-red-300 bg-red-50 p-3 text-sm font-bold text-red-700">{deleteError}</p>
             )}
             <div className="space-y-3">
               <button onClick={handleDelete} disabled={deleting} className="block w-full rounded-xl bg-red-700 py-4 text-center text-base font-bold text-white shadow-md hover:bg-red-800 disabled:opacity-60">

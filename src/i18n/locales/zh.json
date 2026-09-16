@@ -26,7 +26,10 @@
     "call119Sub": "急救",
     "callContact": "联系人",
     "callContactSub": "电话",
-    "callContactNotSet": "未设定"
+    "callContactNotSet": "未设定",
+    "deletePasswordLabel": "编辑密码（4位数字）",
+    "deletePasswordHint": "这是您登记时设定的4位数字。用于确认只有本人才能删除。",
+    "deletePasswordFormat": "请输入登记时设定的4位数字。"
   },
   "view": {
     "qrCardTitle": "二维码",
@@ -86,7 +89,8 @@
     "saving": "保存中...",
     "savedTitle": "已保存修改",
     "savedMessage": "已更新{{name}}的医疗卡。",
-    "buttonViewCard": "返回医疗卡显示"
+    "buttonViewCard": "返回医疗卡显示",
+    "passwordLocked": "密码输入错误次数过多，暂时无法编辑。请约15分钟后再试。"
   },
   "register": {
     "headerLabel": "健康信息登记",

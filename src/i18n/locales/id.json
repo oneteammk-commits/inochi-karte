@@ -26,7 +26,10 @@
     "call119Sub": "Ambulans",
     "callContact": "Nomor",
     "callContactSub": "Kontak",
-    "callContactNotSet": "Belum diatur"
+    "callContactNotSet": "Belum diatur",
+    "deletePasswordLabel": "Kata sandi edit (4 angka)",
+    "deletePasswordHint": "Ini adalah 4 angka yang Anda tentukan saat mendaftar. Untuk memastikan hanya Anda yang dapat menghapus.",
+    "deletePasswordFormat": "Masukkan 4 angka yang Anda tentukan saat mendaftar."
   },
   "view": {
     "qrCardTitle": "Kode QR",
@@ -86,7 +89,8 @@
     "saving": "Menyimpan...",
     "savedTitle": "Perubahan Tersimpan",
     "savedMessage": "Kartu {{name}} telah diperbarui.",
-    "buttonViewCard": "Kembali ke Tampilan Kartu"
+    "buttonViewCard": "Kembali ke Tampilan Kartu",
+    "passwordLocked": "Terlalu banyak percobaan yang salah. Silakan tunggu sekitar 15 menit lalu coba lagi."
   },
   "register": {
     "headerLabel": "Pendaftaran Informasi Kesehatan",

@@ -89,13 +89,16 @@ alter table public.pet_registrations enable row level security;
 
 -- ------------------------------------------------------------
 -- 4. ペット・お薬の写真ストレージ
---    ※ URLを知っていれば誰でも閲覧できる公開バケットです。
---      非公開化（署名付きURL）は今後の課題。
+--    公開バケット（URLを知っていれば画像を表示できる）だが、
+--    一覧表示とファイル削除は匿名から不可にしている。
+--    ・一覧できると、フォルダ名からカルテのIDが全件漏れるため
+--    ・削除は delete_card がまとめて行う（取り残しを防ぐ）
 -- ------------------------------------------------------------
 insert into storage.buckets (id, name, public)
 values ('pet-meds', 'pet-meds', true)
 on conflict (id) do update set public = true;
 
+-- 写真の登録（アップロード）のみ許可
 drop policy if exists "allow anon upload pet-meds" on storage.objects;
 create policy "allow anon upload pet-meds"
   on storage.objects
@@ -103,21 +106,12 @@ create policy "allow anon upload pet-meds"
   to anon
   with check (bucket_id = 'pet-meds');
 
+-- 一覧表示・削除のポリシーは作らない（作ると全件のIDが漏れる）
 drop policy if exists "allow public read pet-meds" on storage.objects;
-create policy "allow public read pet-meds"
-  on storage.objects
-  for select
-  to public
-  using (bucket_id = 'pet-meds');
-
 drop policy if exists "allow anon delete pet-meds" on storage.objects;
-create policy "allow anon delete pet-meds"
-  on storage.objects
-  for delete
-  to anon
-  using (bucket_id = 'pet-meds');
 
 -- ------------------------------------------------------------
 -- 5. 関数の作成
---    続けて security_step1_functions.sql を実行してください。
+--    続けて security_step1_functions.sql、
+--    さらに security_step3_storage_and_delete.sql を実行してください。
 -- ------------------------------------------------------------

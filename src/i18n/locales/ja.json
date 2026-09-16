@@ -26,7 +26,10 @@
     "call119Sub": "救急",
     "callContact": "登録先",
     "callContactSub": "番号",
-    "callContactNotSet": "未設定"
+    "callContactNotSet": "未設定",
+    "deletePasswordLabel": "編集用パスワード（数字4桁）",
+    "deletePasswordHint": "登録するときに決めた4桁の数字です。ご本人以外が削除できないようにするための確認です。",
+    "deletePasswordFormat": "登録時に決めた数字4桁を入力してください。"
   },
   "view": {
     "qrCardTitle": "QRコード",
@@ -86,7 +89,8 @@
     "saving": "保存中...",
     "savedTitle": "変更を保存しました",
     "savedMessage": "{{name}} さんのカルテを更新しました。",
-    "buttonViewCard": "カルテ表示に戻る"
+    "buttonViewCard": "カルテ表示に戻る",
+    "passwordLocked": "パスワードの入力を続けて間違えたため、しばらく編集できません。15分ほど時間をおいてから、もう一度お試しください。"
   },
   "register": {
     "headerLabel": "健康情報登録",

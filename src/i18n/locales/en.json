@@ -26,7 +26,10 @@
     "call119Sub": "Emergency",
     "callContact": "Contact",
     "callContactSub": "Number",
-    "callContactNotSet": "Not set"
+    "callContactNotSet": "Not set",
+    "deletePasswordLabel": "Edit password (4 digits)",
+    "deletePasswordHint": "The 4-digit number you chose when registering. This confirms that only you can delete this record.",
+    "deletePasswordFormat": "Please enter the 4-digit number you set when registering."
   },
   "view": {
     "qrCardTitle": "QR Code",
@@ -86,7 +89,8 @@
     "saving": "Saving...",
     "savedTitle": "Changes Saved",
     "savedMessage": "Updated {{name}}'s card.",
-    "buttonViewCard": "Back to Card View"
+    "buttonViewCard": "Back to Card View",
+    "passwordLocked": "Too many incorrect attempts. Please wait about 15 minutes and try again."
   },
   "register": {
     "headerLabel": "Health Information Registration",

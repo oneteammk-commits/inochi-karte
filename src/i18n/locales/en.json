@@ -66,7 +66,8 @@
     "labelPetMicrochip": "Microchip number",
     "labelPetFood": "Food",
     "labelPetMedicinePhoto": "Medication photo",
-    "labelEmergencyRelationship": "Relationship"
+    "labelEmergencyRelationship": "Relationship",
+    "hospital": "Family doctor / hospital"
   },
   "edit": {
     "title": "Edit Card",
@@ -243,7 +244,16 @@
     "editPasswordRule1": "Set a 4-digit number",
     "editPasswordRule2": "Be sure to write it down so you don't forget",
     "editPasswordRule3": "Share it with family members who may need to update your info",
-    "editPasswordLabel": "Edit Password (4 digits)"
+    "editPasswordLabel": "Edit Password (4 digits)",
+    "labelHospital": "Family doctor / hospital",
+    "placeholderHospital": "e.g. Nara Central Hospital",
+    "hintHospital": "Enter the hospital you usually visit. It helps responders in an emergency.",
+    "petDeleteTitle": "Delete this pet's information?",
+    "petDeleteConfirm": "This pet's information will be removed.",
+    "petDeleteConfirmNamed": "\"{{name}}\" will be removed.",
+    "petDeleteWarning": "The information is deleted when you tap \"Save changes\". If you leave without saving, nothing is lost.",
+    "petDeleteYes": "Delete",
+    "petDeleteNo": "Cancel"
   },
   "facilityTypes": {
     "病院・診療所": "Hospital / Clinic",

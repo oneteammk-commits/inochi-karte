@@ -170,6 +170,13 @@ export function ViewPage({ id }: { id: string }) {
           )}
         </div>
 
+        {data.hospital_name && (
+          <div className="bg-sky-50 border-l-4 border-sky-500 shadow-sm p-5 mb-3 rounded-r-2xl">
+            <h2 className="text-lg font-bold text-sky-700 border-b-2 border-sky-200 pb-2 mb-3">🏥 {t('view.hospital', 'かかりつけ病院')}</h2>
+            <p className="text-base text-black whitespace-pre-wrap">{data.hospital_name}</p>
+          </div>
+        )}
+
         {data.daily_notes && (
           <div className="bg-yellow-50 border-l-4 border-yellow-500 shadow-sm p-5 mb-3 rounded-r-2xl">
             <h2 className="text-lg font-bold text-yellow-700 border-b-2 border-yellow-200 pb-2 mb-3">📝 {t('view.dailyNotes')}</h2>

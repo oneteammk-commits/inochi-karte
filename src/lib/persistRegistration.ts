@@ -34,6 +34,7 @@ export function buildRegistrationPayload(
     allergy_other: form.allergyOther.trim() || null,
     diseases: form.chronicTags,
     disease_other: form.chronicOther.trim() || null,
+    hospital_name: form.hospitalName.trim() || null,
     daily_notes: form.dailyNotes.trim() || null,
     medications,
   }

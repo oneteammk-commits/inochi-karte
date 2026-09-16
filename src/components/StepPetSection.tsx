@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import type { PetRow } from '../types/pet'
 import type { RegistrationFormState } from '../types/registration'
 import { ImeAwareInput, ImeAwareTextarea } from './ImeAwareField'
@@ -309,6 +309,9 @@ export function StepPetSection({
   onRemovePetPhoto,
   t,
 }: StepPetSectionProps) {
+  // 削除は確認ダイアログを挟む（押し間違いでペット情報を失わないため）
+  const [pendingDelete, setPendingDelete] = useState<PetRow | null>(null)
+
   const handleToggle = (enabled: boolean) => {
     if (enabled && form.pets.length === 0) {
       onChange({ registerPetsEnabled: true })
@@ -360,7 +363,10 @@ export function StepPetSection({
               pet={pet}
               index={index}
               canRemove={form.pets.length > 0}
-              onRemovePet={onRemovePet}
+              onRemovePet={(id) => {
+                const target = form.pets.find((x) => x.id === id)
+                if (target) setPendingDelete(target)
+              }}
               onUpdatePet={onUpdatePet}
               onAddPetPhoto={onAddPetPhoto}
               onRemovePetPhoto={onRemovePetPhoto}
@@ -375,6 +381,49 @@ export function StepPetSection({
           >
             {t('register.buttonAddPet')}
           </button>
+        </div>
+      )}
+
+      {pendingDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setPendingDelete(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-3 text-center text-lg font-bold text-black">
+              {t('register.petDeleteTitle')}
+            </h3>
+            <p className="mb-2 text-base leading-relaxed text-black">
+              {pendingDelete.petName.trim()
+                ? t('register.petDeleteConfirmNamed').replace('{{name}}', pendingDelete.petName.trim())
+                : t('register.petDeleteConfirm')}
+            </p>
+            <p className="mb-5 rounded-xl border-2 border-amber-300 bg-amber-50 p-3 text-sm font-bold leading-relaxed text-amber-900">
+              {t('register.petDeleteWarning')}
+            </p>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => {
+                  onRemovePet(pendingDelete.id)
+                  setPendingDelete(null)
+                }}
+                className="block w-full rounded-xl bg-red-700 py-4 text-center text-base font-bold text-white shadow-md hover:bg-red-800"
+              >
+                {t('register.petDeleteYes')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPendingDelete(null)}
+                className="block w-full rounded-xl border-2 border-stone-400 bg-white py-4 text-center text-base font-bold text-black shadow-sm hover:bg-stone-50"
+              >
+                {t('register.petDeleteNo')}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>

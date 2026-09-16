@@ -66,7 +66,8 @@
     "labelPetMicrochip": "Numéro de puce électronique",
     "labelPetFood": "Alimentation",
     "labelPetMedicinePhoto": "Photo des médicaments",
-    "labelEmergencyRelationship": "Lien de parenté"
+    "labelEmergencyRelationship": "Lien de parenté",
+    "hospital": "Hôpital habituel"
   },
   "edit": {
     "title": "Modifier la carte",
@@ -244,7 +245,16 @@
     "editPasswordRule1": "Choisissez 4 chiffres",
     "editPasswordRule2": "Notez-le pour ne pas l'oublier",
     "editPasswordRule3": "Communiquez-le aux proches qui pourraient modifier vos informations",
-    "editPasswordLabel": "Mot de passe de modification (4 chiffres)"
+    "editPasswordLabel": "Mot de passe de modification (4 chiffres)",
+    "labelHospital": "Hôpital habituel",
+    "placeholderHospital": "Ex. : Hôpital central de Nara",
+    "hintHospital": "Indiquez l'hôpital que vous consultez habituellement. Cela aide les secours en cas d'urgence.",
+    "petDeleteTitle": "Supprimer les informations de cet animal ?",
+    "petDeleteConfirm": "Les informations de cet animal seront supprimées.",
+    "petDeleteConfirmNamed": "Les informations de « {{name}} » seront supprimées.",
+    "petDeleteWarning": "La suppression n'a lieu qu'après avoir appuyé sur « Enregistrer les modifications ». Si vous quittez sans enregistrer, rien n'est perdu.",
+    "petDeleteYes": "Supprimer",
+    "petDeleteNo": "Annuler"
   },
   "facilityTypes": {
     "病院・診療所": "Hôpital / Clinique",

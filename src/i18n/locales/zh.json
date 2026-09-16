@@ -66,7 +66,8 @@
     "labelPetMicrochip": "芯片编号",
     "labelPetFood": "饮食",
     "labelPetMedicinePhoto": "药品照片",
-    "labelEmergencyRelationship": "关系"
+    "labelEmergencyRelationship": "关系",
+    "hospital": "常去的医院"
   },
   "edit": {
     "title": "编辑医疗卡",
@@ -235,7 +236,16 @@
     "editPasswordRule1": "请设置4位数字",
     "editPasswordRule2": "请务必记下,以免忘记",
     "editPasswordRule3": "请告知家人等可能需要修改您信息的人",
-    "editPasswordLabel": "编辑密码（4位数字)"
+    "editPasswordLabel": "编辑密码（4位数字)",
+    "labelHospital": "常去的医院",
+    "placeholderHospital": "例）奈良中央医院",
+    "hintHospital": "请填写平时就诊的医院名称。紧急救护时可作为线索。",
+    "petDeleteTitle": "要删除这只宠物的信息吗？",
+    "petDeleteConfirm": "将删除这只宠物的信息。",
+    "petDeleteConfirmNamed": "将删除「{{name}}」的信息。",
+    "petDeleteWarning": "按下「保存更改」后信息才会被删除。未保存即离开，则原样保留。",
+    "petDeleteYes": "删除",
+    "petDeleteNo": "取消"
   },
   "facilityTypes": {
     "病院・診療所": "医院·诊所",

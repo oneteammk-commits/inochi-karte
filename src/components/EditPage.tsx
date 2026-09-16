@@ -65,6 +65,7 @@ function dataToForm(data: any): RegistrationFormState {
     chronicTags: data.diseases || [],
     allergyOther: data.allergy_other || '',
     chronicOther: data.disease_other || '',
+    hospitalName: data.hospital_name || '',
     dailyNotes: data.daily_notes || '',
     medications,
     registerPetsEnabled: false,

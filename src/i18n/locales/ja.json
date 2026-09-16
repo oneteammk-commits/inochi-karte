@@ -66,7 +66,8 @@
     "labelPetMicrochip": "マイクロチップ番号",
     "labelPetFood": "ごはん",
     "labelPetMedicinePhoto": "お薬の写真",
-    "labelEmergencyRelationship": "続柄"
+    "labelEmergencyRelationship": "続柄",
+    "hospital": "かかりつけ病院"
   },
   "edit": {
     "title": "カルテを編集",
@@ -244,7 +245,16 @@
     "editPasswordRule1": "数字4桁で設定してください",
     "editPasswordRule2": "忘れないように必ずメモしてください",
     "editPasswordRule3": "ご家族など、登録内容を変更したい方に伝えてください",
-    "editPasswordLabel": "編集用パスワード（数字4桁）"
+    "editPasswordLabel": "編集用パスワード（数字4桁）",
+    "labelHospital": "かかりつけ病院",
+    "placeholderHospital": "例）奈良中央病院",
+    "hintHospital": "いつも受診している病院名をご記入ください。救護のときの手がかりになります。",
+    "petDeleteTitle": "ペットの情報を削除しますか？",
+    "petDeleteConfirm": "このペットの情報を削除します。",
+    "petDeleteConfirmNamed": "「{{name}}」の情報を削除します。",
+    "petDeleteWarning": "「変更を保存」を押すと、この子の情報は消えます。保存せずに画面を閉じれば、元のまま残ります。",
+    "petDeleteYes": "削除する",
+    "petDeleteNo": "やめる"
   },
   "facilityTypes": {
     "病院・診療所": "病院・診療所",

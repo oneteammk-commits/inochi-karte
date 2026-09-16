@@ -28,6 +28,8 @@ export type RegistrationFormState = {
   chronicTags: string[]
   allergyOther: string
   chronicOther: string
+  /** かかりつけ病院（人）の名称 */
+  hospitalName: string
   dailyNotes: string
   medications: MedicationRow[]
   registerPetsEnabled: boolean

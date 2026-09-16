@@ -51,6 +51,7 @@ const initialForm: RegistrationFormState = {
   chronicTags: [],
   allergyOther: '',
   chronicOther: '',
+  hospitalName: '',
   dailyNotes: '',
   medications: [createEmptyMedicationRow()],
   registerPetsEnabled: false,
@@ -863,6 +864,21 @@ onToggle={(tag) => onChange({ chronicTags: toggleInList(form.chronicTags, tag) }
             placeholder={t('register.placeholderChronicOther')}
           />
         </div>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-stone-700">
+            {t('register.labelHospital')}
+          </span>
+          <ImeAwareInput
+            value={form.hospitalName}
+            onValueChange={(v) => onChange({ hospitalName: v })}
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
+            placeholder={t('register.placeholderHospital')}
+          />
+          <span className="mt-1.5 block text-xs text-stone-500">
+            {t('register.hintHospital')}
+          </span>
+        </label>
+
         <MedicalFreeTextField
           label={t('register.labelDailyNotes')}
           value={form.dailyNotes}

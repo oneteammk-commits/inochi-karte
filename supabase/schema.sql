@@ -37,6 +37,7 @@ create table if not exists public.registrations (
   diseases text[] not null default '{}',
   allergy_other text,
   disease_other text,
+  hospital_name text,
   daily_notes text,
   medications text[] not null default '{}'
 );
@@ -48,6 +49,7 @@ alter table public.registrations add column if not exists emergency_contact_rela
 alter table public.registrations add column if not exists edit_password_hash text;
 alter table public.registrations add column if not exists address_detail text;
 alter table public.registrations add column if not exists postal_code text;
+alter table public.registrations add column if not exists hospital_name text;
 
 -- ------------------------------------------------------------
 -- 2. ペット登録テーブル

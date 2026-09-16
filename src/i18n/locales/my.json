@@ -66,7 +66,8 @@
     "labelPetMicrochip": "မိုက်ခရိုချစ် နံပါတ်",
     "labelPetFood": "အစာ",
     "labelPetMedicinePhoto": "ဆေးဓာတ်ပုံ",
-    "labelEmergencyRelationship": "ဆက်နွယ်မှု"
+    "labelEmergencyRelationship": "ဆက်နွယ်မှု",
+    "hospital": "အမြဲပြသနေသော ဆေးရုံ"
   },
   "edit": {
     "title": "ဆေးမှတ်တမ်းပြင်ဆင်ရန်",
@@ -236,7 +237,16 @@
     "editPasswordRule1": "ဂဏန်း ၄ လုံးဖြင့် သတ်မှတ်ပါ",
     "editPasswordRule2": "မမေ့ရန် မှတ်သားထားပါ",
     "editPasswordRule3": "မှတ်ပုံတင်အချက်အလက်ပြောင်းလဲလိုသူ မိသားစုကို ပြောကြားထားပါ",
-    "editPasswordLabel": "ပြင်ဆင်ရန် စကားဝှက်（ဂဏန်း ၄ လုံး)"
+    "editPasswordLabel": "ပြင်ဆင်ရန် စကားဝှက်（ဂဏန်း ၄ လုံး)",
+    "labelHospital": "အမြဲပြသနေသော ဆေးရုံ",
+    "placeholderHospital": "ဥပမာ) နာရ ဗဟိုဆေးရုံ",
+    "hintHospital": "အမြဲသွားနေကျ ဆေးရုံအမည်ကို ဖြည့်ပါ။ အရေးပေါ်ကယ်ဆယ်ရာတွင် အထောက်အကူဖြစ်ပါသည်။",
+    "petDeleteTitle": "အိမ်မွေးတိရစ္ဆာန် အချက်အလက်ကို ဖျက်မလား။",
+    "petDeleteConfirm": "ဤအိမ်မွေးတိရစ္ဆာန်၏ အချက်အလက်ကို ဖျက်ပါမည်။",
+    "petDeleteConfirmNamed": "「{{name}}」၏ အချက်အလက်ကို ဖျက်ပါမည်။",
+    "petDeleteWarning": "「အပြောင်းအလဲ သိမ်းဆည်းရန်」ကို နှိပ်မှသာ ဖျက်ပါမည်။ မသိမ်းဘဲ ထွက်ပါက မူလအတိုင်း ကျန်ပါသည်။",
+    "petDeleteYes": "ဖျက်ရန်",
+    "petDeleteNo": "မလုပ်တော့ပါ"
   },
   "facilityTypes": {
     "病院・診療所": "ဆေးရုံ/ဆေးခန်း",

@@ -66,7 +66,8 @@
     "labelPetMicrochip": "Nomor microchip",
     "labelPetFood": "Makanan",
     "labelPetMedicinePhoto": "Foto obat",
-    "labelEmergencyRelationship": "Hubungan"
+    "labelEmergencyRelationship": "Hubungan",
+    "hospital": "Rumah sakit langganan"
   },
   "edit": {
     "title": "Ubah Kartu",
@@ -243,7 +244,16 @@
     "editPasswordRule1": "Atur 4 digit angka",
     "editPasswordRule2": "Pastikan Anda mencatatnya agar tidak lupa",
     "editPasswordRule3": "Bagikan kepada keluarga yang mungkin perlu memperbarui informasi Anda",
-    "editPasswordLabel": "Kata Sandi Edit (4 digit)"
+    "editPasswordLabel": "Kata Sandi Edit (4 digit)",
+    "labelHospital": "Rumah sakit langganan",
+    "placeholderHospital": "Contoh) Rumah Sakit Pusat Nara",
+    "hintHospital": "Tuliskan nama rumah sakit yang biasa Anda kunjungi. Berguna saat keadaan darurat.",
+    "petDeleteTitle": "Hapus informasi hewan peliharaan ini?",
+    "petDeleteConfirm": "Informasi hewan peliharaan ini akan dihapus.",
+    "petDeleteConfirmNamed": "Informasi \"{{name}}\" akan dihapus.",
+    "petDeleteWarning": "Informasi baru terhapus setelah Anda menekan \"Simpan perubahan\". Jika keluar tanpa menyimpan, tidak ada yang hilang.",
+    "petDeleteYes": "Hapus",
+    "petDeleteNo": "Batal"
   },
   "facilityTypes": {
     "病院・診療所": "Rumah Sakit / Klinik",

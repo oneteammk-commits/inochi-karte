@@ -272,6 +272,7 @@
     "photoUploadError": "L'envoi de la photo a échoué. Réessayez avec une meilleure connexion."
   },
   "facilityTypes": {
+    "自宅": "Domicile",
     "病院・診療所": "Hôpital / Clinique",
     "介護老人保健施設": "Établissement de soins pour personnes âgées",
     "特別養護老人ホーム": "Maison de retraite médicalisée",

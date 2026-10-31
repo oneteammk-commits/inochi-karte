@@ -104,6 +104,7 @@ export const EMERGENCY_RELATIONSHIP_JA_VALUES: Record<EmergencyRelationshipPrese
 }
 
 export const FACILITY_TYPES = [
+  '自宅',
   '病院・診療所',
   '介護老人保健施設',
   '特別養護老人ホーム',

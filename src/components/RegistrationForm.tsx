@@ -753,6 +753,8 @@ export function StepRegion({
             {t('register.hintAddressDetail')}
           </p>
         </label>
+        {/* 自宅のときは施設名は不要なので出さない */}
+        {form.facilityType !== '自宅' && (
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
             {t('register.labelFacilityName')}<span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
@@ -764,6 +766,7 @@ export function StepRegion({
             placeholder={t('register.placeholderFacilityName')}
           />
         </label>
+        )}
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelFacilityType')}</span>
           <select

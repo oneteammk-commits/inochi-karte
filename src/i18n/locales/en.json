@@ -271,6 +271,7 @@
     "photoUploadError": "Photo upload failed. Please try again where the connection is better."
   },
   "facilityTypes": {
+    "自宅": "Home (own residence)",
     "病院・診療所": "Hospital / Clinic",
     "介護老人保健施設": "Geriatric Health Care Facility",
     "特別養護老人ホーム": "Special Nursing Home",

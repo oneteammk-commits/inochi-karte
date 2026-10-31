@@ -91,6 +91,8 @@ export function EditPage({ id }: { id: string }) {
   const [editStep, setEditStep] = useState(0)
   const [stepError, setStepError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  // お薬写真のアップロード中件数(0より大きい間は「次へ」「保存」を止める)
+  const [photoUploading, setPhotoUploading] = useState(0)
   const [isSaved, setIsSaved] = useState(false)
 
   const STEP_LABELS_EDIT = [
@@ -210,8 +212,10 @@ export function EditPage({ id }: { id: string }) {
     )
   }
 
-  const updateMedicationPhotos = async (mid: string, files: FileList | null) => {
+  const updateMedicationPhotos = async (mid: string, files: FileList | File[] | null) => {
     if (!files || files.length === 0) return
+    setPhotoUploading((n) => n + 1)
+    setStepError(null)
     try {
       // 写真は圧縮してストレージへ保存し、カルテにはURLだけを持たせる(枚数が増えても軽い)
       const uploaded = await Promise.all(Array.from(files).map((f) => uploadMedicationPhoto(f)))
@@ -227,6 +231,8 @@ export function EditPage({ id }: { id: string }) {
       )
     } catch {
       setStepError(t('edit.photoUploadError', '画像のアップロードに失敗しました。通信環境の良い場所でもう一度お試しください。'))
+    } finally {
+      setPhotoUploading((n) => Math.max(0, n - 1))
     }
   }
 
@@ -312,6 +318,10 @@ export function EditPage({ id }: { id: string }) {
   }
 
   const goNext = () => {
+    if (photoUploading > 0) {
+      setStepError(t('register.photoUploadWait'))
+      return
+    }
     setStepError(null)
     setEditStep((s) => Math.min(s + 1, STEP_LABELS_EDIT.length - 1))
   }
@@ -323,6 +333,10 @@ export function EditPage({ id }: { id: string }) {
 
   const handleSave = async () => {
     if (!form) return
+    if (photoUploading > 0) {
+      setStepError(t('register.photoUploadWait'))
+      return
+    }
     setStepError(null)
     setIsSaving(true)
     try {
@@ -457,7 +471,8 @@ export function EditPage({ id }: { id: string }) {
               <button
                 type="button"
                 onClick={goNext}
-                className="flex-1 rounded-xl bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800"
+                disabled={photoUploading > 0}
+                className="flex-1 rounded-xl bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
               >
                 {t('edit.buttonNext')}
               </button>
@@ -465,7 +480,7 @@ export function EditPage({ id }: { id: string }) {
               <button
                 type="button"
                 onClick={handleSave}
-                disabled={isSaving}
+                disabled={isSaving || photoUploading > 0}
                 className="flex-1 rounded-xl bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
               >
                 {isSaving ? t('edit.saving') : t('edit.buttonSave')}

@@ -118,6 +118,10 @@ export function RegistrationForm() {
   const [stepError, setStepError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const submitLockRef = useRef(false)
+  // お薬写真のアップロード中件数(0より大きい間は「次へ」を止める)
+  const [photoUploading, setPhotoUploading] = useState(0)
+  const photoUploadingRef = useRef(0)
+  photoUploadingRef.current = photoUploading
   const formRef = useRef(form)
   formRef.current = form
   const wizardRef = useRef(wizard)
@@ -185,6 +189,10 @@ export function RegistrationForm() {
     if (submitLockRef.current) return
     const currentStep = wizardRef.current.step
     const data = formRef.current
+    if (photoUploadingRef.current > 0) {
+      setStepError(t('register.photoUploadWait'))
+      return
+    }
     const err = validateRegistrationStep(currentStep, data, t)
     setStepError(err)
     if (err) return
@@ -259,8 +267,10 @@ export function RegistrationForm() {
     }))
   }, [])
 
-  const updateMedicationPhotos = useCallback(async (id: string, files: FileList | null) => {
+  const updateMedicationPhotos = useCallback(async (id: string, files: FileList | File[] | null) => {
     if (!files || files.length === 0) return
+    setPhotoUploading((n) => n + 1)
+    setStepError(null)
     try {
       // 写真は圧縮してストレージへ保存し、カルテにはURLだけを持たせる(枚数が増えても軽い)
       const uploaded = await Promise.all(Array.from(files).map((f) => uploadMedicationPhoto(f)))
@@ -271,9 +281,11 @@ export function RegistrationForm() {
         ),
       }))
     } catch {
-      setStepError('画像のアップロードに失敗しました。通信環境の良い場所でもう一度お試しください。')
+      setStepError(t('register.photoUploadError'))
+    } finally {
+      setPhotoUploading((n) => Math.max(0, n - 1))
     }
-  }, [])
+  }, [t])
 
   const addPetRow = useCallback(() => {
     setForm((prev) => ({
@@ -440,7 +452,7 @@ error={stepError}
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || photoUploading > 0}
                 className="flex-1 rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-md shadow-brand/25 transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting
@@ -662,6 +674,11 @@ export function StepRegion({
         return
       }
       onChange({ prefecture: result.prefecture, city: result.city })
+    }).catch(() => {
+      // 通信失敗(圏外・サービス停止など)でも「検索しています…」を残さず、手入力に進めるようにする
+      if (lookupRequestId.current !== requestId) return
+      setPostalLookupLoading(false)
+      setPostalLookupError(t('register.postalLookupError'))
     })
   }
 
@@ -905,7 +922,7 @@ export function StepMedications({
   onAddRow: () => void
   onRemoveRow: (id: string) => void
   onUpdateMedication: (id: string, patch: Partial<Omit<MedicationRow, 'id'>>) => void
-  onAddPhotos: (id: string, files: FileList | null) => Promise<void>
+  onAddPhotos: (id: string, files: FileList | File[] | null) => Promise<void>
   onRemovePhoto: (id: string, index: number) => void
   error: string | null
   t: (key: string, options?: { num?: number }) => string

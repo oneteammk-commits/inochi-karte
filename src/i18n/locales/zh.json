@@ -76,7 +76,8 @@
     "emAmda": "医疗咨询 — AMDA（免费电话）",
     "emAmdas": "多语言医疗咨询 0120-339-266・工作日10:00〜16:00",
     "emFind": "查找医院",
-    "emFinds": "身体不适之时 应急指南（JNTO网站）"
+    "emFinds": "身体不适之时 应急指南（JNTO网站）",
+    "photoLoadError": "无法加载照片。点击可打开。"
   },
   "edit": {
     "title": "编辑医疗卡",
@@ -254,7 +255,12 @@
     "petDeleteConfirmNamed": "将删除「{{name}}」的信息。",
     "petDeleteWarning": "按下「保存更改」后信息才会被删除。未保存即离开，则原样保留。",
     "petDeleteYes": "删除",
-    "petDeleteNo": "取消"
+    "petDeleteNo": "取消",
+    "photoTakeCamera": "拍照",
+    "photoFromAlbum": "从相册选择",
+    "photoUploading": "正在上传照片…",
+    "photoUploadWait": "照片正在上传中，请稍候。",
+    "photoUploadError": "照片上传失败。请在网络良好的地方重试。"
   },
   "facilityTypes": {
     "病院・診療所": "医院·诊所",

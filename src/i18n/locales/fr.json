@@ -76,7 +76,8 @@
     "emAmda": "Conseil médical — AMDA (appel gratuit)",
     "emAmdas": "Consultation médicale multilingue 0120-339-266 · En semaine 10h00–16h00",
     "emFind": "Trouver un hôpital",
-    "emFinds": "Guide en cas de malaise (site de la JNTO)"
+    "emFinds": "Guide en cas de malaise (site de la JNTO)",
+    "photoLoadError": "Impossible de charger la photo. Appuyez pour l'ouvrir."
   },
   "edit": {
     "title": "Modifier la carte",
@@ -263,7 +264,12 @@
     "petDeleteConfirmNamed": "Les informations de « {{name}} » seront supprimées.",
     "petDeleteWarning": "La suppression n'a lieu qu'après avoir appuyé sur « Enregistrer les modifications ». Si vous quittez sans enregistrer, rien n'est perdu.",
     "petDeleteYes": "Supprimer",
-    "petDeleteNo": "Annuler"
+    "petDeleteNo": "Annuler",
+    "photoTakeCamera": "Prendre une photo",
+    "photoFromAlbum": "Choisir dans l'album",
+    "photoUploading": "Envoi de la photo…",
+    "photoUploadWait": "Une photo est en cours d'envoi. Veuillez patienter un instant.",
+    "photoUploadError": "L'envoi de la photo a échoué. Réessayez avec une meilleure connexion."
   },
   "facilityTypes": {
     "病院・診療所": "Hôpital / Clinique",

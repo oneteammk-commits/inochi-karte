@@ -67,7 +67,16 @@
     "labelPetFood": "ごはん",
     "labelPetMedicinePhoto": "お薬の写真",
     "labelEmergencyRelationship": "続柄",
-    "hospital": "かかりつけ病院"
+    "hospital": "かかりつけ病院",
+    "emTitle": "緊急のとき",
+    "em119": "救急・消防",
+    "em119s": "命の危険 — まずここへ",
+    "em110": "警察",
+    "em110s": "事故・事件",
+    "emAmda": "医療の相談 — AMDA（通話無料）",
+    "emAmdas": "多言語の医療相談 0120-339-266・平日10:00〜16:00",
+    "emFind": "病院をさがす",
+    "emFinds": "具合が悪くなったときに役立つガイド（JNTOサイト）"
   },
   "edit": {
     "title": "カルテを編集",

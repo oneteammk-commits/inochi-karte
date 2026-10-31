@@ -76,7 +76,8 @@
     "emAmda": "医療の相談 — AMDA（通話無料）",
     "emAmdas": "多言語の医療相談 0120-339-266・平日10:00〜16:00",
     "emFind": "病院をさがす",
-    "emFinds": "具合が悪くなったときに役立つガイド（JNTOサイト）"
+    "emFinds": "具合が悪くなったときに役立つガイド（JNTOサイト）",
+    "photoLoadError": "写真を読み込めませんでした。タップすると開きます。"
   },
   "edit": {
     "title": "カルテを編集",
@@ -263,7 +264,12 @@
     "petDeleteConfirmNamed": "「{{name}}」の情報を削除します。",
     "petDeleteWarning": "「変更を保存」を押すと、この子の情報は消えます。保存せずに画面を閉じれば、元のまま残ります。",
     "petDeleteYes": "削除する",
-    "petDeleteNo": "やめる"
+    "petDeleteNo": "やめる",
+    "photoTakeCamera": "カメラで撮る",
+    "photoFromAlbum": "アルバムから選ぶ",
+    "photoUploading": "写真をアップロード中です…",
+    "photoUploadWait": "写真をアップロード中です。終わるまで少しお待ちください。",
+    "photoUploadError": "画像のアップロードに失敗しました。通信環境の良い場所でもう一度お試しください。"
   },
   "facilityTypes": {
     "病院・診療所": "病院・診療所",

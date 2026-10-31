@@ -271,6 +271,7 @@
     "photoUploadError": "Unggah foto gagal. Coba lagi di tempat dengan koneksi yang lebih baik."
   },
   "facilityTypes": {
+    "自宅": "Rumah sendiri",
     "病院・診療所": "Rumah Sakit / Klinik",
     "介護老人保健施設": "Fasilitas Perawatan Lansia",
     "特別養護老人ホーム": "Panti Jompo Khusus",

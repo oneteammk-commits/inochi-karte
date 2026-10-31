@@ -28,6 +28,17 @@ async function compressImage(file: File): Promise<Blob> {
  * カルテ本体にはURL(短い文字列)だけを記録するため、枚数が増えても
  * カルテの読み込み・保存が重くならない。
  */
+/**
+ * アップロード直後のプレビュー用に「保存先URL → 端末内の画像」の対応を覚えておく。
+ * 登録中の画面はサーバーのURLではなく端末内の画像を表示するため、
+ * 通信やCDNの遅れで一時的に開けなくても壊れた画像にならない。
+ */
+const localPreviews = new Map<string, string>()
+
+export function getLocalPreview(url: string): string | undefined {
+  return localPreviews.get(url)
+}
+
 export async function uploadMedicationPhoto(file: File): Promise<string> {
   const blob = await compressImage(file)
   const path = `meds/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
@@ -40,5 +51,10 @@ export async function uploadMedicationPhoto(file: File): Promise<string> {
     throw new Error(error.message || 'お薬写真のアップロードに失敗しました。')
   }
   const { data } = supabase.storage.from('pet-meds').getPublicUrl(path)
+  try {
+    localPreviews.set(data.publicUrl, URL.createObjectURL(blob))
+  } catch {
+    // プレビュー用の控えが作れなくてもアップロード自体は成功している
+  }
   return data.publicUrl
 }

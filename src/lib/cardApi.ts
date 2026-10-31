@@ -53,7 +53,7 @@ export async function fetchCardsSummary(ids: string[]): Promise<CardSummary[]> {
   if (ids.length === 0) return []
   const { data, error } = await supabase.rpc('get_cards_summary', { p_ids: ids })
   if (error) return []
-  return ((data ?? []) as CardSummary[])
+  return (Array.isArray(data) ? data : []) as CardSummary[]
 }
 
 /** 編集用パスワードを照合する（照合はデータベース側で行う） */

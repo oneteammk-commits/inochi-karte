@@ -67,7 +67,16 @@
     "labelPetFood": "Makanan",
     "labelPetMedicinePhoto": "Foto obat",
     "labelEmergencyRelationship": "Hubungan",
-    "hospital": "Rumah sakit langganan"
+    "hospital": "Rumah sakit langganan",
+    "emTitle": "Keadaan darurat",
+    "em119": "Ambulans / Pemadam kebakaran",
+    "em119s": "Darurat yang mengancam jiwa — hubungi lebih dulu",
+    "em110": "Polisi",
+    "em110s": "Kecelakaan atau kejahatan",
+    "emAmda": "Konsultasi medis — AMDA (bebas pulsa)",
+    "emAmdas": "Konsultasi medis multibahasa 0120-339-266・Hari kerja 10.00–16.00",
+    "emFind": "Cari rumah sakit",
+    "emFinds": "Panduan saat merasa tidak enak badan (situs web JNTO)"
   },
   "edit": {
     "title": "Ubah Kartu",

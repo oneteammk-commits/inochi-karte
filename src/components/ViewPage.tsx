@@ -37,6 +37,12 @@ export function ViewPage({ id }: { id: string }) {
     setLangOpen(false)
   }
 
+  // 観光庁「具合が悪くなったときに役立つガイド」— 表示言語に合った言語版ページを開く。
+  // JNTOサイトに無い言語（my/id/frなど）は英語版（あんしんパスと同じ対応表）
+  const JNTO_GUIDE: Record<string, string> = { en: 'eng', ja: 'jpn', zh: 'chs', ko: 'kor' }
+  const uiLang = (i18n.language || 'ja').split('-')[0]
+  const guideUrl = `https://www.jnto.go.jp/emergency/${JNTO_GUIDE[uiLang] ?? 'eng'}/mi_guide.html`
+
   const [savingQr, setSavingQr] = useState(false)
   const [savingWatch, setSavingWatch] = useState(false)
   const handleSaveWatchQr = async () => {
@@ -218,6 +224,47 @@ export function ViewPage({ id }: { id: string }) {
 
         <div aria-hidden="true" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
           <QRCodeCanvas id="omamori-qr-src" value={`${window.location.origin}/card/${id}`} size={296} level="M" marginSize={0} fgColor="#000000" bgColor="#FFFFFF" />
+        </div>
+
+        {/* 緊急のとき — 119・110・AMDA・観光庁「具合が悪くなったときに役立つガイド」
+            観光庁（外客受入担当・矢野様）確認済みの表記（2026年10月）。
+            表示言語に合わせて観光庁ガイドの言語版ページを開く（JNTOに無い言語は英語版）。 */}
+        <div className="mt-6 mb-3">
+          <h2 className="text-lg font-bold text-red-700 mb-3">🚨 {t('view.emTitle', '緊急のとき')}</h2>
+          <a href="tel:119" className="flex items-center gap-3 w-full bg-[#C0392B] text-white rounded-2xl px-4 py-3.5 mb-2 shadow font-bold no-underline">
+            <span className="text-2xl font-extrabold w-16 text-center shrink-0">119</span>
+            <span className="flex-1 text-left">
+              <span className="block text-base leading-snug">{t('view.em119', '救急・消防')}</span>
+              <span className="block text-xs font-normal opacity-90 leading-snug">{t('view.em119s', '命の危険 — まずここへ')}</span>
+            </span>
+          </a>
+          <a href="tel:110" className="flex items-center gap-3 w-full bg-[#C0392B] opacity-95 text-white rounded-2xl px-4 py-3.5 mb-2 shadow font-bold no-underline">
+            <span className="text-2xl font-extrabold w-16 text-center shrink-0">110</span>
+            <span className="flex-1 text-left">
+              <span className="block text-base leading-snug">{t('view.em110', '警察')}</span>
+              <span className="block text-xs font-normal opacity-90 leading-snug">{t('view.em110s', '事故・事件')}</span>
+            </span>
+          </a>
+          <a href="tel:0120-339-266" className="flex items-center gap-3 w-full bg-[#1F618D] text-white rounded-2xl px-4 py-3.5 mb-2 shadow font-bold no-underline">
+            <span className="text-2xl w-16 text-center shrink-0">☎</span>
+            <span className="flex-1 text-left">
+              <span className="block text-base leading-snug">{t('view.emAmda', '医療の相談 — AMDA（通話無料）')}</span>
+              <span className="block text-xs font-normal opacity-90 leading-snug">{t('view.emAmdas', '多言語の医療相談 0120-339-266・平日10:00〜16:00')}</span>
+            </span>
+          </a>
+          <a
+            id="find-hospital"
+            href={guideUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 w-full bg-[#EAF4EF] text-[#1E5C41] border-2 border-[#2E7D5B] rounded-2xl px-4 py-3.5 mb-2 shadow font-bold no-underline"
+          >
+            <span className="text-2xl w-16 text-center shrink-0">🏥</span>
+            <span className="flex-1 text-left">
+              <span className="block text-base leading-snug">{t('view.emFind', '病院をさがす')}</span>
+              <span className="block text-xs font-normal opacity-80 leading-snug">{t('view.emFinds', '具合が悪くなったときに役立つガイド（JNTOサイト）')}</span>
+            </span>
+          </a>
         </div>
 
         <div className="mt-6 mb-4">          <a href={"/edit/" + id} className="block w-full bg-stone-700 hover:bg-stone-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow">{t('view.buttonEdit')}</a>

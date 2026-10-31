@@ -76,7 +76,8 @@
     "emAmda": "Konsultasi medis — AMDA (bebas pulsa)",
     "emAmdas": "Konsultasi medis multibahasa 0120-339-266・Hari kerja 10.00–16.00",
     "emFind": "Cari rumah sakit",
-    "emFinds": "Panduan saat merasa tidak enak badan (situs web JNTO)"
+    "emFinds": "Panduan saat merasa tidak enak badan (situs web JNTO)",
+    "photoLoadError": "Foto tidak dapat dimuat. Ketuk untuk membuka."
   },
   "edit": {
     "title": "Ubah Kartu",
@@ -262,7 +263,12 @@
     "petDeleteConfirmNamed": "Informasi \"{{name}}\" akan dihapus.",
     "petDeleteWarning": "Informasi baru terhapus setelah Anda menekan \"Simpan perubahan\". Jika keluar tanpa menyimpan, tidak ada yang hilang.",
     "petDeleteYes": "Hapus",
-    "petDeleteNo": "Batal"
+    "petDeleteNo": "Batal",
+    "photoTakeCamera": "Ambil foto",
+    "photoFromAlbum": "Pilih dari album",
+    "photoUploading": "Mengunggah foto…",
+    "photoUploadWait": "Foto masih diunggah. Mohon tunggu sebentar.",
+    "photoUploadError": "Unggah foto gagal. Coba lagi di tempat dengan koneksi yang lebih baik."
   },
   "facilityTypes": {
     "病院・診療所": "Rumah Sakit / Klinik",

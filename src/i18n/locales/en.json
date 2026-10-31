@@ -67,7 +67,16 @@
     "labelPetFood": "Food",
     "labelPetMedicinePhoto": "Medication photo",
     "labelEmergencyRelationship": "Relationship",
-    "hospital": "Family doctor / hospital"
+    "hospital": "Family doctor / hospital",
+    "emTitle": "In an emergency",
+    "em119": "Ambulance / Fire",
+    "em119s": "Life-threatening emergency — call first",
+    "em110": "Police",
+    "em110s": "Accident or crime",
+    "emAmda": "Medical advice — AMDA (free call)",
+    "emAmdas": "Multilingual medical consultation 0120-339-266 · Weekdays 10:00–16:00 (JST)",
+    "emFind": "Find a hospital",
+    "emFinds": "Guide for when you are feeling ill (JNTO website)"
   },
   "edit": {
     "title": "Edit Card",

@@ -76,7 +76,8 @@
     "emAmda": "Medical advice — AMDA (free call)",
     "emAmdas": "Multilingual medical consultation 0120-339-266 · Weekdays 10:00–16:00 (JST)",
     "emFind": "Find a hospital",
-    "emFinds": "Guide for when you are feeling ill (JNTO website)"
+    "emFinds": "Guide for when you are feeling ill (JNTO website)",
+    "photoLoadError": "Photo could not be loaded. Tap to open."
   },
   "edit": {
     "title": "Edit Card",
@@ -262,7 +263,12 @@
     "petDeleteConfirmNamed": "\"{{name}}\" will be removed.",
     "petDeleteWarning": "The information is deleted when you tap \"Save changes\". If you leave without saving, nothing is lost.",
     "petDeleteYes": "Delete",
-    "petDeleteNo": "Cancel"
+    "petDeleteNo": "Cancel",
+    "photoTakeCamera": "Take a photo",
+    "photoFromAlbum": "Choose from album",
+    "photoUploading": "Uploading photo…",
+    "photoUploadWait": "A photo is still uploading. Please wait a moment.",
+    "photoUploadError": "Photo upload failed. Please try again where the connection is better."
   },
   "facilityTypes": {
     "病院・診療所": "Hospital / Clinic",

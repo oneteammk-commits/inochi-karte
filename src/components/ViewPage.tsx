@@ -7,6 +7,33 @@ import { downloadOmamoriCard, downloadQrOnly, downloadWatchQr } from '../lib/oma
 import { PetViewSection } from './PetViewSection'
 import type { PetRegistrationRow } from '../types/petRegistration'
 
+/** お薬写真1枚。読み込みに失敗したときは、壊れた画像アイコンではなく
+ *  「読み込めませんでした」の案内(タップで元URLを開く)を出す。 */
+function MedPhoto({ src, alt, errorText }: { src: string; alt: string; errorText: string }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <a
+        href={src}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex min-h-24 items-center justify-center rounded-xl border-2 border-dashed border-purple-200 bg-purple-50 p-2 text-center text-xs text-stone-600 no-underline"
+      >
+        {errorText}
+      </a>
+    )
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className="w-full rounded-xl border-2 border-purple-200"
+    />
+  )
+}
+
 export function ViewPage({ id }: { id: string }) {
   const { t, i18n } = useTranslation()
   const [data, setData] = useState<any>(null)
@@ -169,7 +196,13 @@ export function ViewPage({ id }: { id: string }) {
               <div key={i} className="mb-4 border-b border-purple-100 pb-3 last:border-0">
                 <p className="font-bold text-lg text-black">{m.name}</p>
 {m.photo_urls && m.photo_urls.length > 0 ? (
-<div className="mt-2 grid grid-cols-2 gap-2">{m.photo_urls.map((src: string, idx: number) => (<img key={idx} src={src} alt={m.name} className="w-full rounded-xl border-2 border-purple-200" />))}</div>                ) : (                  <p className="text-stone-500 text-sm">{t('view.noPhoto')}</p>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {m.photo_urls.map((src: string, idx: number) => (
+                      <MedPhoto key={idx} src={src} alt={m.name} errorText={t('view.photoLoadError')} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-stone-500 text-sm">{t('view.noPhoto')}</p>
                 )}
               </div>
             ))

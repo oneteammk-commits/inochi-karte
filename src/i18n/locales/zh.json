@@ -67,7 +67,16 @@
     "labelPetFood": "饮食",
     "labelPetMedicinePhoto": "药品照片",
     "labelEmergencyRelationship": "关系",
-    "hospital": "常去的医院"
+    "hospital": "常去的医院",
+    "emTitle": "紧急情况",
+    "em119": "急救・消防",
+    "em119s": "有生命危险时首先拨打",
+    "em110": "警察",
+    "em110s": "事故・案件",
+    "emAmda": "医疗咨询 — AMDA（免费电话）",
+    "emAmdas": "多语言医疗咨询 0120-339-266・工作日10:00〜16:00",
+    "emFind": "查找医院",
+    "emFinds": "身体不适之时 应急指南（JNTO网站）"
   },
   "edit": {
     "title": "编辑医疗卡",

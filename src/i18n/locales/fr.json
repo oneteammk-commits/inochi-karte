@@ -67,7 +67,16 @@
     "labelPetFood": "Alimentation",
     "labelPetMedicinePhoto": "Photo des médicaments",
     "labelEmergencyRelationship": "Lien de parenté",
-    "hospital": "Hôpital habituel"
+    "hospital": "Hôpital habituel",
+    "emTitle": "En cas d'urgence",
+    "em119": "Ambulance / Pompiers",
+    "em119s": "Urgence vitale — appelez d'abord",
+    "em110": "Police",
+    "em110s": "Accident ou délit",
+    "emAmda": "Conseil médical — AMDA (appel gratuit)",
+    "emAmdas": "Consultation médicale multilingue 0120-339-266 · En semaine 10h00–16h00",
+    "emFind": "Trouver un hôpital",
+    "emFinds": "Guide en cas de malaise (site de la JNTO)"
   },
   "edit": {
     "title": "Modifier la carte",

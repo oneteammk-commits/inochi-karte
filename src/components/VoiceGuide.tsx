@@ -26,6 +26,23 @@ import {
 
 type RecognitionResultLike = ArrayLike<{ transcript: string }> & { isFinal?: boolean }
 
+/** 聞き取りの候補の中から、漢字を含まない（かなの）候補を選ぶ。なければ1番目の候補 */
+function pickKana(r: RecognitionResultLike): string {
+  const alts = Array.from({ length: r.length }, (_, i) => r[i]?.transcript ?? '').filter(Boolean)
+  return alts.find((a) => !hasKanji(a)) ?? alts[0] ?? ''
+}
+
+/** フリガナ用に整える（「こ、ん、ど、う」のように区切って言われた場合はつなげる） */
+function toFurigana(text: string): string {
+  const parts = text
+    .normalize('NFKC')
+    .replace(/[、。,.・]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+  const spelled = parts.length > 1 && parts.every((p) => p.length <= 2)
+  return toKatakana(spelled ? parts.join('') : parts.join(' '))
+}
+
 type SpeechRecognitionLike = {
   lang: string
   interimResults: boolean
@@ -191,6 +208,8 @@ export function VoiceGuide({
   const targetRef = useRef<HTMLElement | null>(null)
   /** その項目を本人がタップして選んだか（自動で案内しただけか） */
   const tappedRef = useRef(false)
+  /** フリガナを言い直してもらった項目（2回目も漢字なら次へ進む） */
+  const furiganaRetryRef = useRef<HTMLElement | null>(null)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
 
   const say = useCallback((text: string) => itemReading(text, lang), [lang])
@@ -428,7 +447,7 @@ export function VoiceGuide({
   }
 
   /** 聞き取った言葉を画面に反映する */
-  const handleHeard = (raw: string) => {
+  const handleHeard = (raw: string, kanaRaw = '') => {
     const text = clean(raw).replace(/[。.]$/, '')
     setHeard(text)
     const n = norm(text)
@@ -496,12 +515,22 @@ export function VoiceGuide({
         }
         if (input.maxLength > 0) value = value.slice(0, input.maxLength)
       } else if (lang === 'ja' && isFuriganaField(input)) {
-        const kana = toKatakana(text)
-        if (hasKanji(kana)) {
-          // フリガナは声だと漢字になりやすい。入れずに次へ（空欄でも登録できる）
+        // 聞き取りは漢字に変えて返すことが多いので、候補の中のかなを使う
+        const kana = [toFurigana(text), toFurigana(clean(kanaRaw))].find((k) => k && !hasKanji(k))
+        if (!kana) {
+          if (furiganaRetryRef.current !== input) {
+            // 1回目: 区切って言い直してもらう（区切るとかなで返りやすい）
+            furiganaRetryRef.current = input
+            targetRef.current = input
+            speak(t('voice.furiganaRetry'))
+            return
+          }
+          // 2回目も漢字: 入れずに次へ（空欄でも登録できる）
+          furiganaRetryRef.current = null
           afterFill(t('voice.furiganaKanji'), input)
           return
         }
+        furiganaRetryRef.current = null
         value = kana
       }
       setNativeValue(input, value)
@@ -540,9 +569,12 @@ export function VoiceGuide({
     // 少し間があいても終わらないよう、続けて聞き、黙ってから3秒で区切る
     rec.continuous = true
     rec.interimResults = true
-    rec.maxAlternatives = 1
+    // フリガナ用に、候補を5つまで受け取る（かなの候補を探すため）
+    rec.maxAlternatives = 5
     let finalText = ''
     let interimText = ''
+    let finalKana = ''
+    let interimKana = ''
     let done = false
     let silenceTimer = 0
     const finish = () => {
@@ -557,17 +589,24 @@ export function VoiceGuide({
       }
       setListening(false)
       const text = mergeHeard(finalText, interimText)
-      if (text) handleHeard(text)
+      if (text) handleHeard(text, mergeHeard(finalKana, interimKana))
       else speak(t('voice.notUnderstood'))
     }
     const maxTimer = window.setTimeout(finish, MAX_LISTEN_MS)
     rec.onresult = (e) => {
       interimText = ''
+      interimKana = ''
       for (let i = e.resultIndex ?? 0; i < e.results.length; i++) {
         const r = e.results[i]
         const tx = r?.[0]?.transcript ?? ''
-        if (r.isFinal === false) interimText = mergeHeard(interimText, tx)
-        else finalText = mergeHeard(finalText, tx)
+        const kana = r ? pickKana(r) : ''
+        if (r.isFinal === false) {
+          interimText = mergeHeard(interimText, tx)
+          interimKana = mergeHeard(interimKana, kana)
+        } else {
+          finalText = mergeHeard(finalText, tx)
+          finalKana = mergeHeard(finalKana, kana)
+        }
       }
       window.clearTimeout(silenceTimer)
       silenceTimer = window.setTimeout(finish, SILENCE_MS)

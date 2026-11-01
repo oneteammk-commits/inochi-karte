@@ -388,6 +388,12 @@
     "unchecked": "Off",
     "cmdNext": "next|go next|continue",
     "cmdBack": "back|go back|previous",
-    "cmdRepeat": "repeat|again|say again"
+    "cmdRepeat": "repeat|again|say again",
+    "nextIs": "Next: ",
+    "firstIs": "First: ",
+    "pageDone": "That is everything on this page. Say \"next\" to continue",
+    "furiganaKanji": "The reading could not be entered by voice. You can leave it blank",
+    "tagHint": "Say the names of the items that apply. You can choose several. Say \"next\" when done",
+    "notNumber": "I heard \"{{text}}\". Please say it as a number"
   }
 }

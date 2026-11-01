@@ -1,24 +1,41 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
+import {
+  ALIASES_JA,
+  hasKanji,
+  itemReading,
+  parseSpokenNumber,
+  parseSpokenYear,
+  spellDigits,
+  toHiragana,
+  toKatakana,
+  toSpeechText,
+} from '../lib/voiceText'
 
 /**
  * 音声ガイド（第1段階）
  * - 「声でご案内」を押した人にだけ有効。押さない人には何も起きない（画面も今までと同じ）。
  * - 読み上げ: ステップが変わったとき・項目をタップしたとき・選択ボタンを押したとき・エラーのとき。
- * - 声で答える: 🎤ボタン → いま選んでいる入力欄に入れる／選択肢・ボタンを声で選ぶ／「つぎへ」「もどる」。
+ *   ステップの最初と、入力が終わるたびに「次は〇〇」と、まだ入っていない項目を順番に案内する。
+ * - 声で答える: 🎤ボタン → 案内中の項目に入れる／選択肢・ボタンを声で選ぶ／「つぎへ」「もどる」。
+ *   少し間があいても途切れないよう、黙ってから3秒たつまで聞き続ける。
  * - 声が通らない端末でも、読み上げ＋画面のボタンで最後まで進める（声は補助）。
  * - 編集用パスワードは声に出さない（読み上げない・声で入れない）。
+ * - フリガナは声だと漢字で返ってくることが多いので、漢字のときは入れずに案内する（空欄でも登録できる）。
  */
+
+type RecognitionResultLike = ArrayLike<{ transcript: string }> & { isFinal?: boolean }
 
 type SpeechRecognitionLike = {
   lang: string
   interimResults: boolean
   maxAlternatives: number
   continuous: boolean
-  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null
+  onresult: ((e: { resultIndex?: number; results: ArrayLike<RecognitionResultLike> }) => void) | null
   onerror: ((e: { error: string }) => void) | null
   onend: (() => void) | null
   start: () => void
+  stop?: () => void
   abort: () => void
 }
 
@@ -33,6 +50,10 @@ const SPEECH_LANG: Record<string, string> = {
 }
 
 const STORAGE_KEY = 'sitte_voice_guide'
+/** 話し終わってから、聞き取りを終えるまでの待ち時間 */
+const SILENCE_MS = 3000
+/** 1回の聞き取りの上限 */
+const MAX_LISTEN_MS = 30000
 
 function getRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
   if (typeof window === 'undefined') return null
@@ -48,12 +69,14 @@ function hasSynthesis(): boolean {
 
 const clean = (s: string | null | undefined) => (s ?? '').replace(/\s+/g, ' ').trim()
 
-/** 比較用に正規化（空白・句読点・全角半角の差をなくす） */
+/** 比較用に正規化（空白・句読点・全角半角・カタカナとひらがなの差をなくす） */
 function norm(s: string): string {
-  return s
-    .normalize('NFKC')
-    .toLowerCase()
-    .replace(/[\s、。,.・()（）「」!?！？:：]/g, '')
+  return toHiragana(
+    s
+      .normalize('NFKC')
+      .toLowerCase()
+      .replace(/[\s、。,.・()（）「」!?！？:：]/g, ''),
+  )
 }
 
 /** 入力欄の名前（ラベル）を画面から拾う */
@@ -80,6 +103,24 @@ function isSecret(el: Element | null): boolean {
   return !!el && el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'password'
 }
 
+/** 郵便番号・電話番号など、数字を1けたずつ読む欄か */
+function isDigitField(el: HTMLElement): boolean {
+  if (el.tagName !== 'INPUT') return false
+  const input = el as HTMLInputElement
+  if (input.type === 'tel' || input.autocomplete === 'postal-code') return true
+  return /電話|郵便|番号|連絡先|phone|postal|zip|chip/i.test(fieldLabel(input))
+}
+
+function isNumberField(el: HTMLElement): boolean {
+  if (el.tagName !== 'INPUT') return false
+  const input = el as HTMLInputElement
+  return input.inputMode === 'numeric' || input.type === 'tel' || input.autocomplete === 'postal-code'
+}
+
+function isFuriganaField(el: HTMLElement): boolean {
+  return /フリガナ|ふりがな|phonetic|furigana/i.test(fieldLabel(el))
+}
+
 /** React が管理する入力欄に値を入れる（React の onChange が動くように） */
 function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement, value: string) {
   const proto =
@@ -92,26 +133,27 @@ function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectE
   el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }))
 }
 
-/** 「昭和47年」「平成元年」などを西暦に。数字だけならそのまま */
-function toYear(text: string): string | null {
-  const t = text.normalize('NFKC')
-  const eras: [string, number][] = [
-    ['令和', 2018],
-    ['平成', 1988],
-    ['昭和', 1925],
-    ['大正', 1911],
-    ['明治', 1867],
-  ]
-  for (const [name, base] of eras) {
-    const m = t.match(new RegExp(`${name}\\s*(元|\\d{1,2})`))
-    if (m) return String(base + (m[1] === '元' ? 1 : Number(m[1])))
-  }
-  const d = t.match(/\d{4}/)
-  return d ? d[0] : null
+/** 声で入れられる欄（画面に見えていて、まだ空のもの）を順番に並べる */
+function fillableFields(root: HTMLElement): HTMLElement[] {
+  return Array.from(root.querySelectorAll<HTMLElement>('input, select, textarea')).filter((el) => {
+    if (!el.offsetParent || (el as HTMLInputElement).disabled) return false
+    if (el.tagName === 'INPUT') {
+      const type = (el as HTMLInputElement).type
+      if (['file', 'checkbox', 'radio', 'hidden', 'password', 'submit', 'button'].includes(type)) return false
+    }
+    return !(el as HTMLInputElement).value
+  })
 }
 
-function digitsOnly(text: string): string {
-  return text.normalize('NFKC').replace(/[^\d]/g, '')
+/** 声の文字の続きをつなぐ（端末によって「全文」で返ったり「続きだけ」で返ったりするため） */
+function mergeHeard(acc: string, next: string): string {
+  const a = acc.trim()
+  const b = next.trim()
+  if (!a) return b
+  if (!b) return a
+  if (b.startsWith(a)) return b
+  if (a.endsWith(b)) return a
+  return `${a} ${b}`
 }
 
 export function VoiceGuide({
@@ -145,34 +187,30 @@ export function VoiceGuide({
   const [listening, setListening] = useState(false)
   const [heard, setHeard] = useState('')
   const lastSpokenRef = useRef('')
+  /** いま案内している項目 */
   const targetRef = useRef<HTMLElement | null>(null)
+  /** その項目を本人がタップして選んだか（自動で案内しただけか） */
+  const tappedRef = useRef(false)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
+
+  const say = useCallback((text: string) => itemReading(text, lang), [lang])
 
   const speak = useCallback(
     (text: string) => {
       if (!synthOk || !text) return
       const synth = window.speechSynthesis
       synth.cancel()
-      const u = new SpeechSynthesisUtterance(text)
+      const spoken = toSpeechText(text, lang)
+      const u = new SpeechSynthesisUtterance(spoken)
       u.lang = speechLang
       const voice = synth.getVoices().find((v) => v.lang.replace('_', '-').startsWith(speechLang.slice(0, 2)))
       if (voice) u.voice = voice
       u.rate = lang === 'ja' ? 0.95 : 1
-      lastSpokenRef.current = text
+      lastSpokenRef.current = spoken
       synth.speak(u)
     },
     [synthOk, speechLang, lang],
   )
-
-  /** いまのステップの見出しと説明を読む */
-  const readStep = useCallback(() => {
-    const root = containerRef.current
-    if (!root) return
-    const h2 = clean(root.querySelector('h2')?.textContent)
-    const firstP = clean(root.querySelector('h2 + p')?.textContent)
-    const label = t('voice.stepN', { n: Math.min(stepKey + 1, 6) })
-    speak([label, h2, firstP].filter(Boolean).join(SEP))
-  }, [containerRef, speak, stepKey, t, SEP])
 
   /** 項目1つ分の読み上げ文 */
   const describe = useCallback(
@@ -183,14 +221,21 @@ export function VoiceGuide({
         const opts = Array.from(sel.options).filter((o) => o.value !== '')
         const now = sel.value ? sel.options[sel.selectedIndex]?.text : ''
         const list =
-          opts.length <= 10 ? t('voice.options', { list: opts.map((o) => o.text).join('、') }) : t('voice.manyOptions')
-        return [label, now ? t('voice.selectedNow', { text: now }) : list].filter(Boolean).join(SEP)
+          opts.length <= 10
+            ? t('voice.options', { list: opts.map((o) => say(o.text)).join('、') })
+            : t('voice.manyOptions')
+        return [label, now ? t('voice.selectedNow', { text: say(now) }) : list].filter(Boolean).join(SEP)
       }
       if (isTextField(el)) {
         if (isSecret(el)) return [label, t('voice.passwordTap')].join(SEP)
+        const digits = isDigitField(el)
         const v = clean((el as HTMLInputElement).value)
-        const ph = clean((el as HTMLInputElement).placeholder).replace(/^(例|e\.g\.|ex\.?)\s*[:：]?\s*/i, '')
-        const tail = v ? t('voice.filledNow', { text: v }) : ph ? `${t('voice.example')} ${ph}` : ''
+        const ph = clean((el as HTMLInputElement).placeholder).replace(/^(例|e\.g\.|ex\.?)\s*[:：）)]?\s*/i, '')
+        const tail = v
+          ? t('voice.filledNow', { text: digits ? spellDigits(v) : v })
+          : ph
+            ? `${t('voice.example')} ${digits ? spellDigits(ph) : ph}`
+            : ''
         return [label, tail].filter(Boolean).join(SEP)
       }
       if (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'checkbox') {
@@ -200,8 +245,40 @@ export function VoiceGuide({
       }
       return label
     },
-    [t, SEP],
+    [t, SEP, say],
   )
+
+  /** 次に案内する項目を決めて、画面をそこまで動かす */
+  const pointTo = useCallback((el: HTMLElement | null) => {
+    targetRef.current = el
+    tappedRef.current = false
+    if (el) {
+      try {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      } catch {
+        /* noop */
+      }
+    }
+  }, [])
+
+  /** いまのステップの見出しと説明を読み、最初に入れる項目を案内する */
+  const readStep = useCallback(() => {
+    const root = containerRef.current
+    if (!root) return
+    const h2 = clean(root.querySelector('h2')?.textContent)
+    const firstP = clean(root.querySelector('h2 + p')?.textContent)
+    const label = t('voice.stepN', { n: Math.min(stepKey + 1, 6) })
+    const parts = [label, h2, firstP]
+    if (root.querySelector('button[aria-pressed]')) {
+      parts.push(t('voice.tagHint'))
+      pointTo(null)
+    } else {
+      const first = fillableFields(root)[0] ?? null
+      pointTo(first)
+      if (first) parts.push(`${t('voice.firstIs')}${describe(first)}`)
+    }
+    speak(parts.filter(Boolean).join(SEP))
+  }, [containerRef, speak, stepKey, t, SEP, describe, pointTo])
 
   // ステップが変わったら読む
   useEffect(() => {
@@ -211,20 +288,27 @@ export function VoiceGuide({
     return () => window.clearTimeout(id)
   }, [enabled, stepKey, readStep])
 
-  // エラーが出たら読む
+  // エラーが出たら読み、まだ入っていない項目を案内する
   useEffect(() => {
-    if (enabled && error) speak(error)
-  }, [enabled, error, speak])
+    if (!enabled || !error) return
+    const root = containerRef.current
+    const first = root && !root.querySelector('button[aria-pressed]') ? (fillableFields(root)[0] ?? null) : null
+    if (first) {
+      pointTo(first)
+      speak(`${error}${SEP}${describe(first)}`)
+    } else speak(error)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, error])
 
-  // 項目をタップ（フォーカス）したら読む・選択ボタンを押したら状態を読む
+  // 項目をタップ（フォーカス）したら読む・選択ボタンやスイッチを押したら、切り替わった後の状態を読む
   useEffect(() => {
     const root = containerRef.current
     if (!enabled || !root) return
     const onFocus = (e: FocusEvent) => {
       const el = e.target as HTMLElement
-      if (!(isTextField(el) || el.tagName === 'SELECT' || (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'checkbox'))) return
-      if (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'file') return
+      if (!(isTextField(el) || el.tagName === 'SELECT')) return
       targetRef.current = el
+      tappedRef.current = true
       speak(describe(el))
     }
     const onClick = (e: MouseEvent) => {
@@ -234,14 +318,18 @@ export function VoiceGuide({
       // クリック後に状態が切り替わるので、少し待ってから読む
       window.setTimeout(() => {
         const on = btn.getAttribute('aria-pressed') === 'true'
-        speak(t(on ? 'voice.tagOn' : 'voice.tagOff', { text: clean(btn.textContent) }))
+        speak(t(on ? 'voice.tagOn' : 'voice.tagOff', { text: say(clean(btn.textContent)) }))
       }, 120)
     }
     const onChange = (e: Event) => {
       const el = e.target as HTMLElement
       if (el.tagName === 'SELECT' && e.isTrusted) {
         const sel = el as HTMLSelectElement
-        if (sel.value) speak(t('voice.selected', { text: sel.options[sel.selectedIndex]?.text ?? '' }))
+        if (sel.value) speak(t('voice.selected', { text: say(sel.options[sel.selectedIndex]?.text ?? '') }))
+      }
+      // スイッチ（ペットの情報も登録する など）は、切り替わった後の状態を読む
+      if (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'checkbox') {
+        window.setTimeout(() => speak(describe(el)), 50)
       }
     }
     root.addEventListener('focusin', onFocus)
@@ -252,7 +340,7 @@ export function VoiceGuide({
       root.removeEventListener('click', onClick)
       root.removeEventListener('change', onChange)
     }
-  }, [enabled, containerRef, speak, describe, t])
+  }, [enabled, containerRef, speak, describe, t, say])
 
   // 画面下の操作パネルに「次へ」ボタンが隠れないよう、案内中はページ下に余白を足す
   useEffect(() => {
@@ -295,6 +383,50 @@ export function VoiceGuide({
       .map((w) => norm(w))
       .filter(Boolean)
 
+  /** 画面の文字と、その言い換え（日本語のみ）を比べる用に並べる */
+  const matchKeys = (text: string): string[] => {
+    const keys = [text]
+    if (lang === 'ja') {
+      keys.push(itemReading(text, 'ja'), ...(ALIASES_JA[text] ?? []))
+    }
+    return keys.map(norm).filter(Boolean)
+  }
+
+  /** 選択ボタン（アレルギー・持病など）から、言われたものを探す */
+  const findTagButtons = (root: HTMLElement, n: string): HTMLButtonElement[] => {
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('button[aria-pressed]'))
+    const hits = buttons.filter((b) => matchKeys(clean(b.textContent)).some((k) => n.includes(k)))
+    // 同じ名前のボタンが複数のグループにある場合（「なし」など）は、まだ何も選んでいないグループの方だけ
+    const seen = new Set<string>()
+    return hits.filter((b) => {
+      const name = clean(b.textContent)
+      const same = hits.filter((h) => clean(h.textContent) === name)
+      if (same.length === 1) return true
+      if (seen.has(name)) return false
+      const pick =
+        same.find((h) => !h.parentElement?.querySelector('button[aria-pressed="true"]')) ?? same[0]
+      if (pick === b) {
+        seen.add(name)
+        return true
+      }
+      return false
+    })
+  }
+
+  /** 入れ終わったら、次の空いている項目を案内する */
+  const afterFill = (doneMsg: string, from: HTMLElement) => {
+    const root = containerRef.current
+    const all = root ? fillableFields(root) : []
+    // 後ろの空いている項目 → なければ前に戻って空いている項目
+    const next =
+      all.find((el) => from.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) ??
+      all.find((el) => el !== from) ??
+      null
+    pointTo(next)
+    if (next) speak(`${doneMsg}${SEP}${t('voice.nextIs')}${describe(next)}`)
+    else speak([doneMsg, t('voice.pageDone')].join(SEP))
+  }
+
   /** 聞き取った言葉を画面に反映する */
   const handleHeard = (raw: string) => {
     const text = clean(raw).replace(/[。.]$/, '')
@@ -321,59 +453,15 @@ export function VoiceGuide({
     }
 
     const root = containerRef.current
-    const el = targetRef.current && targetRef.current.isConnected ? targetRef.current : null
+    let el = targetRef.current && targetRef.current.isConnected ? targetRef.current : null
 
-    // 2) 選んでいる入力欄に入れる
-    if (el && isTextField(el)) {
-      if (isSecret(el)) {
-        speak(t('voice.passwordTap'))
-        return
-      }
-      const input = el as HTMLInputElement
-      let value = text
-      const label = fieldLabel(input)
-      if (input.inputMode === 'numeric' || input.type === 'tel' || input.autocomplete === 'postal-code') {
-        const isYear = input.maxLength === 4 || /年|year|年份|년|année|tahun/i.test(label)
-        value = (isYear ? toYear(text) : null) ?? digitsOnly(text)
-        if (!value) {
-          speak(t('voice.notUnderstood'))
-          return
-        }
-        if (input.maxLength > 0) value = value.slice(0, input.maxLength)
-      }
-      setNativeValue(input, value)
-      speak(t('voice.filled', { text: value }))
-      return
-    }
-
-    // 3) 選んでいるプルダウンから選ぶ
-    if (el && el.tagName === 'SELECT') {
-      const sel = el as HTMLSelectElement
-      const hit = Array.from(sel.options).find((o) => {
-        if (!o.value) return false
-        const on = norm(o.text)
-        return on && (n.includes(on) || on.includes(n))
-      })
-      if (hit) {
-        setNativeValue(sel, hit.value)
-        speak(t('voice.selected', { text: hit.text }))
-      } else {
-        speak(t('voice.notInOptions', { text }))
-      }
-      return
-    }
-
-    // 4) 画面の選択ボタン（アレルギー・持病など）から選ぶ
-    if (root) {
-      const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('button[aria-pressed]'))
-      const hits = buttons.filter((b) => {
-        const bn = norm(clean(b.textContent))
-        return bn && n.includes(bn)
-      })
+    // 2) 選択ボタン（アレルギー・持病など）: 本人がタップした入力欄がなければ、まずボタンを探す
+    if (root && (!el || !tappedRef.current || el.tagName === 'TEXTAREA')) {
+      const hits = findTagButtons(root, n)
       if (hits.length > 0) {
-        const already = hits.filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => clean(b.textContent))
+        const already = hits.filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => say(clean(b.textContent)))
         const toPress = hits.filter((b) => b.getAttribute('aria-pressed') !== 'true')
-        const turnedOn = toPress.map((b) => clean(b.textContent))
+        const turnedOn = toPress.map((b) => say(clean(b.textContent)))
         // 1つずつ、画面が切り替わるのを待ってから押す（同時に押すと前の選択が消えるため）
         toPress.forEach((b, i) => window.setTimeout(() => b.click(), i * 150))
         const msgs = [
@@ -386,7 +474,58 @@ export function VoiceGuide({
       }
     }
 
-    speak(el ? t('voice.notUnderstood') : t('voice.noField'))
+    // 何も選ばれていなければ、まだ入っていない最初の項目に入れる
+    if (!el && root) {
+      el = fillableFields(root)[0] ?? null
+    }
+
+    // 3) 入力欄に入れる
+    if (el && isTextField(el)) {
+      if (isSecret(el)) {
+        speak(t('voice.passwordTap'))
+        return
+      }
+      const input = el as HTMLInputElement
+      let value = text
+      if (isNumberField(input)) {
+        const isYear = input.maxLength === 4
+        value = (isYear ? parseSpokenYear(text) : null) ?? parseSpokenNumber(text) ?? ''
+        if (!value) {
+          speak(t('voice.notNumber', { text }))
+          return
+        }
+        if (input.maxLength > 0) value = value.slice(0, input.maxLength)
+      } else if (lang === 'ja' && isFuriganaField(input)) {
+        const kana = toKatakana(text)
+        if (hasKanji(kana)) {
+          // フリガナは声だと漢字になりやすい。入れずに次へ（空欄でも登録できる）
+          afterFill(t('voice.furiganaKanji'), input)
+          return
+        }
+        value = kana
+      }
+      setNativeValue(input, value)
+      afterFill(t('voice.filled', { text: isDigitField(input) ? spellDigits(value) : value }), input)
+      return
+    }
+
+    // 4) プルダウンから選ぶ
+    if (el && el.tagName === 'SELECT') {
+      const sel = el as HTMLSelectElement
+      const opts = Array.from(sel.options).filter((o) => o.value)
+      const hit =
+        opts.find((o) => matchKeys(o.text).some((k) => k === n)) ??
+        opts.find((o) => matchKeys(o.text).some((k) => n.includes(k) || (k.length > 1 && k.includes(n))))
+      if (hit) {
+        setNativeValue(sel, hit.value)
+        afterFill(t('voice.selected', { text: say(hit.text) }), sel)
+      } else {
+        speak(t('voice.notInOptions', { text }))
+      }
+      return
+    }
+
+    speak(t('voice.noField'))
   }
 
   const startListening = () => {
@@ -398,19 +537,52 @@ export function VoiceGuide({
     }
     const rec = new RecognitionCtor()
     rec.lang = speechLang
-    rec.interimResults = false
+    // 少し間があいても終わらないよう、続けて聞き、黙ってから3秒で区切る
+    rec.continuous = true
+    rec.interimResults = true
     rec.maxAlternatives = 1
-    rec.continuous = false
+    let finalText = ''
+    let interimText = ''
+    let done = false
+    let silenceTimer = 0
+    const finish = () => {
+      if (done) return
+      done = true
+      window.clearTimeout(silenceTimer)
+      window.clearTimeout(maxTimer)
+      try {
+        rec.stop?.()
+      } catch {
+        /* noop */
+      }
+      setListening(false)
+      const text = mergeHeard(finalText, interimText)
+      if (text) handleHeard(text)
+      else speak(t('voice.notUnderstood'))
+    }
+    const maxTimer = window.setTimeout(finish, MAX_LISTEN_MS)
     rec.onresult = (e) => {
-      const first = e.results[0]?.[0]?.transcript ?? ''
-      handleHeard(first)
+      interimText = ''
+      for (let i = e.resultIndex ?? 0; i < e.results.length; i++) {
+        const r = e.results[i]
+        const tx = r?.[0]?.transcript ?? ''
+        if (r.isFinal === false) interimText = mergeHeard(interimText, tx)
+        else finalText = mergeHeard(finalText, tx)
+      }
+      window.clearTimeout(silenceTimer)
+      silenceTimer = window.setTimeout(finish, SILENCE_MS)
     }
     rec.onerror = (e) => {
-      setListening(false)
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') speak(t('voice.micDenied'))
-      else if (e.error === 'no-speech') speak(t('voice.notUnderstood'))
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        done = true
+        window.clearTimeout(silenceTimer)
+        window.clearTimeout(maxTimer)
+        setListening(false)
+        speak(t('voice.micDenied'))
+      }
+      // 「何も聞こえなかった」等は onend → finish で案内する
     }
-    rec.onend = () => setListening(false)
+    rec.onend = () => finish()
     recRef.current = rec
     setListening(true)
     try {

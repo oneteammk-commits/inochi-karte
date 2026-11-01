@@ -4,6 +4,7 @@ import {
   ALIASES_JA,
   hasKanji,
   itemReading,
+  parseSpokenDate,
   parseSpokenNumber,
   parseSpokenYear,
   spellDigits,
@@ -134,6 +135,15 @@ function isNumberField(el: HTMLElement): boolean {
   return input.inputMode === 'numeric' || input.type === 'tel' || input.autocomplete === 'postal-code'
 }
 
+/** 生年月日の「年・月・日」の3つの欄（同じ枠の中にある数字欄）。その欄でなければ null */
+function dateGroup(el: HTMLElement): HTMLInputElement[] | null {
+  if (el.tagName !== 'INPUT') return null
+  const box = el.closest('label')
+  if (!box) return null
+  const inputs = Array.from(box.querySelectorAll<HTMLInputElement>('input[inputmode="numeric"]'))
+  return inputs.length === 3 && inputs[0].maxLength === 4 && inputs.includes(el as HTMLInputElement) ? inputs : null
+}
+
 function isFuriganaField(el: HTMLElement): boolean {
   return /フリガナ|ふりがな|phonetic|furigana/i.test(fieldLabel(el))
 }
@@ -250,11 +260,18 @@ export function VoiceGuide({
         const digits = isDigitField(el)
         const v = clean((el as HTMLInputElement).value)
         const ph = clean((el as HTMLInputElement).placeholder).replace(/^(例|e\.g\.|ex\.?)\s*[:：）)]?\s*/i, '')
+        // 生年月日は、まとめて言えること・「がつ」「にち」を付けて言うことを案内する（短い一音は聞き取られにくいため）
+        const group = lang === 'ja' ? dateGroup(el) : null
+        const dateHint = group
+          ? t(['voice.dateHint', 'voice.monthHint', 'voice.dayHint'][group.indexOf(el as HTMLInputElement)])
+          : ''
         const tail = v
           ? t('voice.filledNow', { text: digits ? spellDigits(v) : v })
-          : ph
-            ? `${t('voice.example')} ${digits ? spellDigits(ph) : ph}`
-            : ''
+          : dateHint
+            ? dateHint
+            : ph
+              ? `${t('voice.example')} ${digits ? spellDigits(ph) : ph}`
+              : ''
         return [label, tail].filter(Boolean).join(SEP)
       }
       if (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'checkbox') {
@@ -264,7 +281,7 @@ export function VoiceGuide({
       }
       return label
     },
-    [t, SEP, say],
+    [t, SEP, say, lang],
   )
 
   /** 次に案内する項目を決めて、画面をそこまで動かす */
@@ -447,7 +464,7 @@ export function VoiceGuide({
   }
 
   /** 聞き取った言葉を画面に反映する */
-  const handleHeard = (raw: string, kanaRaw = '') => {
+  const handleHeard = (raw: string, kanaRaw = '', alts: string[] = []) => {
     const text = clean(raw).replace(/[。.]$/, '')
     setHeard(text)
     const n = norm(text)
@@ -506,9 +523,36 @@ export function VoiceGuide({
       }
       const input = el as HTMLInputElement
       let value = text
+      // 聞き取りの候補（1番目＋ほかの候補）。一音だけだと1番目が数字にならないことがあるため
+      const candidates = [text, ...alts.map(clean)].filter((c, i, a) => c && a.indexOf(c) === i)
+      // 生年月日: 「しょうわ47ねん2がつ5にち」のようにまとめて言われたら、年・月・日に分けて入れる
+      const group = lang === 'ja' ? dateGroup(input) : null
+      if (group) {
+        const date = candidates.map(parseSpokenDate).find((d) => d.year || d.month || d.day)
+        if (date) {
+          const fills = (
+            [
+              [group[0], date.year],
+              [group[1], date.month],
+              [group[2], date.day],
+            ] as [HTMLInputElement, string | undefined][]
+          ).filter((f): f is [HTMLInputElement, string] => !!f[1])
+          // 1つずつ、画面が切り替わるのを待ってから入れる（同時に入れると前の値が消えるため）
+          fills.forEach(([f, v], i) => window.setTimeout(() => setNativeValue(f, v), i * 150))
+          const shown = `${date.year ? `${date.year}年` : ''}${date.month ? `${date.month}月` : ''}${date.day ? `${date.day}日` : ''}`
+          const lastFilled = fills[fills.length - 1][0]
+          window.setTimeout(() => afterFill(t('voice.filled', { text: shown }), lastFilled), fills.length * 150 + 50)
+          return
+        }
+      }
       if (isNumberField(input)) {
         const isYear = input.maxLength === 4
-        value = (isYear ? parseSpokenYear(text) : null) ?? parseSpokenNumber(text) ?? ''
+        const pick = (c: string) => (isYear ? parseSpokenYear(c) : null) ?? parseSpokenNumber(c)
+        const month = group ? group.indexOf(input) === 1 : false
+        const day = group ? group.indexOf(input) === 2 : false
+        const ok = (v: string | null) =>
+          !!v && (!month || (Number(v) >= 1 && Number(v) <= 12)) && (!day || (Number(v) >= 1 && Number(v) <= 31))
+        value = candidates.map(pick).find(ok) ?? ''
         if (!value) {
           speak(t('voice.notNumber', { text }))
           return
@@ -575,6 +619,14 @@ export function VoiceGuide({
     let interimText = ''
     let finalKana = ''
     let interimKana = ''
+    // 2番目以降の候補も、それぞれつないでおく（月・日の数字を候補の中から探すため）
+    let finalAlts: string[] = []
+    let interimAlts: string[] = []
+    const addAlts = (base: string[], r: RecognitionResultLike) => {
+      const out = [...base]
+      for (let k = 1; k < Math.min(r.length, 5); k++) out[k - 1] = mergeHeard(out[k - 1] ?? '', r[k]?.transcript ?? '')
+      return out
+    }
     let done = false
     let silenceTimer = 0
     const finish = () => {
@@ -589,13 +641,19 @@ export function VoiceGuide({
       }
       setListening(false)
       const text = mergeHeard(finalText, interimText)
-      if (text) handleHeard(text, mergeHeard(finalKana, interimKana))
+      if (text)
+        handleHeard(
+          text,
+          mergeHeard(finalKana, interimKana),
+          finalAlts.map((a, k) => mergeHeard(a, interimAlts[k] ?? '')),
+        )
       else speak(t('voice.notUnderstood'))
     }
     const maxTimer = window.setTimeout(finish, MAX_LISTEN_MS)
     rec.onresult = (e) => {
       interimText = ''
       interimKana = ''
+      interimAlts = []
       for (let i = e.resultIndex ?? 0; i < e.results.length; i++) {
         const r = e.results[i]
         const tx = r?.[0]?.transcript ?? ''
@@ -603,9 +661,11 @@ export function VoiceGuide({
         if (r.isFinal === false) {
           interimText = mergeHeard(interimText, tx)
           interimKana = mergeHeard(interimKana, kana)
+          interimAlts = addAlts(interimAlts, r)
         } else {
           finalText = mergeHeard(finalText, tx)
           finalKana = mergeHeard(finalKana, kana)
+          finalAlts = addAlts(finalAlts, r)
         }
       }
       window.clearTimeout(silenceTimer)

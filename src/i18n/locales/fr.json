@@ -395,6 +395,7 @@
     "pageDone": "Cette page est terminée. Dites « suivant » pour continuer",
     "furiganaKanji": "La lecture ne peut pas être saisie à la voix. Vous pouvez la laisser vide",
     "tagHint": "Dites le nom des éléments qui s’appliquent. Vous pouvez en choisir plusieurs. Dites « suivant » quand vous avez fini",
-    "notNumber": "J’ai entendu « {{text}} ». Dites-le en chiffres, s’il vous plaît"
+    "notNumber": "J’ai entendu « {{text}} ». Dites-le en chiffres, s’il vous plaît",
+    "furiganaRetry": "La lecture a été reconnue en kanji. Répétez-la lentement, son par son"
   }
 }

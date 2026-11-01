@@ -60,6 +60,7 @@ const PetFormBlock = memo(function PetFormBlock({
             <div className="relative inline-block">
               <img src={pet.photoUrl} alt="pet" className="h-28 w-28 rounded-lg border border-stone-200 object-cover" />
               <button
+                style={{ color: '#ffffff' }}
                 type="button"
                 onClick={() => onUpdatePet(pet.id, { photoUrl: null })}
                 aria-label="delete photo"
@@ -217,6 +218,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 className="h-28 rounded-lg border border-amber-200 object-cover"
               />
               <button
+                style={{ color: '#ffffff' }}
                 type="button"
                 onClick={() => onRemovePetPhoto(pet.id)}
                 className="absolute right-1 top-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white"
@@ -406,6 +408,7 @@ export function StepPetSection({
             </p>
             <div className="space-y-3">
               <button
+                style={{ color: '#ffffff' }}
                 type="button"
                 onClick={() => {
                   onRemovePet(pendingDelete.id)

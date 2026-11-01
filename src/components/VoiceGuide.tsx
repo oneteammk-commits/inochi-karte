@@ -121,7 +121,7 @@ export function VoiceGuide({
   onNext,
   onBack,
 }: {
-  containerRef: RefObject<HTMLElement>
+  containerRef: RefObject<HTMLElement | null>
   stepKey: number
   error: string | null
   onNext: () => void

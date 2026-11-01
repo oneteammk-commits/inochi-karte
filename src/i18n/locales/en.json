@@ -394,6 +394,7 @@
     "pageDone": "That is everything on this page. Say \"next\" to continue",
     "furiganaKanji": "The reading could not be entered by voice. You can leave it blank",
     "tagHint": "Say the names of the items that apply. You can choose several. Say \"next\" when done",
-    "notNumber": "I heard \"{{text}}\". Please say it as a number"
+    "notNumber": "I heard \"{{text}}\". Please say it as a number",
+    "furiganaRetry": "The reading was heard as kanji. Please say it again slowly, one sound at a time"
   }
 }

@@ -483,6 +483,8 @@ export function VoiceGuide({
                 type="button"
                 onClick={startListening}
                 disabled={listening}
+                // 共通スタイル（button の文字色＝黒）に負けないよう、白を直接指定する
+                style={{ color: '#ffffff' }}
                 className={`flex flex-[1.6] items-center justify-center gap-2 rounded-xl px-2 py-3.5 text-center text-base font-bold leading-tight text-white shadow ${
                   listening ? 'animate-pulse bg-red-600' : 'bg-[#1F618D]'
                 }`}

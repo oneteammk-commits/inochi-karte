@@ -133,6 +133,7 @@ export const MedicationBlock = memo(function MedicationBlock({
                   className="h-24 w-full rounded-md border border-stone-200 object-cover"
                 />
                 <button
+                  style={{ color: '#ffffff' }}
                   type="button"
                   onClick={() => onRemovePhoto(med.id, idx)}
                   aria-label="delete photo"

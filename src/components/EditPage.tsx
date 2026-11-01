@@ -469,6 +469,7 @@ export function EditPage({ id }: { id: string }) {
             </button>
             {editStep < STEP_LABELS_EDIT.length - 1 ? (
               <button
+                style={{ color: '#ffffff' }}
                 type="button"
                 onClick={goNext}
                 disabled={photoUploading > 0}
@@ -478,6 +479,7 @@ export function EditPage({ id }: { id: string }) {
               </button>
             ) : (
               <button
+                style={{ color: '#ffffff' }}
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || photoUploading > 0}
@@ -535,6 +537,7 @@ export function EditPage({ id }: { id: string }) {
           <div className="flex gap-3">
             <a href={cancelUrl} className="flex-1 text-center rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 hover:bg-stone-50">{t('edit.passwordCancel')}</a>
             <button
+              style={{ color: '#ffffff' }}
               type="submit"
               disabled={isChecking}
               className="flex-1 rounded-xl bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"

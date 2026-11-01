@@ -395,6 +395,9 @@
     "furiganaKanji": "Cara baca tidak bisa diisi dengan suara. Boleh dikosongkan",
     "tagHint": "Sebutkan nama item yang sesuai. Boleh memilih beberapa. Ucapkan \"berikutnya\" bila selesai",
     "notNumber": "Terdengar \"{{text}}\". Mohon ucapkan dalam angka",
-    "furiganaRetry": "Cara baca terdengar sebagai kanji. Ucapkan lagi pelan-pelan, satu per satu suku kata"
+    "furiganaRetry": "Cara baca terdengar sebagai kanji. Ucapkan lagi pelan-pelan, satu per satu suku kata",
+    "dateHint": "Tanggal lahir bisa diucapkan sekaligus",
+    "monthHint": "Sebutkan bulannya",
+    "dayHint": "Sebutkan tanggalnya"
   }
 }

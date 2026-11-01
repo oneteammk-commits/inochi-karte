@@ -199,7 +199,7 @@ export function HomePage() {
               <p className="mb-4 rounded-xl border-2 border-red-300 bg-red-50 p-3 text-sm font-bold text-red-700">{deleteError}</p>
             )}
             <div className="space-y-3">
-              <button onClick={handleDelete} disabled={deleting} className="block w-full rounded-xl bg-red-700 py-4 text-center text-base font-bold text-white shadow-md hover:bg-red-800 disabled:opacity-60">
+              <button style={{ color: '#ffffff' }} onClick={handleDelete} disabled={deleting} className="block w-full rounded-xl bg-red-700 py-4 text-center text-base font-bold text-white shadow-md hover:bg-red-800 disabled:opacity-60">
                 {deleting ? t('home.deleting') : t('home.deleteYes')}
               </button>
               <button onClick={closeDeleteDialog} disabled={deleting} className="block w-full rounded-xl border-2 border-stone-400 bg-white py-4 text-center text-base font-bold text-black shadow-sm hover:bg-stone-50 disabled:opacity-60">

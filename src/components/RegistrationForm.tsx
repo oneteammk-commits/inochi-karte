@@ -389,6 +389,7 @@ export function RegistrationForm() {
             </p>
             <div className="flex gap-3">
               <button
+                style={{ color: '#ffffff' }}
                 type="button"
                 onClick={restoreDraft}
                 className="flex-1 rounded-xl bg-red-700 py-2.5 text-sm font-bold text-white hover:bg-red-800"
@@ -456,6 +457,7 @@ error={stepError}
                 {t('register.buttonBack')}
               </button>
               <button
+                style={{ color: '#ffffff' }}
                 type="submit"
                 disabled={isSubmitting || photoUploading > 0}
                 className="flex-1 rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-md shadow-brand/25 transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"

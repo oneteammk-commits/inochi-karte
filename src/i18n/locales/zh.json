@@ -380,6 +380,12 @@
     "unchecked": "已关闭",
     "cmdNext": "下一步|下一个|继续",
     "cmdBack": "返回|上一步",
-    "cmdRepeat": "再说一遍|再读一次|重复"
+    "cmdRepeat": "再说一遍|再读一次|重复",
+    "nextIs": "下一项：",
+    "firstIs": "第一项：",
+    "pageDone": "本页的输入到此为止。说“下一步”继续",
+    "furiganaKanji": "读音无法通过语音输入，可以留空",
+    "tagHint": "请说出符合的项目名称，可以选择多个。完成后请说“下一步”",
+    "notNumber": "听到的是“{{text}}”。请用数字说"
   }
 }

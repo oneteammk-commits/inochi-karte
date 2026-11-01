@@ -7,6 +7,7 @@ import { ImeAwareInput } from './ImeAwareField'
 import { MedicalFreeTextField } from './MedicalFreeTextField'
 import { MedicationBlock } from './MedicationBlock'
 import { uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
+import { VoiceGuide } from './VoiceGuide'
 import { resolveEmergencyRelationshipForSave } from '../lib/emergencyRelationship'
 import {
 ALLERGY_TAGS,  CHRONIC_TAGS,
@@ -118,6 +119,8 @@ export function RegistrationForm() {
   const [stepError, setStepError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const submitLockRef = useRef(false)
+  // 音声ガイドが画面の項目を読むための入れ物
+  const formElRef = useRef<HTMLFormElement>(null)
   // お薬写真のアップロード中件数(0より大きい間は「次へ」を止める)
   const [photoUploading, setPhotoUploading] = useState(0)
   const photoUploadingRef = useRef(0)
@@ -375,6 +378,8 @@ export function RegistrationForm() {
             </p>
                       </header>
 
+        <VoiceGuide containerRef={formElRef} stepKey={activeStep} error={stepError} onNext={() => void goNext()} onBack={goBack} />
+
         <StepIndicator current={activeStep} labels={[t('register.step1'), t('register.step2'), t('register.step3'), t('register.step4'), t('register.step5'), t('register.step6')]} />
 
         {draftAvailable && !registrationId && (
@@ -401,7 +406,7 @@ export function RegistrationForm() {
           </div>
         )}
 
-        <form onSubmit={handleFormSubmit} noValidate className="block">
+        <form ref={formElRef} onSubmit={handleFormSubmit} noValidate className="block">
           <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:p-8">
             {activeStep === 0 && (
 <StepBasic form={form} onChange={updateForm} error={stepError} t={t} />            )}
@@ -818,6 +823,7 @@ onToggle: (tag: string) => void
             <button
               key={tag}
               type="button"
+              aria-pressed={on}
               onClick={() => onToggle(tag)}
               className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                 on

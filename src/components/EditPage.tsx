@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchCard, verifyCardPassword, isValidPasswordFormat } from '../lib/cardApi'
 import { getMyCards } from '../lib/storage'
@@ -89,6 +89,19 @@ export function EditPage({ id }: { id: string }) {
 
   const [form, setForm] = useState<RegistrationFormState | null>(null)
   const [editStep, setEditStep] = useState(0)
+  // ページが変わったら、新しいページの見出しに移る（iPhoneのVoiceOverなどで、新しいページの名前から読まれるように）
+  const stepBoxRef = useRef<HTMLDivElement>(null)
+  const prevEditStepRef = useRef(editStep)
+  useEffect(() => {
+    if (prevEditStepRef.current === editStep) return
+    prevEditStepRef.current = editStep
+    const h = stepBoxRef.current?.querySelector('h2') as HTMLElement | null
+    if (!h) return
+    h.setAttribute('tabindex', '-1')
+    h.style.outline = 'none'
+    h.focus({ preventScroll: true })
+    window.scrollTo({ top: 0 })
+  }, [editStep])
   const [stepError, setStepError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   // お薬写真のアップロード中件数(0より大きい間は「次へ」「保存」を止める)
@@ -403,7 +416,7 @@ export function EditPage({ id }: { id: string }) {
     return (
       <div className="min-h-screen bg-stone-100 pb-16 pt-6">
         <LanguageSwitcher />
-        <div className="mx-auto max-w-lg px-4">
+        <main className="mx-auto max-w-lg px-4">
           <header className="mb-6 text-center mt-12">
             <p className="text-sm font-medium text-red-700">{t('edit.title')}</p>
             <h1 className="mt-1 text-2xl font-bold text-stone-900">{t('home.title')}</h1>
@@ -421,7 +434,7 @@ export function EditPage({ id }: { id: string }) {
             ))}
           </div>
 
-          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8">
+          <div ref={stepBoxRef} className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8">
             {editStep === 0 && (
 <StepBasic form={form} onChange={updateForm} error={stepError} t={t} />            )}
             {editStep === 1 && (
@@ -489,7 +502,7 @@ export function EditPage({ id }: { id: string }) {
               </button>
             )}
           </nav>
-        </div>
+        </main>
       </div>
     )
   }
@@ -513,7 +526,7 @@ export function EditPage({ id }: { id: string }) {
           </p>
 
           {authError && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">{authError}</div>
+            <div role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">{authError}</div>
           )}
 
           {!hasPassword && isOwnDevice && (

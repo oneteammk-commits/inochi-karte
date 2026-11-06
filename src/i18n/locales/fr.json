@@ -368,7 +368,7 @@
     "toggleOn": "Guide vocal",
     "toggleOnSub": "Lit les questions à voix haute. Vous pouvez aussi répondre à la voix",
     "activeNow": "Guide vocal activé",
-    "greeting": "Guide vocal activé. Appuyez sur le grand bouton « Répondre à la voix » en bas, puis dites votre réponse. Vous pouvez aussi dire « répéter », « retour » ou « passer ». Dites « suivant » pour aller à la page suivante.",
+    "greeting": "Le guide vocal est activé. Quand la voix a fini de parler, dites simplement votre réponse. Il n'est pas nécessaire d'appuyer sur un bouton. Vous pouvez aussi dire « répéter », « retour » ou « passer ». Dites « suivant » pour passer à la page suivante, ou « arrêter » pour terminer le guide.",
     "greetingNoMic": "Guide vocal activé. Touchez un élément pour l'entendre.",
     "stepN": "Étape {{n}}",
     "mic": "Répondre à la voix",
@@ -414,6 +414,10 @@
     "noPrev": "Il n’y a pas d’élément avant celui-ci. Pour la page précédente, dites « page précédente »",
     "skipped": "Élément passé",
     "heardAs": "J’ai entendu « {{text}} »",
-    "dateSplit": "Je vais demander l’année, le mois et le jour séparément. Dites d’abord seulement l’année"
+    "dateSplit": "Je vais demander l’année, le mois et le jour séparément. Dites d’abord seulement l’année",
+    "cmdStop": "arrêter|arrête|stop|terminer",
+    "stopped": "Guide vocal terminé",
+    "stillWaiting": "Allez-y, répondez",
+    "pressToTalk": "Je ne vous ai pas entendu. Pour continuer, appuyez sur le bouton « Répondre à la voix » en bas de l'écran, puis parlez"
   }
 }

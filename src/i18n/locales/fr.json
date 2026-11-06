@@ -269,7 +269,14 @@
     "photoFromAlbum": "Choisir dans l'album",
     "photoUploading": "Envoi de la photo…",
     "photoUploadWait": "Une photo est en cours d'envoi. Veuillez patienter un instant.",
-    "photoUploadError": "L'envoi de la photo a échoué. Réessayez avec une meilleure connexion."
+    "photoUploadError": "L'envoi de la photo a échoué. Réessayez avec une meilleure connexion.",
+    "a11yRequired": " (obligatoire)",
+    "a11yBirthYear": "Année de naissance",
+    "a11yBirthMonth": "Mois de naissance",
+    "a11yBirthDay": "Jour de naissance",
+    "a11yProgress": "Progression : page {{current}} sur {{total}}",
+    "a11yStepDone": " (terminé)",
+    "errorBirthDateIncomplete": "Veuillez saisir l’année, le mois et le jour de naissance."
   },
   "facilityTypes": {
     "自宅": "Domicile",
@@ -361,7 +368,7 @@
     "toggleOn": "Guide vocal",
     "toggleOnSub": "Lit les questions à voix haute. Vous pouvez aussi répondre à la voix",
     "activeNow": "Guide vocal activé",
-    "greeting": "Guide vocal activé. Touchez un élément pour l'entendre. Appuyez sur le bouton micro en bas pour répondre à la voix. Dites « suivant » pour passer à l'étape suivante.",
+    "greeting": "Guide vocal activé. Appuyez sur le grand bouton « Répondre à la voix » en bas, puis dites votre réponse. Vous pouvez aussi dire « répéter », « retour » ou « passer ». Dites « suivant » pour aller à la page suivante.",
     "greetingNoMic": "Guide vocal activé. Touchez un élément pour l'entendre.",
     "stepN": "Étape {{n}}",
     "mic": "Répondre à la voix",
@@ -399,6 +406,14 @@
     "furiganaRetry": "La lecture a été reconnue en kanji. Répétez-la lentement, son par son",
     "dateHint": "Vous pouvez dire la date de naissance en entier",
     "monthHint": "Dites le mois",
-    "dayHint": "Dites le jour"
+    "dayHint": "Dites le jour",
+    "screenReaderNote": "Si vous utilisez un lecteur d’écran comme VoiceOver sur iPhone, n’appuyez pas sur ce bouton et continuez simplement. Chaque élément peut être lu par votre lecteur d’écran.",
+    "cmdPrevPage": "page précédente",
+    "cmdSkip": "passer|plus tard",
+    "backTo": "Retour à l’élément précédent",
+    "noPrev": "Il n’y a pas d’élément avant celui-ci. Pour la page précédente, dites « page précédente »",
+    "skipped": "Élément passé",
+    "heardAs": "J’ai entendu « {{text}} »",
+    "dateSplit": "Je vais demander l’année, le mois et le jour séparément. Dites d’abord seulement l’année"
   }
 }

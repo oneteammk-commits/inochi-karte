@@ -268,7 +268,14 @@
     "photoFromAlbum": "Pilih dari album",
     "photoUploading": "Mengunggah foto…",
     "photoUploadWait": "Foto masih diunggah. Mohon tunggu sebentar.",
-    "photoUploadError": "Unggah foto gagal. Coba lagi di tempat dengan koneksi yang lebih baik."
+    "photoUploadError": "Unggah foto gagal. Coba lagi di tempat dengan koneksi yang lebih baik.",
+    "a11yRequired": " (wajib)",
+    "a11yBirthYear": "Tahun lahir",
+    "a11yBirthMonth": "Bulan lahir",
+    "a11yBirthDay": "Tanggal lahir (hari)",
+    "a11yProgress": "Kemajuan: halaman {{current}} dari {{total}}",
+    "a11yStepDone": " (selesai)",
+    "errorBirthDateIncomplete": "Mohon isi tahun, bulan, dan tanggal lahir."
   },
   "facilityTypes": {
     "自宅": "Rumah sendiri",
@@ -360,7 +367,7 @@
     "toggleOn": "Panduan suara",
     "toggleOnSub": "Membacakan pertanyaan. Anda juga bisa menjawab dengan suara",
     "activeNow": "Panduan suara aktif",
-    "greeting": "Panduan suara aktif. Ketuk item untuk mendengarnya dibacakan. Tekan tombol mikrofon di bawah untuk menjawab dengan suara. Ucapkan \"lanjut\" untuk ke langkah berikutnya.",
+    "greeting": "Panduan suara aktif. Tekan tombol besar \"Jawab dengan suara\" di bawah, lalu ucapkan jawaban Anda. Anda juga bisa mengucapkan \"ulangi\", \"kembali\" atau \"lewati\". Ucapkan \"lanjut\" untuk ke halaman berikutnya.",
     "greetingNoMic": "Panduan suara aktif. Ketuk item untuk mendengarnya dibacakan.",
     "stepN": "Langkah {{n}}",
     "mic": "Jawab dengan suara",
@@ -398,6 +405,14 @@
     "furiganaRetry": "Cara baca terdengar sebagai kanji. Ucapkan lagi pelan-pelan, satu per satu suku kata",
     "dateHint": "Tanggal lahir bisa diucapkan sekaligus",
     "monthHint": "Sebutkan bulannya",
-    "dayHint": "Sebutkan tanggalnya"
+    "dayHint": "Sebutkan tanggalnya",
+    "screenReaderNote": "Jika Anda memakai pembaca layar seperti VoiceOver di iPhone, jangan tekan tombol ini dan langsung lanjutkan saja. Setiap item dapat dibacakan oleh pembaca layar Anda.",
+    "cmdPrevPage": "halaman sebelumnya",
+    "cmdSkip": "lewati|nanti",
+    "backTo": "Kembali ke item sebelumnya",
+    "noPrev": "Tidak ada item sebelum ini. Untuk kembali ke halaman sebelumnya, ucapkan \"halaman sebelumnya\"",
+    "skipped": "Item ini dilewati",
+    "heardAs": "Terdengar \"{{text}}\"",
+    "dateSplit": "Saya akan menanyakan tahun, bulan, dan tanggal satu per satu. Pertama, ucapkan tahunnya saja"
   }
 }

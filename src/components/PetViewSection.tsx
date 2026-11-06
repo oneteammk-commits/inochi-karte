@@ -35,7 +35,7 @@ export function PetViewSection({ pets, t }: PetViewSectionProps) {
   return (
     <div className="bg-amber-50 border-l-4 border-amber-500 shadow-sm p-5 mb-3 rounded-r-2xl">
       <h2 className="text-lg font-bold text-amber-800 border-b-2 border-amber-200 pb-2 mb-4">
-        🐾 {t('view.petsTitle')}
+        <span aria-hidden="true">🐾</span> {t('view.petsTitle')}
       </h2>
       <div className="space-y-5">
         {pets.map((pet, index) => (

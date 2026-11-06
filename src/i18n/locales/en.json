@@ -367,7 +367,7 @@
     "toggleOn": "Voice guide",
     "toggleOnSub": "Reads the questions aloud. You can also answer by voice",
     "activeNow": "Voice guide is on",
-    "greeting": "Voice guide is on. Press the large \"Answer by voice\" button at the bottom, then say your answer. You can also say \"repeat\", \"back\" or \"skip\". Say \"next\" to go to the next page.",
+    "greeting": "Voice guide is on. When the guide finishes speaking, just say your answer. There is no need to press a button. You can also say \"repeat\", \"back\" or \"skip\". Say \"next\" to go to the next page, or \"stop\" to end the guide.",
     "greetingNoMic": "Voice guide is on. Tap any item to hear it read aloud.",
     "stepN": "Step {{n}}",
     "mic": "Answer by voice",
@@ -413,6 +413,10 @@
     "noPrev": "There is no item before this one. To go to the previous page, say \"previous page\"",
     "skipped": "Skipped this item",
     "heardAs": "I heard \"{{text}}\"",
-    "dateSplit": "Let me ask the year, month and day one at a time. First, please say only the year"
+    "dateSplit": "Let me ask the year, month and day one at a time. First, please say only the year",
+    "cmdStop": "stop|stop guide|quit|end guide",
+    "stopped": "Voice guide ended",
+    "stillWaiting": "Please go ahead and answer",
+    "pressToTalk": "I could not hear you. To continue, press the \"Answer by voice\" button at the bottom of the screen, then speak"
   }
 }

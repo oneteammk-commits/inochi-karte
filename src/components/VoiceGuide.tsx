@@ -72,6 +72,45 @@ const STORAGE_KEY = 'sitte_voice_guide'
 const SILENCE_MS = 3000
 /** 1回の聞き取りの上限 */
 const MAX_LISTEN_MS = 30000
+/** 読み上げを止めてから、マイクを開くまでの間（スピーカーの残りの声を拾わないため） */
+const AFTER_SPEECH_MS = 350
+/** 自動の聞き取りで、何も聞こえなかったときに続けて待つ回数（これを超えたらボタンを押してもらう） */
+const AUTO_EMPTY_LIMIT = 3
+
+/**
+ * 聞き取った言葉の先頭に、sitte 自身の読み上げ（スピーカーの声）が混ざっていたら取り除く。
+ * 読み上げ中はマイクを閉じているが、機種によっては声の終わりを拾うことがあるための保険。
+ * 混ざるのは読み上げの「終わりの部分」なので、読み上げ文の末尾（句読点で区切った続き）と一致するときだけ取り除く。
+ * 本人の答えが読み上げの末尾と同じ（選択肢の最後を言った など）ときは、取り除かずそのまま使う
+ */
+function stripEcho(raw: string, spoken: string): string {
+  if (!raw || !spoken) return raw
+  const squash = (x: string) => x.replace(/[\s、。,.!?！？「」『』()（）]/g, '')
+  const sq = squash(raw)
+  let best = 0
+  for (const variant of spoken.split('\n')) {
+    const clauses = variant
+      .split(/[、。,.!?！？「」『』()（）]+/)
+      .map(squash)
+      .filter(Boolean)
+    for (let k = 0; k < clauses.length; k++) {
+      const tail = clauses.slice(k).join('')
+      if (tail.length >= 4 && sq.startsWith(tail)) best = Math.max(best, tail.length)
+    }
+  }
+  if (!best) return raw
+  // 読み上げの分だけ、空白や句読点を飛ばしながら先頭から消す
+  let used = 0
+  let i = 0
+  while (i < raw.length && used < best) {
+    if (squash(raw[i])) used++
+    i++
+  }
+  const rest = raw.slice(i).replace(/^[\s、。,.!?！？]+/, '')
+  if (rest) return rest
+  // 残りが無い: 短ければ本人が読み上げの末尾と同じ言葉を言ったとみなして残す。長ければ読み上げの声だけだったとみなす
+  return best >= 8 ? '' : raw
+}
 
 function getRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
   if (typeof window === 'undefined') return null
@@ -240,12 +279,40 @@ export function VoiceGuide({
   /** フリガナを言い直してもらった項目（2回目も漢字なら次へ進む） */
   const furiganaRetryRef = useRef<HTMLElement | null>(null)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
+  /** 聞き取りの回ごとの番号。読み上げで打ち切った回の結果は使わない */
+  const sessionRef = useRef(0)
+  const listeningRef = useRef(false)
+  /** 読み終わったら自動でマイクを開くか（ボタンを押さずに答えられる） */
+  const autoRef = useRef(true)
+  /** 自動の聞き取りで、何も聞こえなかった回数（続くとボタンを押してもらう） */
+  const emptyCountRef = useRef(0)
+  /** いま読んでいる文。これの読み終わりだけで、次の聞き取りを始める */
+  const utterRef = useRef<SpeechSynthesisUtterance | null>(null)
+  const startListeningRef = useRef<(auto: boolean) => void>(() => {})
+  const enabledRef = useRef(enabled)
+  enabledRef.current = enabled
+  /** 「声でご案内」を押した直後は、あいさつと一緒にページを読むので、ページ読みの自動実行を1回飛ばす */
+  const skipReadRef = useRef(false)
 
   const say = useCallback((text: string) => itemReading(text, lang), [lang])
 
+  /**
+   * 読み上げる。読んでいる間はマイクを閉じ（自分の声を拾わないため）、読み終わったら自動でマイクを開く。
+   * listen: false のときは、読み終わってもマイクを開かない（案内を終えるときなど）
+   */
   const speak = useCallback(
-    (text: string) => {
+    (text: string, opts: { listen?: boolean } = {}) => {
       if (!synthOk || !text) return
+      // 聞き取り中なら打ち切る（この回の結果は使わない）
+      sessionRef.current++
+      try {
+        recRef.current?.abort()
+      } catch {
+        /* noop */
+      }
+      recRef.current = null
+      listeningRef.current = false
+      setListening(false)
       const synth = window.speechSynthesis
       synth.cancel()
       const spoken = toSpeechText(text, lang)
@@ -254,7 +321,40 @@ export function VoiceGuide({
       const voice = synth.getVoices().find((v) => v.lang.replace('_', '-').startsWith(speechLang.slice(0, 2)))
       if (voice) u.voice = voice
       u.rate = lang === 'ja' ? 0.95 : 1
-      lastSpokenRef.current = spoken
+      // 読み上げ用の言い換え前と後の両方を覚えておく（聞き取りに混ざった自分の声を取り除くため）
+      lastSpokenRef.current = `${text}\n${spoken}`
+      utterRef.current = u
+      let ended = false
+      const startedAt = Date.now()
+      const onDone = () => {
+        if (ended) return
+        ended = true
+        window.clearInterval(poll)
+        // 途中で別の読み上げに替わった・案内をやめた・自動の聞き取りを止めている、ときは開かない
+        if (utterRef.current !== u || !enabledRef.current || opts.listen === false || !autoRef.current) return
+        window.setTimeout(() => {
+          if (utterRef.current === u && enabledRef.current && autoRef.current) startListeningRef.current(true)
+        }, AFTER_SPEECH_MS)
+      }
+      u.onend = onDone
+      u.onerror = (e) => {
+        // 別の読み上げで打ち切られたとき（interrupted/canceled）は何もしない
+        if (e && (e as { error?: string }).error && /interrupt|cancel/.test(String((e as { error?: string }).error))) {
+          ended = true
+          window.clearInterval(poll)
+          return
+        }
+        onDone()
+      }
+      // onend が来ない機種のための保険: 読み終わったはずの長さを過ぎて、話していなければ終わりとみなす
+      const minMs = 600 + spoken.length * (lang === 'ja' ? 110 : 60)
+      const poll = window.setInterval(() => {
+        if (ended) {
+          window.clearInterval(poll)
+          return
+        }
+        if (Date.now() - startedAt >= minMs && !synth.speaking && !synth.pending) onDone()
+      }, 400)
       synth.speak(u)
     },
     [synthOk, speechLang, lang],
@@ -317,13 +417,13 @@ export function VoiceGuide({
   }, [])
 
   /** いまのステップの見出しと説明を読み、最初に入れる項目を案内する */
-  const readStep = useCallback(() => {
+  const readStep = useCallback((prefix = '') => {
     const root = containerRef.current
     if (!root) return
     const h2 = clean(root.querySelector('h2')?.textContent)
     const firstP = clean(root.querySelector('h2 + p')?.textContent)
     const label = t('voice.stepN', { n: Math.min(stepKey + 1, 6) })
-    const parts = [label, h2, firstP]
+    const parts = [prefix, label, h2, firstP]
     if (root.querySelector('button[aria-pressed]')) {
       parts.push(t('voice.tagHint'))
       pointTo(null)
@@ -338,8 +438,13 @@ export function VoiceGuide({
   // ステップが変わったら読む
   useEffect(() => {
     if (!enabled) return
+    if (skipReadRef.current) {
+      // 「声でご案内」を押したときは、あいさつと一緒にもう読んでいる
+      skipReadRef.current = false
+      return
+    }
     targetRef.current = null
-    const id = window.setTimeout(readStep, 450)
+    const id = window.setTimeout(() => readStep(), 450)
     return () => window.clearTimeout(id)
   }, [enabled, stepKey, readStep])
 
@@ -523,6 +628,11 @@ export function VoiceGuide({
       return
     }
     // 1) 合図の言葉
+    if (commandWords('voice.cmdStop').some((w) => n === w)) {
+      turnOff()
+      window.setTimeout(() => speak(t('voice.stopped'), { listen: false }), 150)
+      return
+    }
     if (commandWords('voice.cmdNext').some((w) => n === w || n.startsWith(w))) {
       onNext()
       return
@@ -699,95 +809,155 @@ export function VoiceGuide({
     speak(t('voice.noField'))
   }
 
-  const startListening = () => {
-    if (!RecognitionCtor || listening) return
+  /**
+   * マイクを開いて聞き取る。auto=true は読み終わりからの自動、false はボタンから。
+   * 読み上げ中はマイクを開かない（読み上げを止めてから少し待って開く）
+   */
+  const startListening = (auto = false) => {
+    if (!RecognitionCtor || listeningRef.current) return
+    if (!auto) {
+      // ボタンを押したら、自動の聞き取りをまた使う（聞こえなくて止めていたときのため）
+      autoRef.current = true
+      emptyCountRef.current = 0
+    }
+    const synth = window.speechSynthesis
+    let wasSpeaking = false
     try {
-      window.speechSynthesis?.cancel()
+      wasSpeaking = !!synth && (synth.speaking || synth.pending)
+      utterRef.current = null // 読み上げの終わりで、さらにマイクを開かないように
+      synth?.cancel()
     } catch {
       /* noop */
     }
-    const rec = new RecognitionCtor()
-    rec.lang = speechLang
-    // 少し間があいても終わらないよう、続けて聞き、黙ってから3秒で区切る
-    rec.continuous = true
-    rec.interimResults = true
-    // フリガナ用に、候補を5つまで受け取る（かなの候補を探すため）
-    rec.maxAlternatives = 5
-    let finalText = ''
-    let interimText = ''
-    let finalKana = ''
-    let interimKana = ''
-    // 2番目以降の候補も、それぞれつないでおく（月・日の数字を候補の中から探すため）
-    let finalAlts: string[] = []
-    let interimAlts: string[] = []
-    const addAlts = (base: string[], r: RecognitionResultLike) => {
-      const out = [...base]
-      for (let k = 1; k < Math.min(r.length, 5); k++) out[k - 1] = mergeHeard(out[k - 1] ?? '', r[k]?.transcript ?? '')
-      return out
-    }
-    let done = false
-    let silenceTimer = 0
-    const finish = () => {
-      if (done) return
-      done = true
-      window.clearTimeout(silenceTimer)
-      window.clearTimeout(maxTimer)
-      try {
-        rec.stop?.()
-      } catch {
-        /* noop */
+    listeningRef.current = true
+    setListening(true)
+    const session = ++sessionRef.current
+    const spokenBefore = lastSpokenRef.current
+    const begin = () => {
+      if (session !== sessionRef.current) return
+      const rec = new RecognitionCtor()
+      rec.lang = speechLang
+      // 少し間があいても終わらないよう、続けて聞き、黙ってから3秒で区切る
+      rec.continuous = true
+      rec.interimResults = true
+      // フリガナ用に、候補を5つまで受け取る（かなの候補を探すため）
+      rec.maxAlternatives = 5
+      let finalText = ''
+      let interimText = ''
+      let finalKana = ''
+      let interimKana = ''
+      // 2番目以降の候補も、それぞれつないでおく（月・日の数字を候補の中から探すため）
+      let finalAlts: string[] = []
+      let interimAlts: string[] = []
+      const addAlts = (base: string[], r: RecognitionResultLike) => {
+        const out = [...base]
+        for (let k = 1; k < Math.min(r.length, 5); k++) out[k - 1] = mergeHeard(out[k - 1] ?? '', r[k]?.transcript ?? '')
+        return out
       }
-      setListening(false)
-      const text = mergeHeard(finalText, interimText)
-      if (text)
-        handleHeard(
-          text,
-          mergeHeard(finalKana, interimKana),
-          finalAlts.map((a, k) => mergeHeard(a, interimAlts[k] ?? '')),
-        )
-      else speak(t('voice.notUnderstood'))
-    }
-    const maxTimer = window.setTimeout(finish, MAX_LISTEN_MS)
-    rec.onresult = (e) => {
-      interimText = ''
-      interimKana = ''
-      interimAlts = []
-      for (let i = e.resultIndex ?? 0; i < e.results.length; i++) {
-        const r = e.results[i]
-        const tx = r?.[0]?.transcript ?? ''
-        const kana = r ? pickKana(r) : ''
-        if (r.isFinal === false) {
-          interimText = mergeHeard(interimText, tx)
-          interimKana = mergeHeard(interimKana, kana)
-          interimAlts = addAlts(interimAlts, r)
-        } else {
-          finalText = mergeHeard(finalText, tx)
-          finalKana = mergeHeard(finalKana, kana)
-          finalAlts = addAlts(finalAlts, r)
-        }
-      }
-      window.clearTimeout(silenceTimer)
-      silenceTimer = window.setTimeout(finish, SILENCE_MS)
-    }
-    rec.onerror = (e) => {
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      let done = false
+      let silenceTimer = 0
+      const finish = () => {
+        if (done) return
         done = true
         window.clearTimeout(silenceTimer)
         window.clearTimeout(maxTimer)
+        try {
+          rec.stop?.()
+        } catch {
+          /* noop */
+        }
+        // 読み上げで打ち切られた回（別の回が始まっている）は、結果を使わない
+        if (session !== sessionRef.current) return
+        if (recRef.current === rec) recRef.current = null
+        listeningRef.current = false
         setListening(false)
-        speak(t('voice.micDenied'))
+        // 自分の読み上げの声が混ざっていたら取り除く
+        const text = stripEcho(mergeHeard(finalText, interimText), spokenBefore)
+        if (text) {
+          emptyCountRef.current = 0
+          handleHeard(
+            text,
+            stripEcho(mergeHeard(finalKana, interimKana), spokenBefore),
+            finalAlts.map((a, k) => stripEcho(mergeHeard(a, interimAlts[k] ?? ''), spokenBefore)),
+          )
+          return
+        }
+        if (!auto) {
+          speak(t('voice.notUnderstood'))
+          return
+        }
+        // 自動の聞き取りで何も聞こえなかった: 1回目はうながし、2回目はいまの項目をもう一度、3回目でボタン待ちにする
+        emptyCountRef.current++
+        if (emptyCountRef.current >= AUTO_EMPTY_LIMIT) {
+          autoRef.current = false
+          speak(t('voice.pressToTalk'), { listen: false })
+          return
+        }
+        const el = targetRef.current
+        if (emptyCountRef.current === 2 && el && el.isConnected) speak(describe(el))
+        else speak(t('voice.stillWaiting'))
       }
-      // 「何も聞こえなかった」等は onend → finish で案内する
+      const maxTimer = window.setTimeout(finish, MAX_LISTEN_MS)
+      rec.onresult = (e) => {
+        if (session !== sessionRef.current) return
+        interimText = ''
+        interimKana = ''
+        interimAlts = []
+        for (let i = e.resultIndex ?? 0; i < e.results.length; i++) {
+          const r = e.results[i]
+          const tx = r?.[0]?.transcript ?? ''
+          const kana = r ? pickKana(r) : ''
+          if (r.isFinal === false) {
+            interimText = mergeHeard(interimText, tx)
+            interimKana = mergeHeard(interimKana, kana)
+            interimAlts = addAlts(interimAlts, r)
+          } else {
+            finalText = mergeHeard(finalText, tx)
+            finalKana = mergeHeard(finalKana, kana)
+            finalAlts = addAlts(finalAlts, r)
+          }
+        }
+        setHeard(mergeHeard(finalText, interimText))
+        window.clearTimeout(silenceTimer)
+        silenceTimer = window.setTimeout(finish, SILENCE_MS)
+      }
+      rec.onerror = (e) => {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          done = true
+          window.clearTimeout(silenceTimer)
+          window.clearTimeout(maxTimer)
+          if (session !== sessionRef.current) return
+          if (recRef.current === rec) recRef.current = null
+          listeningRef.current = false
+          setListening(false)
+          if (auto) {
+            // 自動では開けない機種: ボタンを押してもらう（押せば許可の確認が出る）
+            autoRef.current = false
+            speak(t('voice.pressToTalk'), { listen: false })
+          } else speak(t('voice.micDenied'))
+        }
+        // 「何も聞こえなかった」等は onend → finish で案内する
+      }
+      rec.onend = () => finish()
+      recRef.current = rec
+      try {
+        rec.start()
+      } catch {
+        if (session !== sessionRef.current) return
+        if (recRef.current === rec) recRef.current = null
+        listeningRef.current = false
+        setListening(false)
+        if (auto) {
+          autoRef.current = false
+          speak(t('voice.pressToTalk'), { listen: false })
+        }
+      }
     }
-    rec.onend = () => finish()
-    recRef.current = rec
-    setListening(true)
-    try {
-      rec.start()
-    } catch {
-      setListening(false)
-    }
+    // 読み上げの途中で押されたときは、スピーカーの声が消えてから開く
+    if (wasSpeaking) window.setTimeout(begin, AFTER_SPEECH_MS)
+    else begin()
   }
+  startListeningRef.current = startListening
 
   const turnOn = () => {
     setEnabled(true)
@@ -796,13 +966,21 @@ export function VoiceGuide({
     } catch {
       /* noop */
     }
-    // iPhone は「押した瞬間」に話し始めないと読み上げが許可されないため、ここで最初の案内を読む
-    speak(RecognitionCtor ? t('voice.greeting') : `${t('voice.greetingNoMic')}`)
+    autoRef.current = true
+    emptyCountRef.current = 0
+    // iPhone は「押した瞬間」に話し始めないと読み上げが許可されないため、ここであいさつと最初のページを続けて読む
+    skipReadRef.current = true
+    targetRef.current = null
+    readStep(RecognitionCtor ? t('voice.greeting') : t('voice.greetingNoMic'))
   }
 
   const turnOff = () => {
     setEnabled(false)
     setHeard('')
+    sessionRef.current++
+    utterRef.current = null
+    listeningRef.current = false
+    setListening(false)
     try {
       localStorage.setItem(STORAGE_KEY, 'off')
     } catch {
@@ -856,7 +1034,7 @@ export function VoiceGuide({
           {RecognitionCtor && (
             <button
               type="button"
-              onClick={startListening}
+              onClick={() => startListening(false)}
               disabled={listening}
               // 共通スタイル（button の文字色＝黒）に負けないよう、白を直接指定する
               style={{ color: '#ffffff' }}

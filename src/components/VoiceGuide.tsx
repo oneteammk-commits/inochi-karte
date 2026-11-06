@@ -135,13 +135,31 @@ function isNumberField(el: HTMLElement): boolean {
   return input.inputMode === 'numeric' || input.type === 'tel' || input.autocomplete === 'postal-code'
 }
 
-/** 生年月日の「年・月・日」の3つの欄（同じ枠の中にある数字欄）。その欄でなければ null */
+/** 生年月日の「年・月・日」の3つの欄（生年月日の枠の中にある数字欄）。その欄でなければ null */
 function dateGroup(el: HTMLElement): HTMLInputElement[] | null {
   if (el.tagName !== 'INPUT') return null
-  const box = el.closest('label')
+  const box = el.closest('[data-voice-date]')
   if (!box) return null
   const inputs = Array.from(box.querySelectorAll<HTMLInputElement>('input[inputmode="numeric"]'))
   return inputs.length === 3 && inputs[0].maxLength === 4 && inputs.includes(el as HTMLInputElement) ? inputs : null
+}
+
+/** 生年月日の元号（西暦・昭和など）を選ぶ欄。日本語のときだけある */
+function dateEraSelect(el: HTMLElement): HTMLSelectElement | null {
+  return el.closest('[data-voice-date]')?.querySelector('select') ?? null
+}
+
+/** 声で順番に案内する欄（空かどうかに関係なく、画面に見えているもの）。元号の欄は年と一緒に扱うので入れない */
+function voiceFields(root: HTMLElement): HTMLElement[] {
+  return Array.from(root.querySelectorAll<HTMLElement>('input, select, textarea')).filter((el) => {
+    if (!el.offsetParent || (el as HTMLInputElement).disabled) return false
+    if (el.tagName === 'SELECT' && el.closest('[data-voice-date]')) return false
+    if (el.tagName === 'INPUT') {
+      const type = (el as HTMLInputElement).type
+      if (['file', 'checkbox', 'radio', 'hidden', 'password', 'submit', 'button'].includes(type)) return false
+    }
+    return true
+  })
 }
 
 function isFuriganaField(el: HTMLElement): boolean {
@@ -164,6 +182,7 @@ function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectE
 function fillableFields(root: HTMLElement): HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>('input, select, textarea')).filter((el) => {
     if (!el.offsetParent || (el as HTMLInputElement).disabled) return false
+    if (el.tagName === 'SELECT' && el.closest('[data-voice-date]')) return false
     if (el.tagName === 'INPUT') {
       const type = (el as HTMLInputElement).type
       if (['file', 'checkbox', 'radio', 'hidden', 'password', 'submit', 'button'].includes(type)) return false
@@ -383,7 +402,7 @@ export function VoiceGuide({
     if (!enabled) return
     const prev = document.body.style.paddingBottom
     const prevBg = document.body.style.backgroundColor
-    document.body.style.paddingBottom = '150px'
+    document.body.style.paddingBottom = '220px'
     document.body.style.backgroundColor = '#f5f5f4' // 登録画面の背景色（stone-100）に合わせる
     return () => {
       document.body.style.paddingBottom = prev
@@ -463,6 +482,37 @@ export function VoiceGuide({
     else speak([doneMsg, t('voice.pageDone')].join(SEP))
   }
 
+  /** 「戻る」: 1つ前の項目に戻って、いま入っている内容を読む（言い直せば上書きできる） */
+  const goPrevField = () => {
+    const root = containerRef.current
+    const cur = targetRef.current && targetRef.current.isConnected ? targetRef.current : null
+    const all = root ? voiceFields(root) : []
+    const before = cur ? all.filter((el) => el.compareDocumentPosition(cur) & Node.DOCUMENT_POSITION_FOLLOWING) : []
+    const prev = before[before.length - 1] ?? null
+    if (!prev) {
+      speak(t('voice.noPrev'))
+      return
+    }
+    pointTo(prev)
+    tappedRef.current = true
+    speak(`${t('voice.backTo')}${SEP}${describe(prev)}`)
+  }
+
+  /** 「飛ばす」: この項目は空けたまま、次の項目へ */
+  const skipField = () => {
+    const root = containerRef.current
+    const cur = targetRef.current && targetRef.current.isConnected ? targetRef.current : null
+    if (!root || !cur) {
+      speak(`${t('voice.skipped')}${SEP}${t('voice.pageDone')}`)
+      return
+    }
+    const later = voiceFields(root).filter((el) => cur.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
+    const next = later.find((el) => !(el as HTMLInputElement).value) ?? null
+    pointTo(next)
+    if (next) speak(`${t('voice.skipped')}${SEP}${t('voice.nextIs')}${describe(next)}`)
+    else speak(`${t('voice.skipped')}${SEP}${t('voice.pageDone')}`)
+  }
+
   /** 聞き取った言葉を画面に反映する */
   const handleHeard = (raw: string, kanaRaw = '', alts: string[] = []) => {
     const text = clean(raw).replace(/[。.]$/, '')
@@ -477,8 +527,16 @@ export function VoiceGuide({
       onNext()
       return
     }
-    if (commandWords('voice.cmdBack').some((w) => n === w || n.startsWith(w))) {
+    if (commandWords('voice.cmdPrevPage').some((w) => n === w || n.startsWith(w))) {
       onBack()
+      return
+    }
+    if (commandWords('voice.cmdBack').some((w) => n === w || n.startsWith(w))) {
+      goPrevField()
+      return
+    }
+    if (commandWords('voice.cmdSkip').some((w) => n === w || n.startsWith(w))) {
+      skipField()
       return
     }
     if (commandWords('voice.cmdRepeat').some((w) => n.includes(w))) {
@@ -527,16 +585,19 @@ export function VoiceGuide({
       const candidates = [text, ...alts.map(clean)].filter((c, i, a) => c && a.indexOf(c) === i)
       // 生年月日: 「しょうわ47ねん2がつ5にち」のようにまとめて言われたら、年・月・日に分けて入れる
       const group = lang === 'ja' ? dateGroup(input) : null
+      const eraSel = group ? dateEraSelect(input) : null
       if (group) {
         const date = candidates.map(parseSpokenDate).find((d) => d.year || d.month || d.day)
         if (date) {
           const fills = (
             [
+              // 西暦の年を入れるので、元号の欄は「西暦」に戻しておく
+              [eraSel, date.year && eraSel && eraSel.value !== 'seireki' ? 'seireki' : undefined],
               [group[0], date.year],
               [group[1], date.month],
               [group[2], date.day],
-            ] as [HTMLInputElement, string | undefined][]
-          ).filter((f): f is [HTMLInputElement, string] => !!f[1])
+            ] as [HTMLInputElement | HTMLSelectElement | null, string | undefined][]
+          ).filter((f): f is [HTMLInputElement | HTMLSelectElement, string] => !!f[0] && !!f[1])
           // 1つずつ、画面が切り替わるのを待ってから入れる（同時に入れると前の値が消えるため）
           fills.forEach(([f, v], i) => window.setTimeout(() => setNativeValue(f, v), i * 150))
           const shown = `${date.year ? `${date.year}年` : ''}${date.month ? `${date.month}月` : ''}${date.day ? `${date.day}日` : ''}`
@@ -544,6 +605,36 @@ export function VoiceGuide({
           window.setTimeout(() => afterFill(t('voice.filled', { text: shown }), lastFilled), fills.length * 150 + 50)
           return
         }
+      }
+      // 生年月日の年: 西暦（「1972」「しょうわ47ねん」）なら元号を西暦にして入れる。元号を選んであれば「47」だけでも入る
+      if (group && group.indexOf(input) === 0) {
+        const thisYear = new Date().getFullYear()
+        const western = candidates
+          .map(parseSpokenYear)
+          .find((v) => !!v && Number(v) >= 1900 && Number(v) <= thisYear)
+        if (western) {
+          if (eraSel && eraSel.value !== 'seireki') setNativeValue(eraSel, 'seireki')
+          window.setTimeout(() => {
+            setNativeValue(input, western)
+            afterFill(t('voice.filled', { text: `${western}年` }), input)
+          }, 150)
+          return
+        }
+        const eraYear =
+          eraSel && eraSel.value !== 'seireki'
+            ? candidates.map(parseSpokenNumber).find((v) => !!v && Number(v) >= 1 && Number(v) <= 64)
+            : undefined
+        if (eraYear) {
+          setNativeValue(input, eraYear)
+          const eraName = eraSel?.options[eraSel.selectedIndex]?.text ?? ''
+          afterFill(t('voice.filled', { text: `${eraName}${eraYear}年` }), input)
+          return
+        }
+        // ひと言で入らなかったときは、年→月→日に分けて聞き直す
+        targetRef.current = input
+        tappedRef.current = true
+        speak(`${t('voice.heardAs', { text })}${SEP}${t('voice.dateSplit')}`)
+        return
       }
       if (isNumberField(input)) {
         const isYear = input.maxLength === 4
@@ -554,6 +645,13 @@ export function VoiceGuide({
           !!v && (!month || (Number(v) >= 1 && Number(v) <= 12)) && (!day || (Number(v) >= 1 && Number(v) <= 31))
         value = candidates.map(pick).find(ok) ?? ''
         if (!value) {
+          if (month || day) {
+            // 月・日は、聞こえた言葉と言い方の例をもう一度伝えて、同じ欄で待つ
+            targetRef.current = input
+            tappedRef.current = true
+            speak(`${t('voice.heardAs', { text })}${SEP}${t(month ? 'voice.monthHint' : 'voice.dayHint')}`)
+            return
+          }
           speak(t('voice.notNumber', { text }))
           return
         }
@@ -716,17 +814,24 @@ export function VoiceGuide({
 
   if (!enabled) {
     return (
-      <button
-        type="button"
-        onClick={turnOn}
-        className="mb-6 flex w-full items-center gap-3 rounded-2xl border-2 border-[#1F618D] bg-[#EBF5FB] px-4 py-3.5 text-left shadow-sm"
-      >
-        <span className="text-3xl leading-none" aria-hidden="true">🔊</span>
-        <span className="flex-1">
-          <span className="block text-base font-bold text-[#1F618D]">{t('voice.toggleOn')}</span>
-          <span className="block text-xs text-stone-600">{t('voice.toggleOnSub')}</span>
-        </span>
-      </button>
+      <div className="mb-6">
+        <button
+          type="button"
+          onClick={turnOn}
+          aria-describedby="voice-guide-sr-note"
+          className="flex w-full items-center gap-3 rounded-2xl border-2 border-[#1F618D] bg-[#EBF5FB] px-4 py-3.5 text-left shadow-sm"
+        >
+          <span className="text-3xl leading-none" aria-hidden="true">🔊</span>
+          <span className="flex-1">
+            <span className="block text-base font-bold text-[#1F618D]">{t('voice.toggleOn')}</span>
+            <span className="block text-xs text-stone-600">{t('voice.toggleOnSub')}</span>
+          </span>
+        </button>
+        {/* iPhoneのVoiceOverなどを使っている方は、sitteの声と重ならないよう、このボタンを押さずに進んでもらう */}
+        <p id="voice-guide-sr-note" className="mt-2 px-1 text-xs leading-relaxed text-stone-600">
+          {t('voice.screenReaderNote')}
+        </p>
+      </div>
     )
   }
 
@@ -748,22 +853,22 @@ export function VoiceGuide({
             </p>
           )}
           {!RecognitionCtor && <p className="mb-2 text-xs text-stone-600">{t('voice.noMic')}</p>}
+          {RecognitionCtor && (
+            <button
+              type="button"
+              onClick={startListening}
+              disabled={listening}
+              // 共通スタイル（button の文字色＝黒）に負けないよう、白を直接指定する
+              style={{ color: '#ffffff' }}
+              className={`mb-2 flex min-h-[4.5rem] w-full items-center justify-center gap-3 rounded-2xl px-3 py-4 text-center text-xl font-bold leading-tight text-white shadow-md ${
+                listening ? 'animate-pulse bg-red-600' : 'bg-[#1F618D]'
+              }`}
+            >
+              <span aria-hidden="true" className="text-3xl leading-none">🎤</span>
+              {listening ? t('voice.listening') : t('voice.mic')}
+            </button>
+          )}
           <div className="flex gap-2">
-            {RecognitionCtor && (
-              <button
-                type="button"
-                onClick={startListening}
-                disabled={listening}
-                // 共通スタイル（button の文字色＝黒）に負けないよう、白を直接指定する
-                style={{ color: '#ffffff' }}
-                className={`flex flex-[1.6] items-center justify-center gap-2 rounded-xl px-2 py-3.5 text-center text-base font-bold leading-tight text-white shadow ${
-                  listening ? 'animate-pulse bg-red-600' : 'bg-[#1F618D]'
-                }`}
-              >
-                <span aria-hidden="true">🎤</span>
-                {listening ? t('voice.listening') : t('voice.mic')}
-              </button>
-            )}
             <button
               type="button"
               onClick={() => {
@@ -771,14 +876,14 @@ export function VoiceGuide({
                 if (el && el.isConnected) speak(describe(el))
                 else readStep()
               }}
-              className="flex flex-1 items-center justify-center whitespace-nowrap rounded-xl border-2 border-[#1F618D] bg-white px-1 py-3.5 text-sm font-bold text-[#1F618D]"
+              className="flex flex-1 items-center justify-center whitespace-nowrap rounded-xl border-2 border-[#1F618D] bg-white px-1 py-3 text-sm font-bold text-[#1F618D]"
             >
               {t('voice.repeat')}
             </button>
             <button
               type="button"
               onClick={turnOff}
-              className="flex flex-1 items-center justify-center whitespace-nowrap rounded-xl border border-stone-300 bg-white px-1 py-3.5 text-xs font-bold text-stone-600"
+              className="flex flex-1 items-center justify-center whitespace-nowrap rounded-xl border border-stone-300 bg-white px-1 py-3 text-xs font-bold text-stone-600"
             >
               {t('voice.stop')}
             </button>

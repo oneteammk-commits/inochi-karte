@@ -102,7 +102,7 @@ export function BirthDateField({
   const hintId = `${id}-hint`
   const resultId = `${id}-result`
   const inputClass =
-    'w-full rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2'
+    'w-full min-w-0 rounded-xl border border-stone-300 px-2 py-3 text-center text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2'
 
   return (
     <fieldset data-voice-date="birth" className="block">
@@ -110,7 +110,7 @@ export function BirthDateField({
         {t('register.labelBirthDate')}
         <span className="sr-only">{t('register.a11yRequired')}</span>
       </legend>
-      <div className={`grid gap-3 ${showEra ? 'grid-cols-[1.1fr_1fr_0.8fr_0.8fr]' : 'grid-cols-3'}`}>
+      <div className={`grid gap-2 ${showEra ? 'grid-cols-[1.1fr_1.35fr_0.8fr_0.8fr]' : 'grid-cols-3'}`}>
         {showEra && (
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-stone-500" aria-hidden="true">
@@ -124,7 +124,14 @@ export function BirthDateField({
                 setEra(next)
                 setYear(yearText, next)
               }}
-              className={`${inputClass} bg-white px-2`}
+              className={`${inputClass} appearance-none bg-white pl-1.5 pr-4 text-left`}
+              // 標準の矢印だと「西暦」の文字が欠けるため、細い矢印を右端に描く
+              style={{
+                backgroundImage:
+                  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%2378716c' stroke-width='1.5'/></svg>\")",
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 0.3rem center',
+              }}
             >
               {ERAS.map((x) => (
                 <option key={x.key} value={x.key}>

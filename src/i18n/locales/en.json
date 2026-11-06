@@ -268,7 +268,14 @@
     "photoFromAlbum": "Choose from album",
     "photoUploading": "Uploading photo…",
     "photoUploadWait": "A photo is still uploading. Please wait a moment.",
-    "photoUploadError": "Photo upload failed. Please try again where the connection is better."
+    "photoUploadError": "Photo upload failed. Please try again where the connection is better.",
+    "a11yRequired": " (required)",
+    "a11yBirthYear": "Year of birth",
+    "a11yBirthMonth": "Month of birth",
+    "a11yBirthDay": "Day of birth",
+    "a11yProgress": "Progress: page {{current}} of {{total}}",
+    "a11yStepDone": " (done)",
+    "errorBirthDateIncomplete": "Please enter the year, month and day of birth."
   },
   "facilityTypes": {
     "自宅": "Home (own residence)",
@@ -360,7 +367,7 @@
     "toggleOn": "Voice guide",
     "toggleOnSub": "Reads the questions aloud. You can also answer by voice",
     "activeNow": "Voice guide is on",
-    "greeting": "Voice guide is on. Tap any item to hear it read aloud. Press the microphone button at the bottom to answer by voice. Say \"next\" to go to the next step.",
+    "greeting": "Voice guide is on. Press the large \"Answer by voice\" button at the bottom, then say your answer. You can also say \"repeat\", \"back\" or \"skip\". Say \"next\" to go to the next page.",
     "greetingNoMic": "Voice guide is on. Tap any item to hear it read aloud.",
     "stepN": "Step {{n}}",
     "mic": "Answer by voice",
@@ -398,6 +405,14 @@
     "furiganaRetry": "The reading was heard as kanji. Please say it again slowly, one sound at a time",
     "dateHint": "You can say the whole date of birth at once",
     "monthHint": "Say the month",
-    "dayHint": "Say the day"
+    "dayHint": "Say the day",
+    "screenReaderNote": "If you use a screen reader such as VoiceOver on iPhone, please do not press this button and just continue. Every item can be read by your screen reader.",
+    "cmdPrevPage": "previous page|page back",
+    "cmdSkip": "skip|later",
+    "backTo": "Went back to the previous item",
+    "noPrev": "There is no item before this one. To go to the previous page, say \"previous page\"",
+    "skipped": "Skipped this item",
+    "heardAs": "I heard \"{{text}}\"",
+    "dateSplit": "Let me ask the year, month and day one at a time. First, please say only the year"
   }
 }

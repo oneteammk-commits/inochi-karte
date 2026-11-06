@@ -655,29 +655,33 @@ export function VoiceGuide({
       speak(t('voice.notUnderstood'))
       return
     }
+    // 合図の言葉は、1番目の候補だけでなく、かなの候補・ほかの候補でも比べる（「飛ばす」が「都バス」と聞き取られる など）
+    const cands = [n, norm(clean(kanaRaw)), ...alts.map((a) => norm(clean(a)))].filter((c, i, a) => c && a.indexOf(c) === i)
+    const isCmd = (key: string, loose = false) =>
+      commandWords(key).some((w) => cands.some((c) => c === w || (loose && c.startsWith(w))))
     // 1) 合図の言葉
-    if (commandWords('voice.cmdStop').some((w) => n === w)) {
+    if (isCmd('voice.cmdStop')) {
       turnOff()
       window.setTimeout(() => speak(t('voice.stopped'), { listen: false }), 150)
       return
     }
-    if (commandWords('voice.cmdNext').some((w) => n === w || n.startsWith(w))) {
+    if (isCmd('voice.cmdNext', true)) {
       onNext()
       return
     }
-    if (commandWords('voice.cmdPrevPage').some((w) => n === w || n.startsWith(w))) {
+    if (isCmd('voice.cmdPrevPage', true)) {
       onBack()
       return
     }
-    if (commandWords('voice.cmdBack').some((w) => n === w || n.startsWith(w))) {
+    if (isCmd('voice.cmdBack', true)) {
       goPrevField()
       return
     }
-    if (commandWords('voice.cmdSkip').some((w) => n === w || n.startsWith(w))) {
+    if (isCmd('voice.cmdSkip', true)) {
       skipField()
       return
     }
-    if (commandWords('voice.cmdRepeat').some((w) => n.includes(w))) {
+    if (commandWords('voice.cmdRepeat').some((w) => cands.some((c) => c.includes(w)))) {
       const el = targetRef.current
       if (el && el.isConnected) speak(describe(el))
       else readStep()
@@ -691,7 +695,7 @@ export function VoiceGuide({
     const petBox = root ? petToggleOf(root) : null
     if (petBox && !petBox.checked) {
       const box = petBox
-      if (commandWords('voice.cmdNo').some((w) => n === w || n.startsWith(w))) {
+      if (isCmd('voice.cmdNo', true)) {
         // 登録しない: 同じページの次の欄へ（編集用パスワードは声では入れられないので、その案内を読む）
         const pw = root?.querySelector<HTMLInputElement>('input[type="password"]') ?? null
         if (pw && pw.offsetParent) {
@@ -700,7 +704,7 @@ export function VoiceGuide({
         } else afterFill(t('voice.petSkip'), box)
         return
       }
-      if (commandWords('voice.cmdYes').some((w) => n === w || n.startsWith(w))) {
+      if (isCmd('voice.cmdYes', true)) {
         if (!box.checked) box.click()
         // 切り替わって欄が出てから、最初の欄を案内する
         window.setTimeout(() => {

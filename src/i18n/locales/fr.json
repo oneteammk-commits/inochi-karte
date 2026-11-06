@@ -401,7 +401,7 @@
     "firstIs": "D'abord : ",
     "pageDone": "Cette page est terminée. Dites « suivant » pour continuer",
     "furiganaKanji": "La lecture ne peut pas être saisie à la voix. Vous pouvez la laisser vide",
-    "tagHint": "Dites le nom des éléments qui s’appliquent. Vous pouvez en choisir plusieurs. Dites « suivant » quand vous avez fini",
+    "tagHint": "Dites les éléments qui s'appliquent, par exemple « œuf ». Vous pouvez en dire plusieurs. Dites « aucun » s'il n'y en a pas, et « suivant » quand vous avez terminé",
     "notNumber": "J’ai entendu « {{text}} ». Dites-le en chiffres, s’il vous plaît",
     "furiganaRetry": "La lecture a été reconnue en kanji. Répétez-la lentement, son par son",
     "dateHint": "Vous pouvez dire la date de naissance en entier",
@@ -418,6 +418,14 @@
     "cmdStop": "arrêter|arrête|stop|terminer",
     "stopped": "Guide vocal terminé",
     "stillWaiting": "Allez-y, répondez",
-    "pressToTalk": "Je ne vous ai pas entendu. Pour continuer, appuyez sur le bouton « Répondre à la voix » en bas de l'écran, puis parlez"
+    "pressToTalk": "Je ne vous ai pas entendu. Pour continuer, appuyez sur le bouton « Répondre à la voix » en bas de l'écran, puis parlez",
+    "furiganaHow": "Dites-le syllabe par syllabe, par exemple « ya, ma, da »",
+    "medIntro": "Vous pouvez dire le nom de votre médicament. Vous pouvez aussi ajouter des photos de votre carnet de médicaments ou de résultats d'examens, mais les photos se choisissent sur l'écran avec « Touchez pour sélectionner une image ». Vous pouvez vous inscrire sans photo",
+    "petAsk": "Voulez-vous aussi enregistrer les informations de votre animal ? Dites « oui » pour enregistrer, ou « non » pour passer",
+    "cmdYes": "oui|ouais|enregistrer|d'accord",
+    "cmdNo": "non|passer|aucun|pas d'animal",
+    "petSkip": "Les informations de l'animal ne seront pas enregistrées",
+    "petOn": "Enregistrement des informations de l'animal",
+    "postalFilled": "D'après le code postal, {{text}} a été rempli"
   }
 }

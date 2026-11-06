@@ -68,12 +68,14 @@ export const MedicationBlock = memo(function MedicationBlock({
           <span className="font-normal text-stone-500">{t('register.optional')}</span>
         </span>
         <ImeAwareInput
+          aria-label={`${t('register.labelMedicineName')}${t('register.optional')}`}
+          aria-describedby={`med-note-${med.id}`}
           value={med.name}
           onValueChange={(v) => onUpdateMedication(med.id, { name: v })}
           className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
           placeholder={t('register.placeholderMedicineName')}
         />
-        <p className="mt-2 text-xs leading-relaxed text-stone-500">{t('register.medicineNote')}</p>
+        <p id={`med-note-${med.id}`} className="mt-2 text-xs leading-relaxed text-stone-500">{t('register.medicineNote')}</p>
       </label>
       <div className="mt-4">
         <span className="mb-1 block text-xs font-medium text-stone-600">

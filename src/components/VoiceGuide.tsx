@@ -69,7 +69,9 @@ const SPEECH_LANG: Record<string, string> = {
 
 const STORAGE_KEY = 'sitte_voice_guide'
 /** 話し終わってから、聞き取りを終えるまでの待ち時間 */
-const SILENCE_MS = 2000
+const SILENCE_MS = 1000
+/** 電話番号（けたが足りないうち）や生年月日のように、区切って言うことが多い項目での待ち時間 */
+const SILENCE_LONG_MS = 2000
 /** 1回の聞き取りの上限 */
 const MAX_LISTEN_MS = 30000
 /** 読み上げを止めてから、マイクを開くまでの間（スピーカーの残りの声を拾わないため） */
@@ -280,8 +282,8 @@ export function VoiceGuide({
   const targetRef = useRef<HTMLElement | null>(null)
   /** その項目を本人がタップして選んだか（自動で案内しただけか） */
   const tappedRef = useRef(false)
-  /** フリガナを言い直してもらった項目（2回目も漢字なら次へ進む） */
-  const furiganaRetryRef = useRef<HTMLElement | null>(null)
+  /** 選択ボタンのページで、いま聞いているグループ（アレルギー→持病の順）。null ならグループは終わっている */
+  const tagGroupRef = useRef<HTMLElement | null>(null)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
   /** 聞き取りの回ごとの番号。読み上げで打ち切った回の結果は使わない */
   const sessionRef = useRef(0)
@@ -373,7 +375,11 @@ export function VoiceGuide({
       // 必須でない項目は「（任意）」を付けて読む（ラベルに書いてあればそのまま）
       const optional = t('register.optional')
       const required = el.getAttribute('aria-required') === 'true' || (el as HTMLInputElement).required || !!dateGroup(el)
-      const label = !required && !rawLabel.includes(optional.replace(/[()（）\s]/g, '')) ? `${rawLabel}${optional}` : rawLabel
+      // 必須でない項目は、そのまま答えれば入り、「スキップ」で飛ばせることを案内する
+      const optCore = optional.replace(/[()（）\s]/g, '')
+      const label = [rawLabel.replace(optCore, '').replace(/[（(]\s*[)）]/, '').trim(), !required && !isSecret(el) ? t('voice.optionalHow') : '']
+        .filter(Boolean)
+        .join(SEP)
       if (el.tagName === 'SELECT') {
         const sel = el as HTMLSelectElement
         const opts = Array.from(sel.options).filter((o) => o.value !== '')
@@ -418,6 +424,18 @@ export function VoiceGuide({
   )
 
   /** 次に案内する項目を決めて、画面をそこまで動かす */
+  /** 選択ボタンのグループ（アレルギー・持病）を上から順に */
+  const tagGroups = (root: HTMLElement) =>
+    Array.from(root.querySelectorAll<HTMLElement>('[role="group"]')).filter((g) => g.querySelector('button[aria-pressed]'))
+  /** グループの「その他」の自由記入欄（同じ枠の中のテキスト欄） */
+  const groupOther = (g: HTMLElement) => g.parentElement?.querySelector<HTMLTextAreaElement | HTMLInputElement>('textarea, input[type="text"]') ?? null
+  const askGroup = (g: HTMLElement) => t('voice.tagAsk', { label: clean(g.getAttribute('aria-label')) })
+  /** グループのあとに続く入力欄（グループの「その他」欄は除く） */
+  const fieldsAfterGroups = (root: HTMLElement) => {
+    const others = new Set(tagGroups(root).map(groupOther).filter(Boolean))
+    return fillableFields(root).filter((el) => !others.has(el as HTMLTextAreaElement))
+  }
+
   const pointTo = useCallback((el: HTMLElement | null) => {
     targetRef.current = el
     tappedRef.current = false
@@ -439,14 +457,13 @@ export function VoiceGuide({
     const label = t('voice.stepN', { n: Math.min(stepKey + 1, 6) })
     const parts = [prefix, label, h2]
     const petToggle = petToggleOf(root)
+    tagGroupRef.current = null
     if (root.querySelector('button[aria-pressed]')) {
-      // 選択ボタンのページ: 「タップして」の説明文は読まず、グループごとに選択肢を読んで、声で言ってもらう
-      for (const g of Array.from(root.querySelectorAll<HTMLElement>('[role="group"]'))) {
-        const opts = Array.from(g.querySelectorAll<HTMLButtonElement>('button[aria-pressed]')).map((b) => say(clean(b.textContent)))
-        if (opts.length) parts.push(`${clean(g.getAttribute('aria-label'))}${SEP}${t('voice.options', { list: opts.join('、') })}`)
-      }
-      parts.push(t('voice.tagHint'))
-      pointTo(null)
+      // 選択ボタンのページ: 選択肢は読み上げず、グループ（アレルギー→持病）ごとに「あれば言ってください」と聞く
+      const g = tagGroups(root)[0] ?? null
+      tagGroupRef.current = g
+      pointTo(g)
+      parts.push(g ? askGroup(g) : t('voice.tagHint'))
     } else if (petToggle && !petToggle.checked) {
       // ペットのページ: 登録するかどうかを「はい」「いいえ」で聞く
       parts.push(firstP, t('voice.petAsk'))
@@ -605,11 +622,8 @@ export function VoiceGuide({
   const afterFill = (doneMsg: string, from: HTMLElement) => {
     const root = containerRef.current
     const all = root ? fillableFields(root) : []
-    // 後ろの空いている項目 → なければ前に戻って空いている項目
-    const next =
-      all.find((el) => from.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) ??
-      all.find((el) => el !== from) ??
-      null
+    // 後ろの空いている項目だけ。前には戻らない（飛ばした項目に戻されないように。空欄のままでも進める）
+    const next = all.find((el) => from.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) ?? null
     pointTo(next)
     if (next) speak(`${doneMsg}${SEP}${t('voice.nextIs')}${describe(next)}`)
     else speak([doneMsg, t('voice.pageDone')].join(SEP))
@@ -631,9 +645,31 @@ export function VoiceGuide({
     speak(`${t('voice.backTo')}${SEP}${describe(prev)}`)
   }
 
+  /** 選択ボタンのページで、次のグループへ。グループが終わったら、そのあとの入力欄へ */
+  const nextTagGroup = (done: string) => {
+    const root = containerRef.current
+    const group = tagGroupRef.current
+    if (!root || !group) return
+    const gs = tagGroups(root)
+    const g2 = gs[gs.indexOf(group) + 1] ?? null
+    tagGroupRef.current = g2
+    if (g2) {
+      pointTo(g2)
+      speak([done, askGroup(g2)].filter(Boolean).join(SEP))
+      return
+    }
+    const first = fieldsAfterGroups(root)[0] ?? null
+    pointTo(first)
+    speak([done, first ? `${t('voice.nextIs')}${describe(first)}` : t('voice.pageDone')].filter(Boolean).join(SEP))
+  }
+
   /** 「飛ばす」: この項目は空けたまま、次の項目へ */
   const skipField = () => {
     const root = containerRef.current
+    if (tagGroupRef.current && tagGroupRef.current.isConnected && !tappedRef.current) {
+      nextTagGroup(t('voice.skipped'))
+      return
+    }
     const cur = targetRef.current && targetRef.current.isConnected ? targetRef.current : null
     if (!root || !cur) {
       speak(`${t('voice.skipped')}${SEP}${t('voice.pageDone')}`)
@@ -719,6 +755,30 @@ export function VoiceGuide({
     }
 
     // 2) 選択ボタン（アレルギー・持病など）: 本人がタップした入力欄がなければ、まずボタンを探す
+    const group = tagGroupRef.current && tagGroupRef.current.isConnected && (!el || !tappedRef.current) ? tagGroupRef.current : null
+    if (root && group) {
+      if (isCmd('voice.cmdNone', true)) {
+        // 「なし」: そのグループに「なし」のボタンがあれば押して、次のグループへ
+        const noneBtn = Array.from(group.querySelectorAll<HTMLButtonElement>('button[aria-pressed]')).find((b) =>
+          commandWords('voice.cmdNone').includes(norm(clean(b.textContent))),
+        )
+        // すでに何か選んでいれば「もうない」の意味なので、「なし」は押さない
+        const press = !!noneBtn && !group.querySelector('button[aria-pressed="true"]')
+        if (press) noneBtn.click()
+        window.setTimeout(() => nextTagGroup(press ? t('voice.tagOn', { text: say(clean(noneBtn.textContent)) }) : ''), press ? 250 : 0)
+        return
+      }
+      const hits = findTagButtons(root, n)
+      if (hits.length === 0) {
+        // 項目にない言葉: そのグループの「その他」欄に書く
+        const other = groupOther(group)
+        if (other) {
+          setNativeValue(other, [other.value, text].filter(Boolean).join('、'))
+          speak(`${t('voice.tagOther', { text })}${SEP}${t('voice.tagMore')}`)
+          return
+        }
+      }
+    }
     if (root && (!el || !tappedRef.current || el.tagName === 'TEXTAREA')) {
       const hits = findTagButtons(root, n)
       if (hits.length > 0) {
@@ -730,6 +790,7 @@ export function VoiceGuide({
         const msgs = [
           turnedOn.length ? t('voice.tagOn', { text: turnedOn.join('、') }) : '',
           already.length ? t('voice.alreadyOn', { text: already.join('、') }) : '',
+          group ? t('voice.tagMore') : '',
         ].filter(Boolean)
         // ボタンのクリックの読み上げと重ならないよう、押し終わってからまとめて読む
         window.setTimeout(() => speak(msgs.join(SEP)), toPress.length * 150 + 200)
@@ -827,21 +888,12 @@ export function VoiceGuide({
         if (input.maxLength > 0) value = value.slice(0, input.maxLength)
       } else if (lang === 'ja' && isFuriganaField(input)) {
         // 聞き取りは漢字に変えて返すことが多いので、候補の中のかなを使う
-        const kana = [toFurigana(text), toFurigana(clean(kanaRaw))].find((k) => k && !hasKanji(k))
+        const kana = [toFurigana(text), toFurigana(clean(kanaRaw)), ...alts.map((a) => toFurigana(clean(a)))].find((k) => k && !hasKanji(k))
         if (!kana) {
-          if (furiganaRetryRef.current !== input) {
-            // 1回目: 区切って言い直してもらう（区切るとかなで返りやすい）
-            furiganaRetryRef.current = input
-            targetRef.current = input
-            speak(t('voice.furiganaRetry'))
-            return
-          }
-          // 2回目も漢字: 入れずに次へ（空欄でも登録できる）
-          furiganaRetryRef.current = null
+          // 漢字でしか返らない機種（iPhoneなど）がある: 言い直しはさせず、入れずに次へ（空欄でも登録できる）
           afterFill(t('voice.furiganaKanji'), input)
           return
         }
-        furiganaRetryRef.current = null
         value = kana
       }
       setNativeValue(input, value)
@@ -975,6 +1027,18 @@ export function VoiceGuide({
         else speak(t('voice.stillWaiting'))
       }
       const maxTimer = window.setTimeout(finish, MAX_LISTEN_MS)
+      /** 区切って言う項目（番号・生年月日）は、言い終わる前に締め切らないよう長めに待つ */
+      const silenceFor = (heardNow: string) => {
+        const el = targetRef.current
+        if (!el || !el.isConnected) return SILENCE_MS
+        if (dateGroup(el)) return SILENCE_LONG_MS
+        if (isDigitField(el)) {
+          const digits = (heardNow.normalize('NFKC').match(/\d/g) ?? []).length
+          const need = (el as HTMLInputElement).autocomplete === 'postal-code' ? 7 : 10
+          if (digits < need) return SILENCE_LONG_MS
+        }
+        return SILENCE_MS
+      }
       rec.onresult = (e) => {
         if (session !== sessionRef.current) return
         interimText = ''
@@ -994,9 +1058,10 @@ export function VoiceGuide({
             finalAlts = addAlts(finalAlts, r)
           }
         }
-        setHeard(mergeHeard(finalText, interimText))
+        const heardNow = mergeHeard(finalText, interimText)
+        setHeard(heardNow)
         window.clearTimeout(silenceTimer)
-        silenceTimer = window.setTimeout(finish, SILENCE_MS)
+        silenceTimer = window.setTimeout(finish, silenceFor(heardNow))
       }
       rec.onerror = (e) => {
         if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {

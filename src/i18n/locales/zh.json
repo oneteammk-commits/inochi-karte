@@ -260,7 +260,14 @@
     "photoFromAlbum": "从相册选择",
     "photoUploading": "正在上传照片…",
     "photoUploadWait": "照片正在上传中，请稍候。",
-    "photoUploadError": "照片上传失败。请在网络良好的地方重试。"
+    "photoUploadError": "照片上传失败。请在网络良好的地方重试。",
+    "a11yRequired": "（必填）",
+    "a11yBirthYear": "出生年份",
+    "a11yBirthMonth": "出生月份",
+    "a11yBirthDay": "出生日期（日）",
+    "a11yProgress": "进度：共{{total}}页，第{{current}}页",
+    "a11yStepDone": "（已完成）",
+    "errorBirthDateIncomplete": "请完整填写出生的年、月、日。"
   },
   "facilityTypes": {
     "自宅": "自己家中",
@@ -352,7 +359,7 @@
     "toggleOn": "语音引导",
     "toggleOnSub": "朗读问题，也可以用语音回答",
     "activeNow": "语音引导已开启",
-    "greeting": "语音引导已开启。点击项目即可朗读。按下方的麦克风按钮，可以用语音回答。说“下一步”即可继续。",
+    "greeting": "语音引导已开启。请按下方的大按钮“用语音回答”，然后说出答案。也可以说“重复”“返回”“跳过”。说“下一步”即可进入下一页。",
     "greetingNoMic": "语音引导已开启。点击项目即可朗读。",
     "stepN": "第{{n}}步",
     "mic": "语音回答",
@@ -379,7 +386,7 @@
     "checked": "已开启",
     "unchecked": "已关闭",
     "cmdNext": "下一步|下一个|继续",
-    "cmdBack": "返回|上一步",
+    "cmdBack": "返回|上一个",
     "cmdRepeat": "再说一遍|再读一次|重复",
     "nextIs": "下一项：",
     "firstIs": "第一项：",
@@ -390,6 +397,14 @@
     "furiganaRetry": "读音被识别成了汉字。请一个字一个字地分开，再说一遍",
     "dateHint": "可以一次说出完整的出生日期",
     "monthHint": "请说出月份",
-    "dayHint": "请说出日期"
+    "dayHint": "请说出日期",
+    "screenReaderNote": "使用iPhone的VoiceOver等读屏功能的用户，请不要按此按钮，直接继续即可。各项目都可以用读屏功能朗读。",
+    "cmdPrevPage": "上一页|返回上一页",
+    "cmdSkip": "跳过|以后再说",
+    "backTo": "已返回上一个项目",
+    "noPrev": "前面没有项目了。要回到上一页，请说“上一页”",
+    "skipped": "已跳过此项目",
+    "heardAs": "听到的是“{{text}}”",
+    "dateSplit": "我们分开询问年、月、日。请先只说出年份"
   }
 }

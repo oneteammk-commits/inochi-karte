@@ -330,7 +330,7 @@ export function StepPetSection({
     >
       <div className="mb-4 rounded-xl bg-amber-100/80 px-4 py-3 ring-1 ring-amber-200/70">
         <h2 id="step-pet-title" className="text-lg font-bold text-amber-900">
-          🐾 {t('register.petsSectionTitle')}
+          <span aria-hidden="true">🐾</span> {t('register.petsSectionTitle')}
         </h2>
         <p className="mt-1 text-sm text-amber-800/90">{t('register.petsSectionSubtitle')}</p>
       </div>

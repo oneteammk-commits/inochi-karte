@@ -27,6 +27,8 @@ export function EmergencyRelationshipField({
   return (
     <div className="space-y-3">
       <select
+        aria-label={t('register.labelEmergencyRelationship')}
+        aria-required="true"
         value={relationshipKey}
         onChange={(e) => {
           const nextKey = e.target.value

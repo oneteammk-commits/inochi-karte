@@ -8,6 +8,7 @@ import { MedicalFreeTextField } from './MedicalFreeTextField'
 import { MedicationBlock } from './MedicationBlock'
 import { uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
 import { VoiceGuide } from './VoiceGuide'
+import { BirthDateField, isCompleteBirthDate } from './BirthDateField'
 import { resolveEmergencyRelationshipForSave } from '../lib/emergencyRelationship'
 import {
 ALLERGY_TAGS,  CHRONIC_TAGS,
@@ -72,6 +73,7 @@ function validateRegistrationStep(s: number, data: RegistrationFormState, t: (ke
     case 0: {
       if (!data.fullName.trim()) return t('register.errorName')
       if (!data.birthDate) return t('register.errorBirthDate')
+      if (!isCompleteBirthDate(data.birthDate)) return t('register.errorBirthDateIncomplete')
       if (
         !resolveEmergencyRelationshipForSave(
           data.emergencyContactRelationshipKey,
@@ -175,6 +177,18 @@ export function RegistrationForm() {
   }
 
   const activeStep = wizard.step
+  // ページが変わったら、新しいページの見出しに移る（iPhoneのVoiceOverなどで、新しいページの名前から読まれるように）
+  const prevStepRef = useRef(activeStep)
+  useEffect(() => {
+    if (prevStepRef.current === activeStep) return
+    prevStepRef.current = activeStep
+    const h = formElRef.current?.querySelector('h2') as HTMLElement | null
+    if (!h) return
+    h.setAttribute('tabindex', '-1')
+    h.style.outline = 'none'
+    h.focus({ preventScroll: true })
+    window.scrollTo({ top: 0 })
+  }, [activeStep])
   const registrationId = wizard.registrationId
 
   const qrPayload = useMemo(() => {
@@ -365,7 +379,7 @@ export function RegistrationForm() {
 
   return (
     <div className="min-h-screen bg-stone-100 pb-16 pt-6 sm:pt-10">
-      <div className="mx-auto max-w-lg px-4">
+      <main className="mx-auto max-w-lg px-4">
       <header className="mb-8 text-center">
           <p className="text-sm font-medium tracking-wide text-brand">{t('register.headerLabel')}</p>
           <div className="mt-1 flex items-center justify-center gap-3">
@@ -471,20 +485,25 @@ error={stepError}
             </nav>
           )}
         </form>
-      </div>
+      </main>
     </div>
   )
 }
 
 function StepIndicator({ current, labels }: { current: number; labels: string[] }) {
+  const { t } = useTranslation()
   return (
-    <ol className="mb-8 flex justify-between gap-1 text-[10px] font-medium text-stone-500 sm:text-xs">
+    <ol
+      aria-label={t('register.a11yProgress', { current: Math.min(current + 1, labels.length), total: labels.length })}
+      className="mb-8 flex justify-between gap-1 text-[10px] font-medium text-stone-600 sm:text-xs"
+    >
       {labels.map((label, i) => {
         const active = i === current
         const done = i < current
         return (
-          <li key={label} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
+          <li key={label} aria-current={active ? 'step' : undefined} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
             <span
+              aria-hidden="true"
               className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold sm:h-9 sm:w-9 ${
                 active
                   ? 'bg-brand text-white shadow-md shadow-brand/30'
@@ -499,6 +518,7 @@ function StepIndicator({ current, labels }: { current: number; labels: string[] 
               className={`line-clamp-2 text-center leading-tight ${active ? 'text-brand font-semibold' : ''}`}
             >
               {label}
+              {done && <span className="sr-only">{t('register.a11yStepDone')}</span>}
             </span>
           </li>
         )
@@ -510,7 +530,7 @@ function StepIndicator({ current, labels }: { current: number; labels: string[] 
 function FieldError({ message }: { message: string | null }) {
   if (!message) return null
   return (
-    <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-100">
+    <p role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-100">
       {message}
     </p>
   )
@@ -538,6 +558,7 @@ export function StepBasic({
           <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelName')}</span>
           <ImeAwareInput
             autoComplete="name"
+            aria-required="true"
             value={form.fullName}
             onValueChange={(v) => onChange({ fullName: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
@@ -553,55 +574,7 @@ export function StepBasic({
             placeholder={t('register.placeholderFurigana')}
           />
         </label>
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelBirthDate')}</span>
-         <div className="grid grid-cols-3 gap-3">
-            <div>
-              <span className="mb-1 block text-xs font-medium text-stone-500">{t('register.unitYear')}</span>
-              <ImeAwareInput
-                inputMode="numeric"
-                maxLength={4}
-                placeholder={t('register.placeholderYear')}
-                value={form.birthDate.split('年')[0] ?? ''}
-                onValueChange={(y) => {
-                  const rest = form.birthDate.includes('年') ? form.birthDate.split('年')[1] : '月日'
-                  onChange({ birthDate: `${y}年${rest}` })
-                }}
-                className="w-full rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              />
-            </div>
-            <div>
-              <span className="mb-1 block text-xs font-medium text-stone-500">{t('register.unitMonth')}</span>
-              <ImeAwareInput
-                inputMode="numeric"
-                maxLength={2}
-                placeholder={t('register.placeholderMonth')}
-                value={form.birthDate.includes('年') ? (form.birthDate.split('年')[1]?.split('月')[0] ?? '') : ''}
-                onValueChange={(m) => {
-                  const y = form.birthDate.split('年')[0] ?? ''
-                  const d = form.birthDate.includes('月') ? (form.birthDate.split('月')[1]?.replace('日','') ?? '') : ''
-                  onChange({ birthDate: `${y}年${m}月${d}日` })
-                }}
-                className="w-full rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              />
-            </div>
-            <div>
-              <span className="mb-1 block text-xs font-medium text-stone-500">{t('register.unitDay')}</span>
-              <ImeAwareInput
-                inputMode="numeric"
-                maxLength={2}
-                placeholder={t('register.placeholderDay')}
-                value={form.birthDate.includes('月') ? (form.birthDate.split('月')[1]?.replace('日','') ?? '') : ''}
-                onValueChange={(d) => {
-                  const y = form.birthDate.split('年')[0] ?? ''
-                  const m = form.birthDate.includes('年') ? (form.birthDate.split('年')[1]?.split('月')[0] ?? '') : ''
-                  onChange({ birthDate: `${y}年${m}月${d}日` })
-                }}
-                className="w-full rounded-xl border border-stone-300 px-3 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
-              />
-            </div>
-          </div>
-        </label>
+        <BirthDateField value={form.birthDate} onChange={(birthDate) => onChange({ birthDate })} t={t} />
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
             {t('register.labelEmergencyRelationship')}
@@ -617,6 +590,7 @@ export function StepBasic({
           <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelEmergencyName')}</span>
           <ImeAwareInput
             type="text"
+            aria-required="true"
             value={form.emergencyContactName}
             onValueChange={(v) => onChange({ emergencyContactName: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
@@ -639,6 +613,7 @@ export function StepBasic({
             type="tel"
             inputMode="tel"
             autoComplete="tel"
+            aria-required="true"
             value={form.emergencyContactPhone}
             onChange={(e) => onChange({ emergencyContactPhone: e.target.value })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
@@ -702,24 +677,30 @@ export function StepRegion({
           </span>
           <ImeAwareInput
             autoComplete="postal-code"
+            inputMode="numeric"
+            aria-required="true"
             maxLength={8}
             placeholder={t('register.placeholderPostalCode')}
             value={form.postalCode ?? ''}
             onValueChange={handlePostalCodeChange}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
           />
-          {postalLookupLoading && (
-            <p className="mt-1.5 text-xs text-stone-500">{t('register.postalLookupLoading')}</p>
-          )}
-          {postalLookupError && (
-            <p className="mt-1.5 text-xs text-amber-700">{postalLookupError}</p>
-          )}
+          <span role="status" className="block">
+            {postalLookupLoading && (
+              <span className="mt-1.5 block text-xs text-stone-500">{t('register.postalLookupLoading')}</span>
+            )}
+            {postalLookupError && (
+              <span className="mt-1.5 block text-xs text-amber-700">{postalLookupError}</span>
+            )}
+          </span>
         </label>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">
             {t('register.labelPrefecture')}
           </span>
           <select
+            aria-label={t('register.labelPrefecture')}
+            aria-required="true"
             value={form.prefecture}
             onChange={(e) => onChange({ prefecture: e.target.value })}
             className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
@@ -736,12 +717,15 @@ export function StepRegion({
             {t('register.labelCity')}
           </span>
           <ImeAwareInput
+            aria-required="true"
+            aria-label={t('register.labelCity')}
+            aria-describedby="hint-city"
             value={form.city}
             onValueChange={(v) => onChange({ city: v })}
             className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderCity')}
           />
-          <p className="mt-1.5 text-xs leading-relaxed text-stone-500">
+          <p id="hint-city" className="mt-1.5 text-xs leading-relaxed text-stone-500">
             {t('register.hintCity')}
           </p>
         </label>
@@ -751,12 +735,14 @@ export function StepRegion({
             <span className="ml-1.5 font-normal text-stone-500">{t('register.optional')}</span>
           </span>
           <ImeAwareInput
+            aria-label={`${t('register.labelAddressDetail')}${t('register.optional')}`}
+            aria-describedby="hint-address-detail"
             value={form.addressDetail}
             onValueChange={(v) => onChange({ addressDetail: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderAddressDetail')}
           />
-          <p className="mt-1.5 text-xs leading-relaxed text-stone-500">
+          <p id="hint-address-detail" className="mt-1.5 text-xs leading-relaxed text-stone-500">
             {t('register.hintAddressDetail')}
           </p>
         </label>
@@ -777,6 +763,8 @@ export function StepRegion({
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelFacilityType')}</span>
           <select
+            aria-label={t('register.labelFacilityType')}
+            aria-required="true"
             value={form.facilityType}
             onChange={(e) => onChange({ facilityType: e.target.value })}
             className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
@@ -816,8 +804,8 @@ onToggle: (tag: string) => void
   t: (key: string) => string
   tKey: string}) {
   return (
-    <div>
-    <p className="mb-2 text-lg font-bold text-stone-700">{title}</p>
+    <div role="group" aria-label={title}>
+    <p className="mb-2 text-lg font-bold text-stone-700" aria-hidden="true">{title}</p>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => {
           const on = selected.includes(tag)
@@ -897,12 +885,14 @@ onToggle={(tag) => onChange({ chronicTags: toggleInList(form.chronicTags, tag) }
             {t('register.labelHospital')}
           </span>
           <ImeAwareInput
+            aria-label={t('register.labelHospital')}
+            aria-describedby="hint-hospital"
             value={form.hospitalName}
             onValueChange={(v) => onChange({ hospitalName: v })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderHospital')}
           />
-          <span className="mt-1.5 block text-xs text-stone-500">
+          <span id="hint-hospital" className="mt-1.5 block text-xs text-stone-500">
             {t('register.hintHospital')}
           </span>
         </label>
@@ -1011,6 +1001,7 @@ function StepEditPassword({
             inputMode="numeric"
             maxLength={4}
             autoComplete="off"
+            aria-required="true"
             value={form.editPassword}
             onValueChange={(v) => onChange({ editPassword: v.replace(/[^0-9]/g, '') })}
             className="w-full rounded-xl border border-stone-300 px-4 py-3 text-center text-2xl tracking-[0.5em] text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2"

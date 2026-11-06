@@ -367,7 +367,7 @@
     "toggleOn": "Panduan suara",
     "toggleOnSub": "Membacakan pertanyaan. Anda juga bisa menjawab dengan suara",
     "activeNow": "Panduan suara aktif",
-    "greeting": "Panduan suara aktif. Tekan tombol besar \"Jawab dengan suara\" di bawah, lalu ucapkan jawaban Anda. Anda juga bisa mengucapkan \"ulangi\", \"kembali\" atau \"lewati\". Ucapkan \"lanjut\" untuk ke halaman berikutnya.",
+    "greeting": "Panduan suara aktif. Setelah suara panduan selesai, langsung ucapkan jawaban Anda. Tidak perlu menekan tombol. Anda juga bisa mengucapkan \"ulangi\", \"kembali\", atau \"lewati\". Ucapkan \"berikutnya\" untuk ke halaman berikutnya, atau \"berhenti\" untuk mengakhiri panduan.",
     "greetingNoMic": "Panduan suara aktif. Ketuk item untuk mendengarnya dibacakan.",
     "stepN": "Langkah {{n}}",
     "mic": "Jawab dengan suara",
@@ -413,6 +413,10 @@
     "noPrev": "Tidak ada item sebelum ini. Untuk kembali ke halaman sebelumnya, ucapkan \"halaman sebelumnya\"",
     "skipped": "Item ini dilewati",
     "heardAs": "Terdengar \"{{text}}\"",
-    "dateSplit": "Saya akan menanyakan tahun, bulan, dan tanggal satu per satu. Pertama, ucapkan tahunnya saja"
+    "dateSplit": "Saya akan menanyakan tahun, bulan, dan tanggal satu per satu. Pertama, ucapkan tahunnya saja",
+    "cmdStop": "berhenti|stop|selesai|akhiri",
+    "stopped": "Panduan suara telah berakhir",
+    "stillWaiting": "Silakan jawab",
+    "pressToTalk": "Suara Anda tidak terdengar. Untuk melanjutkan, tekan tombol \"Jawab dengan suara\" di bagian bawah layar, lalu bicaralah"
   }
 }

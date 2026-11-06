@@ -69,7 +69,7 @@ const SPEECH_LANG: Record<string, string> = {
 
 const STORAGE_KEY = 'sitte_voice_guide'
 /** 話し終わってから、聞き取りを終えるまでの待ち時間 */
-const SILENCE_MS = 3000
+const SILENCE_MS = 2000
 /** 1回の聞き取りの上限 */
 const MAX_LISTEN_MS = 30000
 /** 読み上げを止めてから、マイクを開くまでの間（スピーカーの残りの声を拾わないため） */
@@ -107,9 +107,8 @@ function stripEcho(raw: string, spoken: string): string {
     i++
   }
   const rest = raw.slice(i).replace(/^[\s、。,.!?！？]+/, '')
-  if (rest) return rest
-  // 残りが無い: 短ければ本人が読み上げの末尾と同じ言葉を言ったとみなして残す。長ければ読み上げの声だけだったとみなす
-  return best >= 8 ? '' : raw
+  // 残りが無いときは、本人が読み上げの末尾と同じ言葉（選択肢の最後・例の通り など）を言ったとみなして、そのまま使う
+  return rest || raw
 }
 
 function getRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
@@ -186,6 +185,11 @@ function dateGroup(el: HTMLElement): HTMLInputElement[] | null {
 /** 生年月日の元号（西暦・昭和など）を選ぶ欄。日本語のときだけある */
 function dateEraSelect(el: HTMLElement): HTMLSelectElement | null {
   return el.closest('[data-voice-date]')?.querySelector('select') ?? null
+}
+
+/** ペットの情報を登録するかのスイッチ（ペットのページにだけある） */
+function petToggleOf(root: HTMLElement): HTMLInputElement | null {
+  return root.querySelector<HTMLInputElement>('label input[type="checkbox"].sr-only')
 }
 
 /** 声で順番に案内する欄（空かどうかに関係なく、画面に見えているもの）。元号の欄は年と一緒に扱うので入れない */
@@ -293,6 +297,8 @@ export function VoiceGuide({
   enabledRef.current = enabled
   /** 「声でご案内」を押した直後は、あいさつと一緒にページを読むので、ページ読みの自動実行を1回飛ばす */
   const skipReadRef = useRef(false)
+  /** 次のページを読むときに先に付ける文（「ペットは登録しません」など） */
+  const prefixRef = useRef('')
 
   const say = useCallback((text: string) => itemReading(text, lang), [lang])
 
@@ -363,7 +369,11 @@ export function VoiceGuide({
   /** 項目1つ分の読み上げ文 */
   const describe = useCallback(
     (el: HTMLElement): string => {
-      const label = fieldLabel(el)
+      const rawLabel = fieldLabel(el)
+      // 必須でない項目は「（任意）」を付けて読む（ラベルに書いてあればそのまま）
+      const optional = t('register.optional')
+      const required = el.getAttribute('aria-required') === 'true' || (el as HTMLInputElement).required || !!dateGroup(el)
+      const label = !required && !rawLabel.includes(optional.replace(/[()（）\s]/g, '')) ? `${rawLabel}${optional}` : rawLabel
       if (el.tagName === 'SELECT') {
         const sel = el as HTMLSelectElement
         const opts = Array.from(sel.options).filter((o) => o.value !== '')
@@ -384,13 +394,17 @@ export function VoiceGuide({
         const dateHint = group
           ? t(['voice.dateHint', 'voice.monthHint', 'voice.dayHint'][group.indexOf(el as HTMLInputElement)])
           : ''
+        // フリガナは、区切って言うと かなで聞き取られやすいので、その言い方を案内する
+        const furiganaHow = lang === 'ja' && isFuriganaField(el as HTMLInputElement) ? t('voice.furiganaHow') : ''
         const tail = v
           ? t('voice.filledNow', { text: digits ? spellDigits(v) : v })
           : dateHint
             ? dateHint
-            : ph
-              ? `${t('voice.example')} ${digits ? spellDigits(ph) : ph}`
-              : ''
+            : furiganaHow
+              ? furiganaHow
+              : ph
+                ? `${t('voice.example')} ${digits ? spellDigits(ph) : ph}`
+                : ''
         return [label, tail].filter(Boolean).join(SEP)
       }
       if (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'checkbox') {
@@ -423,17 +437,29 @@ export function VoiceGuide({
     const h2 = clean(root.querySelector('h2')?.textContent)
     const firstP = clean(root.querySelector('h2 + p')?.textContent)
     const label = t('voice.stepN', { n: Math.min(stepKey + 1, 6) })
-    const parts = [prefix, label, h2, firstP]
+    const parts = [prefix, label, h2]
+    const petToggle = petToggleOf(root)
     if (root.querySelector('button[aria-pressed]')) {
+      // 選択ボタンのページ: 「タップして」の説明文は読まず、グループごとに選択肢を読んで、声で言ってもらう
+      for (const g of Array.from(root.querySelectorAll<HTMLElement>('[role="group"]'))) {
+        const opts = Array.from(g.querySelectorAll<HTMLButtonElement>('button[aria-pressed]')).map((b) => say(clean(b.textContent)))
+        if (opts.length) parts.push(`${clean(g.getAttribute('aria-label'))}${SEP}${t('voice.options', { list: opts.join('、') })}`)
+      }
       parts.push(t('voice.tagHint'))
       pointTo(null)
+    } else if (petToggle && !petToggle.checked) {
+      // ペットのページ: 登録するかどうかを「はい」「いいえ」で聞く
+      parts.push(firstP, t('voice.petAsk'))
+      pointTo(petToggle)
     } else {
+      parts.push(firstP)
+      if (root.querySelector('input[type="file"]')) parts.push(t('voice.medIntro'))
       const first = fillableFields(root)[0] ?? null
       pointTo(first)
       if (first) parts.push(`${t('voice.firstIs')}${describe(first)}`)
     }
     speak(parts.filter(Boolean).join(SEP))
-  }, [containerRef, speak, stepKey, t, SEP, describe, pointTo])
+  }, [containerRef, speak, stepKey, t, SEP, describe, pointTo, say])
 
   // ステップが変わったら読む
   useEffect(() => {
@@ -444,7 +470,9 @@ export function VoiceGuide({
       return
     }
     targetRef.current = null
-    const id = window.setTimeout(() => readStep(), 450)
+    const prefix = prefixRef.current
+    prefixRef.current = ''
+    const id = window.setTimeout(() => readStep(prefix), 450)
     return () => window.clearTimeout(id)
   }, [enabled, stepKey, readStep])
 
@@ -659,6 +687,33 @@ export function VoiceGuide({
     const root = containerRef.current
     let el = targetRef.current && targetRef.current.isConnected ? targetRef.current : null
 
+    // 1.5) ペットを登録するかの質問: 「はい」で登録、「いいえ」で次のページへ
+    const petBox = root ? petToggleOf(root) : null
+    if (petBox && !petBox.checked) {
+      const box = petBox
+      if (commandWords('voice.cmdNo').some((w) => n === w || n.startsWith(w))) {
+        // 登録しない: 同じページの次の欄へ（編集用パスワードは声では入れられないので、その案内を読む）
+        const pw = root?.querySelector<HTMLInputElement>('input[type="password"]') ?? null
+        if (pw && pw.offsetParent) {
+          pointTo(pw)
+          speak(`${t('voice.petSkip')}${SEP}${t('voice.nextIs')}${describe(pw)}`)
+        } else afterFill(t('voice.petSkip'), box)
+        return
+      }
+      if (commandWords('voice.cmdYes').some((w) => n === w || n.startsWith(w))) {
+        if (!box.checked) box.click()
+        // 切り替わって欄が出てから、最初の欄を案内する
+        window.setTimeout(() => {
+          const first = root ? fillableFields(root)[0] ?? null : null
+          pointTo(first)
+          speak(first ? `${t('voice.petOn')}${SEP}${t('voice.firstIs')}${describe(first)}` : t('voice.petOn'))
+        }, 350)
+        return
+      }
+      speak(`${t('voice.heardAs', { text })}${SEP}${t('voice.petAsk')}`)
+      return
+    }
+
     // 2) 選択ボタン（アレルギー・持病など）: 本人がタップした入力欄がなければ、まずボタンを探す
     if (root && (!el || !tappedRef.current || el.tagName === 'TEXTAREA')) {
       const hits = findTagButtons(root, n)
@@ -786,6 +841,24 @@ export function VoiceGuide({
         value = kana
       }
       setNativeValue(input, value)
+      if (input.getAttribute('autocomplete') === 'postal-code' && root) {
+        // 郵便番号: 住所の自動入力（通信）を待ってから、入った住所を読み、その次の空いている欄を案内する
+        const prefSel = root.querySelector<HTMLSelectElement>(`select[aria-label="${t('register.labelPrefecture')}"]`)
+        const citySel = root.querySelector<HTMLInputElement>(`input[aria-label="${t('register.labelCity')}"]`)
+        const started = Date.now()
+        const wait = () => {
+          const pref = prefSel?.value ? prefSel.options[prefSel.selectedIndex]?.text ?? '' : ''
+          if (pref || Date.now() - started > 3500) {
+            const addr = [pref, citySel?.value ?? ''].filter(Boolean).join(' ')
+            const msg = addr ? t('voice.postalFilled', { text: addr }) : t('voice.filled', { text: spellDigits(value) })
+            afterFill(msg, citySel && addr ? citySel : input)
+            return
+          }
+          window.setTimeout(wait, 200)
+        }
+        window.setTimeout(wait, 400)
+        return
+      }
       afterFill(t('voice.filled', { text: isDigitField(input) ? spellDigits(value) : value }), input)
       return
     }

@@ -479,8 +479,9 @@ export function VoiceGuide({
       parts.push(firstP, t('voice.petAsk'))
       pointTo(petToggle)
     } else {
-      // お薬のページは、写真の入れ方を短く言ってから最初の欄へ（説明文は重なるので読まない）
-      if (root.querySelector('input[type="file"]')) parts.push(t('voice.medIntro'))
+      // お薬のページ（「カメラで撮る」ボタンがあるページ）だけ、写真の入れ方を短く言ってから最初の欄へ（説明文は重なるので読まない）
+      // ペットのページにも写真の欄はあるが、ボタンの名前が違うのでお薬の案内は読まない
+      if (root.querySelector('input[type="file"][capture]')) parts.push(t('voice.medIntro'))
       else parts.push(firstP)
       const first = fillableFields(root)[0] ?? null
       pointTo(first)

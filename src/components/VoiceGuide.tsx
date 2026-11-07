@@ -78,6 +78,8 @@ const MAX_LISTEN_MS = 30000
 const AFTER_SPEECH_MS = 350
 /** 自動の聞き取りで、何も聞こえなかったときに続けて待つ回数（これを超えたらボタンを押してもらう） */
 const AUTO_EMPTY_LIMIT = 3
+/** 日本語の読み上げの速さ（1 が標準。ゆっくりめ） */
+const SPEECH_RATE_JA = 0.85
 
 /**
  * 聞き取った言葉の先頭に、sitte 自身の読み上げ（スピーカーの声）が混ざっていたら取り除く。
@@ -328,7 +330,7 @@ export function VoiceGuide({
       u.lang = speechLang
       const voice = synth.getVoices().find((v) => v.lang.replace('_', '-').startsWith(speechLang.slice(0, 2)))
       if (voice) u.voice = voice
-      u.rate = lang === 'ja' ? 0.95 : 1
+      u.rate = lang === 'ja' ? SPEECH_RATE_JA : 1
       // 読み上げ用の言い換え前と後の両方を覚えておく（聞き取りに混ざった自分の声を取り除くため）
       lastSpokenRef.current = `${text}\n${spoken}`
       utterRef.current = u
@@ -355,7 +357,7 @@ export function VoiceGuide({
         onDone()
       }
       // onend が来ない機種のための保険: 読み終わったはずの長さを過ぎて、話していなければ終わりとみなす
-      const minMs = 600 + spoken.length * (lang === 'ja' ? 110 : 60)
+      const minMs = 600 + spoken.length * (lang === 'ja' ? 130 : 60)
       const poll = window.setInterval(() => {
         if (ended) {
           window.clearInterval(poll)
@@ -377,9 +379,9 @@ export function VoiceGuide({
       const required = el.getAttribute('aria-required') === 'true' || (el as HTMLInputElement).required || !!dateGroup(el)
       // 必須でない項目は、そのまま答えれば入り、「スキップ」で飛ばせることを案内する
       const optCore = optional.replace(/[()（）\s]/g, '')
-      const label = [rawLabel.replace(optCore, '').replace(/[（(]\s*[)）]/, '').trim(), !required && !isSecret(el) ? t('voice.optionalHow') : '']
-        .filter(Boolean)
-        .join(SEP)
+      const label = rawLabel.replace(optCore, '').replace(/[（(]\s*[)）]/, '').trim()
+      // 「任意です…」は、例や中身のあとに最後に付ける（例の前に付くと順番が分かりにくい）
+      const optHow = !required && !isSecret(el) ? t('voice.optionalHow') : ''
       if (el.tagName === 'SELECT') {
         const sel = el as HTMLSelectElement
         const opts = Array.from(sel.options).filter((o) => o.value !== '')
@@ -388,7 +390,7 @@ export function VoiceGuide({
           opts.length <= 10
             ? t('voice.options', { list: opts.map((o) => say(o.text)).join('、') })
             : t('voice.manyOptions')
-        return [label, now ? t('voice.selectedNow', { text: say(now) }) : list].filter(Boolean).join(SEP)
+        return [label, now ? t('voice.selectedNow', { text: say(now) }) : list, optHow].filter(Boolean).join(SEP)
       }
       if (isTextField(el)) {
         if (isSecret(el)) return [label, t('voice.passwordTap')].join(SEP)
@@ -401,7 +403,12 @@ export function VoiceGuide({
           ? t(['voice.dateHint', 'voice.monthHint', 'voice.dayHint'][group.indexOf(el as HTMLInputElement)])
           : ''
         // フリガナは、区切って言うと かなで聞き取られやすいので、その言い方を案内する
-        const furiganaHow = lang === 'ja' && isFuriganaField(el as HTMLInputElement) ? t('voice.furiganaHow') : ''
+        const furiganaHow =
+          lang === 'ja' && isFuriganaField(el as HTMLInputElement)
+            ? t(clean((el as HTMLInputElement).placeholder) === clean(t('register.placeholderEmergencyFurigana')) ? 'voice.furiganaHow2' : 'voice.furiganaHow')
+            : ''
+        // 自由記入の大きな欄は、いくつでも続けて言えて「以上」で終える（「スキップ」の案内もこの中に入っているので optHow は付けない）
+        const multiHow = el.tagName === 'TEXTAREA' ? [optHow ? t('voice.optionalShort') : '', t('voice.multiHow')].filter(Boolean).join(SEP) : ''
         const tail = v
           ? t('voice.filledNow', { text: digits ? spellDigits(v) : v })
           : dateHint
@@ -411,14 +418,14 @@ export function VoiceGuide({
               : ph
                 ? `${t('voice.example')} ${digits ? spellDigits(ph) : ph}`
                 : ''
-        return [label, tail].filter(Boolean).join(SEP)
+        return [label, tail, multiHow || optHow].filter(Boolean).join(SEP)
       }
       if (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'checkbox') {
         const on = (el as HTMLInputElement).checked
         const text = clean(el.closest('label')?.textContent) || label
         return `${text}${SEP}${on ? t('voice.checked') : t('voice.unchecked')}`
       }
-      return label
+      return [label, optHow].filter(Boolean).join(SEP)
     },
     [t, SEP, say, lang],
   )
@@ -810,6 +817,16 @@ export function VoiceGuide({
         return
       }
       const input = el as HTMLInputElement
+      // 自由記入の大きな欄: 言った分を足していき、「以上」「なし」で次へ（1つ言っただけでは進まない）
+      if (el.tagName === 'TEXTAREA') {
+        if (isCmd('voice.cmdNone', true)) {
+          afterFill(t(input.value ? 'voice.multiDone' : 'voice.skipped'), input)
+          return
+        }
+        setNativeValue(input, [input.value, text].filter(Boolean).join('\n'))
+        speak(`${t('voice.filledCheck')}${SEP}${t('voice.multiMore')}`)
+        return
+      }
       let value = text
       // 聞き取りの候補（1番目＋ほかの候補）。一音だけだと1番目が数字にならないことがあるため
       const candidates = [text, ...alts.map(clean)].filter((c, i, a) => c && a.indexOf(c) === i)
@@ -915,7 +932,9 @@ export function VoiceGuide({
         window.setTimeout(wait, 400)
         return
       }
-      afterFill(t('voice.filled', { text: isDigitField(input) ? spellDigits(value) : value }), input)
+      // 数字・かなはそのまま読み返す。漢字を含む自由記入は読み返さない（iPhoneが知らない言葉を一文字ずつ訓読みするため）
+      const echo = isDigitField(input) ? spellDigits(value) : hasKanji(value) ? '' : value
+      afterFill(echo ? t('voice.filled', { text: echo }) : t('voice.filledCheck'), input)
       return
     }
 

@@ -79,7 +79,7 @@ const AFTER_SPEECH_MS = 350
 /** 自動の聞き取りで、何も聞こえなかったときに続けて待つ回数（これを超えたらボタンを押してもらう） */
 const AUTO_EMPTY_LIMIT = 3
 /** 日本語の読み上げの速さ（1 が標準。ゆっくりめ） */
-const SPEECH_RATE_JA = 0.85
+const SPEECH_RATE_JA = 0.78
 
 /**
  * 聞き取った言葉の先頭に、sitte 自身の読み上げ（スピーカーの声）が混ざっていたら取り除く。
@@ -504,10 +504,16 @@ export function VoiceGuide({
   useEffect(() => {
     if (!enabled || !error) return
     const root = containerRef.current
-    const first = root && !root.querySelector('button[aria-pressed]') ? (fillableFields(root)[0] ?? null) : null
+    // 案内するのは「必須で空いている項目」だけ（飛ばした任意の項目に戻さない）
+    const isRequired = (el: HTMLElement) => el.getAttribute('aria-required') === 'true' || (el as HTMLInputElement).required
+    const first = root && !root.querySelector('button[aria-pressed]') ? (fillableFields(root).find(isRequired) ?? null) : null
+    const emptyPassword = root?.querySelector<HTMLInputElement>('input[type="password"]:not([disabled])')
     if (first) {
       pointTo(first)
       speak(`${error}${SEP}${describe(first)}`)
+    } else if (emptyPassword && !emptyPassword.value && emptyPassword.offsetParent) {
+      pointTo(emptyPassword)
+      speak(`${error}${SEP}${t('voice.passwordTap')}`)
     } else speak(error)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, error])
@@ -781,7 +787,8 @@ export function VoiceGuide({
         const other = groupOther(group)
         if (other) {
           setNativeValue(other, [other.value, text].filter(Boolean).join('、'))
-          speak(`${t('voice.tagOther', { text })}${SEP}${t('voice.tagMore')}`)
+          // 漢字を含む言葉は読み返さない（iPhoneが一文字ずつ訓読みするため）
+          speak(`${t(hasKanji(text) ? 'voice.tagOtherNoEcho' : 'voice.tagOther', { text })}${SEP}${t('voice.tagMore')}`)
           return
         }
       }

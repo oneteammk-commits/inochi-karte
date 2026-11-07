@@ -284,6 +284,8 @@ export function VoiceGuide({
   const targetRef = useRef<HTMLElement | null>(null)
   /** その項目を本人がタップして選んだか（自動で案内しただけか） */
   const tappedRef = useRef(false)
+  /** 「もう1匹登録しますか」などを聞いている最中の「追加」ボタン（null なら聞いていない） */
+  const addAskRef = useRef<HTMLButtonElement | null>(null)
   /** 選択ボタンのページで、いま聞いているグループ（アレルギー→持病の順）。null ならグループは終わっている */
   const tagGroupRef = useRef<HTMLElement | null>(null)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
@@ -465,6 +467,7 @@ export function VoiceGuide({
     const parts = [prefix, label, h2]
     const petToggle = petToggleOf(root)
     tagGroupRef.current = null
+    addAskRef.current = null
     if (root.querySelector('button[aria-pressed]')) {
       // 選択ボタンのページ: 選択肢は読み上げず、グループ（アレルギー→持病）ごとに「あれば言ってください」と聞く
       const g = tagGroups(root)[0] ?? null
@@ -476,8 +479,9 @@ export function VoiceGuide({
       parts.push(firstP, t('voice.petAsk'))
       pointTo(petToggle)
     } else {
-      parts.push(firstP)
+      // お薬のページは、写真の入れ方を短く言ってから最初の欄へ（説明文は重なるので読まない）
       if (root.querySelector('input[type="file"]')) parts.push(t('voice.medIntro'))
+      else parts.push(firstP)
       const first = fillableFields(root)[0] ?? null
       pointTo(first)
       if (first) parts.push(`${t('voice.firstIs')}${describe(first)}`)
@@ -631,6 +635,30 @@ export function VoiceGuide({
     })
   }
 
+  /** 「＋ もう1匹追加」「＋ お薬を追加」のボタン（あれば） */
+  const addButtonOf = (root: HTMLElement): HTMLButtonElement | null => {
+    const names = [t('register.buttonAddPet'), t('register.buttonAddMedicine')].map((x) => clean(x))
+    return (
+      Array.from(root.querySelectorAll<HTMLButtonElement>('button[type="button"]')).find(
+        (b) => b.offsetParent && names.includes(clean(b.textContent)),
+      ) ?? null
+    )
+  }
+  const addAskText = (btn: HTMLButtonElement) =>
+    t(clean(btn.textContent) === clean(t('register.buttonAddPet')) ? 'voice.addMorePet' : 'voice.addMoreMed')
+
+  /** ページの最後まで来たとき: 追加ボタンがあれば「もう1匹登録しますか」と聞き、なければ「ここまで」 */
+  const pageEnd = (doneMsg: string) => {
+    const root = containerRef.current
+    const btn = root ? addButtonOf(root) : null
+    if (btn) {
+      addAskRef.current = btn
+      speak([doneMsg, addAskText(btn)].filter(Boolean).join(SEP))
+      return
+    }
+    speak([doneMsg, t('voice.pageDone')].filter(Boolean).join(SEP))
+  }
+
   /** 入れ終わったら、次の空いている項目を案内する */
   const afterFill = (doneMsg: string, from: HTMLElement) => {
     const root = containerRef.current
@@ -639,7 +667,7 @@ export function VoiceGuide({
     const next = all.find((el) => from.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) ?? null
     pointTo(next)
     if (next) speak(`${doneMsg}${SEP}${t('voice.nextIs')}${describe(next)}`)
-    else speak([doneMsg, t('voice.pageDone')].join(SEP))
+    else pageEnd(doneMsg)
   }
 
   /** 「戻る」: 1つ前の項目に戻って、いま入っている内容を読む（言い直せば上書きできる） */
@@ -692,7 +720,7 @@ export function VoiceGuide({
     const next = later.find((el) => !(el as HTMLInputElement).value) ?? null
     pointTo(next)
     if (next) speak(`${t('voice.skipped')}${SEP}${t('voice.nextIs')}${describe(next)}`)
-    else speak(`${t('voice.skipped')}${SEP}${t('voice.pageDone')}`)
+    else pageEnd(t('voice.skipped'))
   }
 
   /** 聞き取った言葉を画面に反映する */
@@ -739,6 +767,35 @@ export function VoiceGuide({
 
     const root = containerRef.current
     let el = targetRef.current && targetRef.current.isConnected ? targetRef.current : null
+
+    // 1.4) 「もう1匹登録しますか」「ほかのお薬も登録しますか」への答え
+    const addBtn = addAskRef.current && addAskRef.current.isConnected ? addAskRef.current : null
+    if (root && addBtn && !tappedRef.current) {
+      if (isCmd('voice.cmdYes', true)) {
+        addAskRef.current = null
+        const before = new Set(fillableFields(root))
+        addBtn.click()
+        // 欄が増えてから、新しい欄の最初を案内する
+        window.setTimeout(() => {
+          const first = fillableFields(root).find((f) => !before.has(f)) ?? null
+          pointTo(first)
+          speak(first ? `${t('voice.added')}${SEP}${t('voice.firstIs')}${describe(first)}` : t('voice.added'))
+        }, 350)
+        return
+      }
+      if (isCmd('voice.cmdNo', true)) {
+        addAskRef.current = null
+        // 追加しない: 同じページにパスワード欄があればその案内、なければ「ここまで」
+        const pw = root.querySelector<HTMLInputElement>('input[type="password"]')
+        if (pw && pw.offsetParent && !pw.value) {
+          pointTo(pw)
+          speak(`${t('voice.nextIs')}${describe(pw)}`)
+        } else speak(t('voice.pageDone'))
+        return
+      }
+      speak(`${t('voice.heardAs', { text })}${SEP}${addAskText(addBtn)}`)
+      return
+    }
 
     // 1.5) ペットを登録するかの質問: 「はい」で登録、「いいえ」で次のページへ
     const petBox = root ? petToggleOf(root) : null

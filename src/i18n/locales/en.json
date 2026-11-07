@@ -403,6 +403,7 @@
     "tagHint": "Say the items that apply, for example \"egg\". You can say as many as you like. Say \"none\" if nothing applies, and \"next\" when you are done",
     "cmdNone": "none|no|nothing|that's all|that is all|done",
     "tagOther": "\"{{text}}\" is not on the screen, so it was written in the \"other\" field",
+    "tagOtherNoEcho": "That is not on the screen, so it was written in the \"other\" field",
     "tagMore": "If there are more, keep going. If not, say \"none\"",
     "tagAsk": "If you have any {{label}}, say them. Items shown on the screen will be highlighted. You can say several. If none, say \"none\"",
     "optionalHow": "This is optional. To fill it in, just answer. To leave it blank, say \"skip\"",

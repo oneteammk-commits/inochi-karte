@@ -403,6 +403,7 @@
     "tagHint": "Sebutkan yang sesuai, misalnya \"telur\". Boleh menyebutkan beberapa. Jika tidak ada, ucapkan \"tidak ada\", dan ucapkan \"berikutnya\" jika sudah selesai",
     "cmdNone": "tidak ada|tidak|nggak ada|sudah|selesai",
     "tagOther": "\"{{text}}\" tidak ada di layar, jadi ditulis di kolom \"lainnya\"",
+    "tagOtherNoEcho": "Tidak ada di layar, jadi ditulis di kolom \"lainnya\"",
     "tagMore": "Jika masih ada, lanjutkan. Jika tidak, ucapkan \"tidak ada\"",
     "tagAsk": "Jika ada {{label}}, sebutkan. Yang ada di layar akan berubah warna. Boleh menyebutkan beberapa. Jika tidak ada, ucapkan \"tidak ada\"",
     "optionalHow": "Ini opsional. Untuk mengisi, langsung jawab. Untuk mengosongkan, ucapkan \"lewati\"",

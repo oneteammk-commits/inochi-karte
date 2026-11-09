@@ -440,6 +440,7 @@
     "cmdNo": "tidak|nggak|lewati|tidak ada|tidak usah",
     "petSkip": "Informasi hewan peliharaan tidak didaftarkan",
     "petOn": "Mendaftarkan informasi hewan peliharaan",
+    "petIntro": "Foto hewan peliharaan dan foto obat ditambahkan dengan mengetuk \"Ketuk untuk memilih foto\" di layar. Anda bisa mendaftar tanpa foto",
     "postalFilled": "Dari kode pos, {{text}} telah diisi"
   }
 }

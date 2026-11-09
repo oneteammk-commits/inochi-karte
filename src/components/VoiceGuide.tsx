@@ -482,6 +482,7 @@ export function VoiceGuide({
       // お薬のページ（「カメラで撮る」ボタンがあるページ）だけ、写真の入れ方を短く言ってから最初の欄へ（説明文は重なるので読まない）
       // ペットのページにも写真の欄はあるが、ボタンの名前が違うのでお薬の案内は読まない
       if (root.querySelector('input[type="file"][capture]')) parts.push(t('voice.medIntro'))
+      else if (petToggle && petToggle.checked) parts.push(firstP, t('voice.petIntro'))
       else parts.push(firstP)
       const first = fillableFields(root)[0] ?? null
       pointTo(first)
@@ -817,7 +818,7 @@ export function VoiceGuide({
         window.setTimeout(() => {
           const first = root ? fillableFields(root)[0] ?? null : null
           pointTo(first)
-          speak(first ? `${t('voice.petOn')}${SEP}${t('voice.firstIs')}${describe(first)}` : t('voice.petOn'))
+          speak(first ? `${t('voice.petOn')}${SEP}${t('voice.petIntro')}${SEP}${t('voice.firstIs')}${describe(first)}` : `${t('voice.petOn')}${SEP}${t('voice.petIntro')}`)
         }, 350)
         return
       }

@@ -441,6 +441,7 @@
     "cmdNo": "non|passer|aucun|pas d'animal",
     "petSkip": "Les informations de l'animal ne seront pas enregistrées",
     "petOn": "Enregistrement des informations de l'animal",
+    "petIntro": "Les photos de l'animal et des médicaments s'ajoutent en touchant « Touchez pour sélectionner une photo » sur l'écran. Vous pouvez enregistrer sans photo",
     "postalFilled": "D'après le code postal, {{text}} a été rempli"
   }
 }

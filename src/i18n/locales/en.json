@@ -440,6 +440,7 @@
     "cmdNo": "no|nope|skip|none|i don't",
     "petSkip": "Pet information will not be registered",
     "petOn": "Registering pet information",
+    "petIntro": "Pet photos and medication photos are added by tapping \"Tap to select a photo\" on the screen. You can register without photos",
     "postalFilled": "From the postal code, {{text}} was filled in"
   }
 }

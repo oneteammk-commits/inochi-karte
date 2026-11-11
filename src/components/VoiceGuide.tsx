@@ -159,6 +159,54 @@ function isTextField(el: Element | null): el is HTMLInputElement | HTMLTextAreaE
   return ['text', 'tel', 'search', 'email', 'number', 'password', ''].includes(type)
 }
 
+/** 日付入力欄（ペットの接種日など、type="date" の欄） */
+function isDateInput(el: Element | null): el is HTMLInputElement {
+  return !!el && el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'date'
+}
+
+/** 'YYYY-MM-DD' を読み上げ用に（日本語なら 2025年4月10日） */
+function dateForSpeech(iso: string, lang: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
+  if (!m) return iso
+  const [, y, mo, d] = m
+  if (lang === 'ja' || lang === 'zh') return `${Number(y)}年${Number(mo)}月${Number(d)}日`
+  if (lang === 'ko') return `${Number(y)}년 ${Number(mo)}월 ${Number(d)}일`
+  return `${y}-${mo}-${d}`
+}
+
+/** 言われた日付（「2025年4月10日」「2025/4/10」「10 April 2025」「April 10, 2025」など）を 'YYYY-MM-DD' に。分からなければ null */
+function parseDateToIso(text: string, lang: string): string | null {
+  const t = text.normalize('NFKC').trim()
+  const thisYear = new Date().getFullYear()
+  const ok = (y: number, m: number, d: number) =>
+    y >= 1990 && y <= thisYear + 1 && m >= 1 && m <= 12 && d >= 1 && d <= 31
+      ? `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+      : null
+  // 2025-04-10 / 2025/4/10 / 2025.4.10 / 2025年4月10日
+  let m = /(\d{4})\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})/.exec(t)
+  if (m) return ok(Number(m[1]), Number(m[2]), Number(m[3]))
+  if (lang === 'ja') {
+    const d = parseSpokenDate(t)
+    if (d.year && d.month && d.day) return ok(Number(d.year), Number(d.month), Number(d.day))
+    return null
+  }
+  const MONTHS: Record<string, number> = {
+    january: 1, february: 2, march: 3, april: 4, may: 5, june: 6, july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+    jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
+    janvier: 1, février: 2, fevrier: 2, mars: 3, avril: 4, mai: 5, juin: 6, juillet: 7, août: 8, aout: 8, septembre: 9, octobre: 10, novembre: 11, décembre: 12, decembre: 12,
+    januari: 1, februari: 2, maret: 3, mei: 5, juni: 6, juli: 7, agustus: 8, oktober: 10, desember: 12,
+  }
+  const low = t.toLowerCase()
+  const monthWord = Object.keys(MONTHS).find((k) => new RegExp(`\\b${k}\\b`).test(low))
+  const year = /\b(19\d{2}|20\d{2})\b/.exec(low)
+  const nums = low.replace(/\b(19\d{2}|20\d{2})\b/, ' ').match(/\b(\d{1,2})\b/)
+  if (monthWord && year && nums) return ok(Number(year[1]), MONTHS[monthWord], Number(nums[1]))
+  // 10/4/2025（日/月/年）・4/10/2025（月/日/年）は曖昧なので、年が最後の形は月/日/年として読む
+  m = /(\d{1,2})\s*[-/.]\s*(\d{1,2})\s*[-/.]\s*(\d{4})/.exec(t)
+  if (m) return ok(Number(m[3]), Number(m[1]), Number(m[2]))
+  return null
+}
+
 function isSecret(el: Element | null): boolean {
   return !!el && el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'password'
 }
@@ -421,6 +469,10 @@ export function VoiceGuide({
                 ? `${t('voice.example')} ${digits ? spellDigits(ph) : ph}`
                 : ''
         return [label, tail, multiHow || optHow].filter(Boolean).join(SEP)
+      }
+      if (isDateInput(el)) {
+        const v = el.value
+        return [label, v ? t('voice.filledNow', { text: dateForSpeech(v, lang) }) : t('voice.dateHow'), optHow].filter(Boolean).join(SEP)
       }
       if (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'checkbox') {
         const on = (el as HTMLInputElement).checked
@@ -876,6 +928,20 @@ export function VoiceGuide({
       el = fillableFields(root)[0] ?? null
     }
 
+    // 2.5) 日付の欄（ペットの接種日など）: 年・月・日がそろって聞き取れたら入れる
+    if (el && isDateInput(el)) {
+      const input = el
+      const cands = [text, ...alts.map(clean)].filter((c, i, a) => c && a.indexOf(c) === i)
+      const iso = cands.map((c) => parseDateToIso(c, lang)).find((v): v is string => !!v) ?? null
+      if (iso) {
+        setNativeValue(input, iso)
+        afterFill(t('voice.filled', { text: dateForSpeech(iso, lang) }), input)
+      } else {
+        speak(`${t('voice.heardAs', { text })}${SEP}${t('voice.dateHow')}`)
+      }
+      return
+    }
+
     // 3) 入力欄に入れる
     if (el && isTextField(el)) {
       if (isSecret(el)) {
@@ -1116,7 +1182,7 @@ export function VoiceGuide({
       const silenceFor = (heardNow: string) => {
         const el = targetRef.current
         if (!el || !el.isConnected) return SILENCE_MS
-        if (dateGroup(el)) return SILENCE_LONG_MS
+        if (dateGroup(el) || isDateInput(el)) return SILENCE_LONG_MS
         if (isDigitField(el)) {
           const digits = (heardNow.normalize('NFKC').match(/\d/g) ?? []).length
           const need = (el as HTMLInputElement).autocomplete === 'postal-code' ? 7 : 10

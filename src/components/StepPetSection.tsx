@@ -15,6 +15,9 @@ type PetFormBlockProps = {
   t: (key: string, options?: { num?: number }) => string
 }
 
+const FIELD =
+  'w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2'
+
 const PetFormBlock = memo(function PetFormBlock({
   pet,
   index,
@@ -168,6 +171,128 @@ const PetFormBlock = memo(function PetFormBlock({
             </select>
           </label>
         </div>
+        {/* ── 避難所の受付で最初に見られる項目（獣医師の助言による並び）── */}
+        {pet.speciesKind === 'dog' && (
+          <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+            <span className="mb-2 block text-xs font-medium text-stone-600">
+              {t('register.labelRabies')}
+            </span>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1 block text-xs text-stone-500">{t('register.labelStatus')}</span>
+                <select
+                  aria-label={t('register.labelRabies')}
+                  value={pet.rabiesStatus}
+                  onChange={(e) => onUpdatePet(pet.id, { rabiesStatus: e.target.value as PetRow['rabiesStatus'] })}
+                  className={FIELD}
+                >
+                  <option value="">{t('register.selectPlaceholder')}</option>
+                  <option value="done">{t('register.rabiesDone')}</option>
+                  <option value="not">{t('register.rabiesNot')}</option>
+                  <option value="exempt">{t('register.rabiesExempt')}</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs text-stone-500">{t('register.labelRabiesDate')}</span>
+                <input
+                  type="date"
+                  aria-label={`${t('register.labelRabies')} ${t('register.labelRabiesDate')}`}
+                  value={pet.rabiesDate}
+                  max="9999-12-31"
+                  onChange={(e) => onUpdatePet(pet.id, { rabiesDate: e.target.value })}
+                  className={FIELD}
+                />
+              </label>
+              {pet.rabiesStatus === 'exempt' && (
+                <label className="block sm:col-span-2">
+                  <span className="mb-1 block text-xs text-stone-500">{t('register.labelRabiesExemptReason')}</span>
+                  <ImeAwareInput
+                    aria-label={`${t('register.labelRabies')} ${t('register.labelRabiesExemptReason')}`}
+                    value={pet.rabiesExemptReason}
+                    onValueChange={(v) => onUpdatePet(pet.id, { rabiesExemptReason: v })}
+                    className={FIELD}
+                    placeholder={t('register.placeholderRabiesExemptReason')}
+                  />
+                </label>
+              )}
+            </div>
+          </div>
+        )}
+        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+          <span className="mb-2 block text-xs font-medium text-stone-600">
+            {t('register.labelVaccineInfo')}
+          </span>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs text-stone-500">{t('register.labelVaccineContent')}</span>
+              <ImeAwareInput
+                aria-label={t('register.labelVaccineInfo')}
+                value={pet.vaccineInfo}
+                onValueChange={(v) => onUpdatePet(pet.id, { vaccineInfo: v })}
+                className={FIELD}
+                placeholder={t('register.placeholderVaccineInfo')}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs text-stone-500">{t('register.labelVaccineDate')}</span>
+              <input
+                type="date"
+                aria-label={`${t('register.labelVaccineInfo')} ${t('register.labelVaccineDate')}`}
+                value={pet.vaccineDate}
+                max="9999-12-31"
+                onChange={(e) => onUpdatePet(pet.id, { vaccineDate: e.target.value })}
+                className={FIELD}
+              />
+            </label>
+          </div>
+        </div>
+        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+          <span className="mb-2 block text-xs font-medium text-stone-600">
+            {t('register.labelParasite')}
+          </span>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs text-stone-500">{t('register.labelStatus')}</span>
+              <select
+                aria-label={t('register.labelParasite')}
+                value={pet.parasiteStatus}
+                onChange={(e) => onUpdatePet(pet.id, { parasiteStatus: e.target.value as PetRow['parasiteStatus'] })}
+                className={FIELD}
+              >
+                <option value="">{t('register.selectPlaceholder')}</option>
+                <option value="done">{t('register.parasiteDone')}</option>
+                <option value="not">{t('register.parasiteNot')}</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs text-stone-500">{t('register.labelParasiteDate')}</span>
+              <input
+                type="date"
+                aria-label={`${t('register.labelParasite')} ${t('register.labelParasiteDate')}`}
+                value={pet.parasiteDate}
+                max="9999-12-31"
+                onChange={(e) => onUpdatePet(pet.id, { parasiteDate: e.target.value })}
+                className={FIELD}
+              />
+            </label>
+          </div>
+        </div>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-stone-600">
+            {t('register.labelNeuter')}
+          </span>
+          <select
+            value={pet.neuterStatus}
+            onChange={(e) => onUpdatePet(pet.id, { neuterStatus: e.target.value as PetRow['neuterStatus'] })}
+            className={FIELD}
+          >
+            <option value="">{t('register.selectPlaceholder')}</option>
+            <option value="done">{t('register.neuterDone')}</option>
+            <option value="not">{t('register.neuterNot')}</option>
+            <option value="unknown">{t('register.neuterUnknown')}</option>
+          </select>
+        </label>
+        {/* ── 持病・お薬・ごはん ── */}
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelPetMedicalHistory')}
@@ -242,49 +367,106 @@ const PetFormBlock = memo(function PetFormBlock({
         </label>
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
-            {t('register.labelVetClinic')}
-          </span>
-          <ImeAwareInput
-            value={pet.vetClinic}
-            onValueChange={(v) => onUpdatePet(pet.id, { vetClinic: v })}
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
-            placeholder={t('register.placeholderVetClinic')}
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
-            {t('register.labelVaccineInfo')}
-          </span>
-          <ImeAwareInput
-            value={pet.vaccineInfo}
-            onValueChange={(v) => onUpdatePet(pet.id, { vaccineInfo: v })}
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
-            placeholder={t('register.placeholderVaccineInfo')}
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
-            {t('register.labelMicrochip')}
-          </span>
-          <ImeAwareInput
-            value={pet.microchip}
-            onValueChange={(v) => onUpdatePet(pet.id, { microchip: v })}
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
-            placeholder={t('register.placeholderMicrochip')}
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
             {t('register.labelPetFood')}
           </span>
           <ImeAwareInput
             value={pet.food}
             onValueChange={(v) => onUpdatePet(pet.id, { food: v })}
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
+            className={FIELD}
             placeholder={t('register.placeholderPetFood')}
           />
           <p className="mt-1.5 text-xs text-stone-500">{t('register.hintPetFood')}</p>
         </label>
+        {/* ── かかりつけ・担当医 ── */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-stone-600">
+              {t('register.labelVetClinic')}
+            </span>
+            <ImeAwareInput
+              value={pet.vetClinic}
+              onValueChange={(v) => onUpdatePet(pet.id, { vetClinic: v })}
+              className={FIELD}
+              placeholder={t('register.placeholderVetClinic')}
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-stone-600">
+              {t('register.labelVetDoctor')}
+            </span>
+            <ImeAwareInput
+              value={pet.vetDoctor}
+              onValueChange={(v) => onUpdatePet(pet.id, { vetDoctor: v })}
+              className={FIELD}
+              placeholder={t('register.placeholderVetDoctor')}
+            />
+          </label>
+        </div>
+        {/* ── マイクロチップ（装着 → 登録先 → 番号）── */}
+        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+          <span className="mb-2 block text-xs font-medium text-stone-600">
+            {t('register.labelMicrochipGroup')}
+          </span>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs text-stone-500">{t('register.labelMicrochipFitted')}</span>
+              <select
+                aria-label={`${t('register.labelMicrochipGroup')} ${t('register.labelMicrochipFitted')}`}
+                value={pet.microchipFitted}
+                onChange={(e) => onUpdatePet(pet.id, { microchipFitted: e.target.value as PetRow['microchipFitted'] })}
+                className={FIELD}
+              >
+                <option value="">{t('register.selectPlaceholder')}</option>
+                <option value="yes">{t('register.microchipYes')}</option>
+                <option value="no">{t('register.microchipNo')}</option>
+                <option value="unknown">{t('register.microchipUnknown')}</option>
+              </select>
+            </label>
+            {pet.microchipFitted !== 'no' && (
+              <>
+                <label className="block">
+                  <span className="mb-1 block text-xs text-stone-500">{t('register.labelMicrochipRegistry')}</span>
+                  <select
+                    aria-label={`${t('register.labelMicrochipGroup')} ${t('register.labelMicrochipRegistry')}`}
+                    value={pet.microchipRegistry}
+                    onChange={(e) => onUpdatePet(pet.id, { microchipRegistry: e.target.value as PetRow['microchipRegistry'] })}
+                    className={FIELD}
+                  >
+                    <option value="">{t('register.selectPlaceholder')}</option>
+                    <option value="moe">{t('register.registryMoe')}</option>
+                    <option value="aipo">{t('register.registryAipo')}</option>
+                    <option value="jkc">{t('register.registryJkc')}</option>
+                    <option value="shop">{t('register.registryShop')}</option>
+                    <option value="unknown">{t('register.registryUnknown')}</option>
+                    <option value="other">{t('register.registryOther')}</option>
+                  </select>
+                </label>
+                {pet.microchipRegistry === 'other' && (
+                  <label className="block">
+                    <span className="mb-1 block text-xs text-stone-500">{t('register.labelMicrochipRegistryOther')}</span>
+                    <ImeAwareInput
+                      aria-label={`${t('register.labelMicrochipGroup')} ${t('register.labelMicrochipRegistryOther')}`}
+                      value={pet.microchipRegistryOther}
+                      onValueChange={(v) => onUpdatePet(pet.id, { microchipRegistryOther: v })}
+                      className={FIELD}
+                      placeholder={t('register.placeholderMicrochipRegistryOther')}
+                    />
+                  </label>
+                )}
+                <label className="block">
+                  <span className="mb-1 block text-xs text-stone-500">{t('register.labelMicrochip')}</span>
+                  <ImeAwareInput
+                    aria-label={`${t('register.labelMicrochipGroup')} ${t('register.labelMicrochip')}`}
+                    value={pet.microchip}
+                    onValueChange={(v) => onUpdatePet(pet.id, { microchip: v })}
+                    className={FIELD}
+                    placeholder={t('register.placeholderMicrochip')}
+                  />
+                </label>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

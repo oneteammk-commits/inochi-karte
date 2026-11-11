@@ -49,8 +49,23 @@ export async function buildPetRows(
         medications: pet.medications.trim() || null,
         allergies: pet.allergies.trim() || null,
         vet_clinic: pet.vetClinic.trim() || null,
+        vet_doctor: pet.vetDoctor.trim() || null,
         vaccine_info: pet.vaccineInfo.trim() || null,
-        microchip: pet.microchip.trim() || null,
+        vaccine_date: pet.vaccineDate || null,
+        // 狂犬病は犬だけの項目。犬でなくなったら消す
+        rabies_status: pet.speciesKind === 'dog' ? pet.rabiesStatus || null : null,
+        rabies_date: pet.speciesKind === 'dog' ? pet.rabiesDate || null : null,
+        rabies_exempt_reason:
+          pet.speciesKind === 'dog' && pet.rabiesStatus === 'exempt' ? pet.rabiesExemptReason.trim() || null : null,
+        parasite_status: pet.parasiteStatus || null,
+        parasite_date: pet.parasiteDate || null,
+        neuter_status: pet.neuterStatus || null,
+        microchip_fitted: pet.microchipFitted || null,
+        // 「装着なし」なら登録先・番号は消す（画面でも出さない）
+        microchip_registry: pet.microchipFitted !== 'no' ? pet.microchipRegistry || null : null,
+        microchip_registry_other:
+          pet.microchipFitted !== 'no' && pet.microchipRegistry === 'other' ? pet.microchipRegistryOther.trim() || null : null,
+        microchip: pet.microchipFitted !== 'no' ? pet.microchip.trim() || null : null,
         food: pet.food.trim() || null,
         medication_photo_url: medicationPhotoUrl,
         photo_url: pet.photoUrl || null,

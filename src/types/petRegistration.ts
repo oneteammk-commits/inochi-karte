@@ -15,5 +15,16 @@ export type PetRegistrationRow = {
   medication_photo_url: string | null
   photo_url?: string | null
   features?: string | null
+  rabies_status?: string | null
+  rabies_date?: string | null
+  rabies_exempt_reason?: string | null
+  vaccine_date?: string | null
+  parasite_status?: string | null
+  parasite_date?: string | null
+  neuter_status?: string | null
+  vet_doctor?: string | null
+  microchip_fitted?: string | null
+  microchip_registry?: string | null
+  microchip_registry_other?: string | null
   owner_id: string
 }

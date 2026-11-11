@@ -235,7 +235,16 @@ export function ViewPage({ id }: { id: string }) {
             )}          </div>
         )}
 
-        <PetViewSection pets={pets} t={t} />
+        <PetViewSection
+          pets={pets}
+          t={t}
+          lang={i18n.language}
+          owner={{
+            name: data.name,
+            emergencyName: data.emergency_contact_name,
+            emergencyPhone: data.emergency_contact_phone,
+          }}
+        />
 
 <div className="bg-white border-2 border-red-700 shadow-md p-5 mb-3 rounded-2xl">
           <h2 className="text-lg font-bold text-red-700 text-center pb-2 mb-3">📱 {t('view.qrCardTitle')}</h2>

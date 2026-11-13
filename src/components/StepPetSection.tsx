@@ -1,4 +1,5 @@
 import { memo, useState } from 'react'
+import { PET_SEX_NEUTER_OPTIONS, fromSexNeuterKey, toSexNeuterKey } from '../lib/petSexNeuter'
 import type { PetRow } from '../types/pet'
 import type { RegistrationFormState } from '../types/registration'
 import { ImeAwareInput, ImeAwareTextarea } from './ImeAwareField'
@@ -13,6 +14,29 @@ type PetFormBlockProps = {
   onAddPetPhoto: (id: string, files: FileList | null) => Promise<void>
   onRemovePetPhoto: (id: string) => void
   t: (key: string, options?: { num?: number }) => string
+}
+
+/** 「なぜこの項目が要るの？」— ？を押すと獣医師の助言に基づく理由が開く */
+function WhyHint({ text, label }: { text: string; label: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <span className="inline">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label={label}
+        className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-400 bg-white text-[11px] font-bold text-amber-700 align-middle"
+      >
+        ?
+      </button>
+      {open && (
+        <span className="mt-1 block rounded-md bg-amber-100/70 px-2.5 py-1.5 text-xs font-normal leading-relaxed text-stone-700">
+          {text}
+        </span>
+      )}
+    </span>
+  )
 }
 
 const FIELD =
@@ -158,25 +182,39 @@ const PetFormBlock = memo(function PetFormBlock({
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-stone-600">
               {t('register.labelPetSex')}
+              <WhyHint text={t('register.whyNeuter')} label={t('register.whyLabel')} />
             </span>
+            {/* 性別と不妊・去勢をまとめた 1 つの選択（保存は sex と neuterStatus の 2 つ） */}
             <select
-              value={pet.sex}
-              onChange={(e) => onUpdatePet(pet.id, { sex: e.target.value })}
+              value={toSexNeuterKey(pet.sex, pet.neuterStatus) || (pet.sex.trim() ? '__legacy' : '')}
+              onChange={(e) => {
+                if (e.target.value === '__legacy') return
+                onUpdatePet(pet.id, fromSexNeuterKey(e.target.value))
+              }}
               className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
             >
               <option value="">{t('register.selectPlaceholder')}</option>
-              <option value="male">{t('register.petSexMale')}</option>
-              <option value="female">{t('register.petSexFemale')}</option>
-              <option value="unknown">{t('register.petSexUnknown')}</option>
+              {PET_SEX_NEUTER_OPTIONS.map((o) => (
+                <option key={o.key} value={o.key}>
+                  {t(o.i18n)}
+                </option>
+              ))}
+              {/* 古い自由記入の値が入っているときだけ、その値をそのまま見せる */}
+              {!toSexNeuterKey(pet.sex, pet.neuterStatus) && pet.sex.trim() && (
+                <option value="__legacy">{pet.sex}</option>
+              )}
             </select>
           </label>
         </div>
         {/* ── 避難所の受付で最初に見られる項目（獣医師の助言による並び）── */}
-        {pet.speciesKind === 'dog' && (
-          <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
-            <span className="mb-2 block text-xs font-medium text-stone-600">
-              {t('register.labelRabies')}
-            </span>
+        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+          <span className="mb-2 block text-xs font-medium text-stone-600">
+            {t('register.labelRabies')}
+            <WhyHint text={t('register.whyRabies')} label={t('register.whyLabel')} />
+          </span>
+          {pet.speciesKind === 'cat' || pet.speciesKind === 'other' ? (
+            <p className="text-sm text-stone-600">{t('register.rabiesNotApplicable')}</p>
+          ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
                 <span className="mb-1 block text-xs text-stone-500">{t('register.labelStatus')}</span>
@@ -216,11 +254,12 @@ const PetFormBlock = memo(function PetFormBlock({
                 </label>
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
         <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
           <span className="mb-2 block text-xs font-medium text-stone-600">
             {t('register.labelVaccineInfo')}
+            <WhyHint text={t('register.whyVaccine')} label={t('register.whyLabel')} />
           </span>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
@@ -249,6 +288,7 @@ const PetFormBlock = memo(function PetFormBlock({
         <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
           <span className="mb-2 block text-xs font-medium text-stone-600">
             {t('register.labelParasite')}
+            <WhyHint text={t('register.whyParasite')} label={t('register.whyLabel')} />
           </span>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
@@ -277,21 +317,6 @@ const PetFormBlock = memo(function PetFormBlock({
             </label>
           </div>
         </div>
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
-            {t('register.labelNeuter')}
-          </span>
-          <select
-            value={pet.neuterStatus}
-            onChange={(e) => onUpdatePet(pet.id, { neuterStatus: e.target.value as PetRow['neuterStatus'] })}
-            className={FIELD}
-          >
-            <option value="">{t('register.selectPlaceholder')}</option>
-            <option value="done">{t('register.neuterDone')}</option>
-            <option value="not">{t('register.neuterNot')}</option>
-            <option value="unknown">{t('register.neuterUnknown')}</option>
-          </select>
-        </label>
         {/* ── 持病・お薬・ごはん ── */}
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-stone-600">
@@ -393,6 +418,7 @@ const PetFormBlock = memo(function PetFormBlock({
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-stone-600">
               {t('register.labelVetDoctor')}
+              <WhyHint text={t('register.whyVetDoctor')} label={t('register.whyLabel')} />
             </span>
             <ImeAwareInput
               value={pet.vetDoctor}
@@ -406,6 +432,7 @@ const PetFormBlock = memo(function PetFormBlock({
         <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
           <span className="mb-2 block text-xs font-medium text-stone-600">
             {t('register.labelMicrochipGroup')}
+            <WhyHint text={t('register.whyMicrochip')} label={t('register.whyLabel')} />
           </span>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">

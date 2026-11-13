@@ -1,3 +1,4 @@
+import { formatPetSexNeuter } from '../lib/petSexNeuter'
 import type { PetRegistrationRow } from '../types/petRegistration'
 
 function PetField({
@@ -26,13 +27,6 @@ function PetGroup({ title, children }: { title: string; children: React.ReactNod
   )
 }
 
-function formatPetSex(sex: string | null, t: (key: string) => string): string | null {
-  if (!sex?.trim()) return null
-  if (sex === 'male') return t('register.petSexMale')
-  if (sex === 'female') return t('register.petSexFemale')
-  if (sex === 'unknown') return t('register.petSexUnknown')
-  return sex
-}
 
 /** 'YYYY-MM-DD' を表示用（日本語なら 2026年4月10日、ほかは各言語の書き方）にする。形が違えばそのまま */
 export function formatPetDate(value: string | null | undefined, lang: string): string | null {
@@ -82,11 +76,6 @@ export function PetViewSection({ pets, t, lang = 'ja', owner }: PetViewSectionPr
     exempt: t('register.rabiesExempt'),
   }
   const parasiteLabel = { done: t('register.parasiteDone'), not: t('register.parasiteNot') }
-  const neuterLabel = {
-    done: t('register.neuterDone'),
-    not: t('register.neuterNot'),
-    unknown: t('register.neuterUnknown'),
-  }
   const fittedLabel = {
     yes: t('register.microchipYes'),
     no: t('register.microchipNo'),
@@ -134,10 +123,10 @@ export function PetViewSection({ pets, t, lang = 'ja', owner }: PetViewSectionPr
               <PetField label={t('view.labelPetSpecies')} value={pet.species} />
               <PetField label={t('view.labelPetBreed')} value={pet.breed} />
               <PetField label={t('view.labelPetAge')} value={pet.age} />
-              <PetField label={t('view.labelPetSex')} value={formatPetSex(pet.sex, t)} />
+              <PetField label={t('view.labelPetSex')} value={formatPetSexNeuter(pet.sex, pet.neuter_status, t)} />
 
               {/* ── 避難所の受付が最初に見る順 ── */}
-              {isDog && hasRabies && (
+              {(isDog || !pet.species) && hasRabies && (
                 <PetGroup title={t('view.labelPetRabies')}>
                   <PetField label={t('view.labelStatus')} value={label(pet.rabies_status, rabiesLabel)} />
                   <PetField label={t('view.labelPetRabiesDate')} value={formatPetDate(pet.rabies_date, lang)} />
@@ -161,7 +150,6 @@ export function PetViewSection({ pets, t, lang = 'ja', owner }: PetViewSectionPr
                   <PetField label={t('view.labelPetParasiteDate')} value={formatPetDate(pet.parasite_date, lang)} />
                 </PetGroup>
               )}
-              <PetField label={t('view.labelPetNeuter')} value={label(pet.neuter_status, neuterLabel)} />
 
               {/* ── 持病・お薬・ごはん ── */}
               <PetField label={t('view.labelPetMedicalHistory')} value={pet.medical_history} />

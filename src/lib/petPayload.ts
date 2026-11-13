@@ -38,6 +38,7 @@ export async function buildPetRows(
   return Promise.all(
     activePets.map(async (pet) => {
       const medicationPhotoUrl = await resolveMedicationPhotoUrl(ownerId, pet)
+      const rabiesApplies = pet.speciesKind !== 'cat' && pet.speciesKind !== 'other'
       return {
         id: pet.dbId || null,
         pet_name: pet.petName.trim() || null,
@@ -52,11 +53,11 @@ export async function buildPetRows(
         vet_doctor: pet.vetDoctor.trim() || null,
         vaccine_info: pet.vaccineInfo.trim() || null,
         vaccine_date: pet.vaccineDate || null,
-        // 狂犬病は犬だけの項目。犬でなくなったら消す
-        rabies_status: pet.speciesKind === 'dog' ? pet.rabiesStatus || null : null,
-        rabies_date: pet.speciesKind === 'dog' ? pet.rabiesDate || null : null,
+        // 狂犬病は犬だけの項目。猫・その他を選んだら消す（種類が未選択のときは残す）
+        rabies_status: rabiesApplies ? pet.rabiesStatus || null : null,
+        rabies_date: rabiesApplies ? pet.rabiesDate || null : null,
         rabies_exempt_reason:
-          pet.speciesKind === 'dog' && pet.rabiesStatus === 'exempt' ? pet.rabiesExemptReason.trim() || null : null,
+          rabiesApplies && pet.rabiesStatus === 'exempt' ? pet.rabiesExemptReason.trim() || null : null,
         parasite_status: pet.parasiteStatus || null,
         parasite_date: pet.parasiteDate || null,
         neuter_status: pet.neuterStatus || null,

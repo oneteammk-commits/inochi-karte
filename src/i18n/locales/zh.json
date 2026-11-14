@@ -95,7 +95,9 @@
     "labelPetMicrochipRegistry": "登记机构",
     "labelPetOwner": "饲主（本卡本人）",
     "labelPetOwnerName": "姓名",
-    "labelPetOwnerEmergency": "紧急联系人"
+    "labelPetOwnerEmergency": "紧急联系人",
+    "petNeuterUnknown": "绝育情况不明",
+    "petSexNeuterSep": "・"
   },
   "edit": {
     "title": "编辑医疗卡",
@@ -301,9 +303,9 @@
     "parasiteNot": "没有",
     "labelParasiteDate": "最后实施日期",
     "labelNeuter": "绝育手术",
-    "neuterDone": "已做",
-    "neuterNot": "未做",
-    "neuterUnknown": "不明",
+    "neuterDone": "已做绝育手术",
+    "neuterNot": "未做绝育手术",
+    "neuterUnknown": "不清楚",
     "labelVetDoctor": "主治兽医姓名",
     "placeholderVetDoctor": "例：山田医生、铃木医生",
     "labelMicrochipGroup": "芯片",
@@ -315,7 +317,7 @@
     "registryMoe": "环境省指定登记机构",
     "registryAipo": "AIPO",
     "registryJkc": "JKC",
-    "registryShop": "宠物店自有登记",
+    "registryShop": "宠物店自有登记（如Fam）",
     "registryUnknown": "不清楚",
     "registryOther": "其他",
     "labelMicrochipRegistryOther": "登记机构（其他）",
@@ -328,13 +330,11 @@
     "whyNeuter": "发情期的雌性和未绝育的雄性需要在避难所分开管理。两种选择都受到尊重。",
     "whyVetDoctor": "打电话给医院时，知道主治医生的姓名就能马上调出病历，处理更快。在旅行地遇灾时尤其有用。",
     "whyMicrochip": "登记机构有多个，仅凭编号行政无法查找。知道登记机构才能联系到饲主。编号还可判断是否为海外发行（日本以392开头），因此保留。",
-    "petSexMaleNeutered": "公（已绝育）",
-    "petSexMaleIntact": "公（未绝育）",
-    "petSexMaleNeuterUnknown": "公（绝育情况不明）",
-    "petSexFemaleSpayed": "母（已绝育）",
-    "petSexFemaleIntact": "母（未绝育）",
-    "petSexFemaleSpayUnknown": "母（绝育情况不明）",
-    "petSexUnknownCombined": "性别不明"
+    "labelPetSexOnly": "性别",
+    "labelNeuterShort": "是否绝育",
+    "neuterOptDone": "已做",
+    "neuterOptNot": "未做",
+    "neuterOptUnknown": "不清楚"
   },
   "facilityTypes": {
     "自宅": "自己家中",

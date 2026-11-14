@@ -1,5 +1,4 @@
 import { memo, useState } from 'react'
-import { PET_SEX_NEUTER_OPTIONS, fromSexNeuterKey, toSexNeuterKey } from '../lib/petSexNeuter'
 import type { PetRow } from '../types/pet'
 import type { RegistrationFormState } from '../types/registration'
 import { ImeAwareInput, ImeAwareTextarea } from './ImeAwareField'
@@ -41,6 +40,9 @@ function WhyHint({ text, label }: { text: string; label: string }) {
 
 const FIELD =
   'w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2'
+
+/** 幅を中身に合わせる版（横並び・自動で2段にするプルダウン用） */
+const FIELD_AUTO = FIELD.replace('w-full ', '')
 
 const PetFormBlock = memo(function PetFormBlock({
   pet,
@@ -179,32 +181,42 @@ const PetFormBlock = memo(function PetFormBlock({
               placeholder={t('register.placeholderPetAge')}
             />
           </label>
-          <label className="block">
+          {/* 性別・不妊去勢: 見出し1つに、性別と手術の有無のプルダウンを横並び（獣医師の助言: 雄も雌も「している／していない／分からない」） */}
+          <div className="sm:col-span-2">
             <span className="mb-1 block text-xs font-medium text-stone-600">
               {t('register.labelPetSex')}
               <WhyHint text={t('register.whyNeuter')} label={t('register.whyLabel')} />
             </span>
-            {/* 性別と不妊・去勢をまとめた 1 つの選択（保存は sex と neuterStatus の 2 つ） */}
-            <select
-              value={toSexNeuterKey(pet.sex, pet.neuterStatus) || (pet.sex.trim() ? '__legacy' : '')}
-              onChange={(e) => {
-                if (e.target.value === '__legacy') return
-                onUpdatePet(pet.id, fromSexNeuterKey(e.target.value))
-              }}
-              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
-            >
-              <option value="">{t('register.selectPlaceholder')}</option>
-              {PET_SEX_NEUTER_OPTIONS.map((o) => (
-                <option key={o.key} value={o.key}>
-                  {t(o.i18n)}
-                </option>
-              ))}
-              {/* 古い自由記入の値が入っているときだけ、その値をそのまま見せる */}
-              {!toSexNeuterKey(pet.sex, pet.neuterStatus) && pet.sex.trim() && (
-                <option value="__legacy">{pet.sex}</option>
-              )}
-            </select>
-          </label>
+            {/* 横並びで入るときは横に、言葉が長い言語（英語など）で入らないときは自動で2段にする（文字が切れないように） */}
+            <div className="flex flex-wrap gap-2" data-pet-sex-neuter>
+              <select
+                aria-label={t('register.labelPetSexOnly')}
+                value={pet.sex}
+                onChange={(e) => onUpdatePet(pet.id, { sex: e.target.value })}
+                className={`${FIELD_AUTO} flex-auto px-2`}
+              >
+                <option value="">{t('register.labelPetSexOnly')}</option>
+                <option value="male">{t('register.petSexMale')}</option>
+                <option value="female">{t('register.petSexFemale')}</option>
+                <option value="unknown">{t('register.petSexUnknown')}</option>
+                {/* 古い自由記入の値が入っているときだけ、その値をそのまま見せる */}
+                {pet.sex.trim() && !['male', 'female', 'unknown'].includes(pet.sex) && (
+                  <option value={pet.sex}>{pet.sex}</option>
+                )}
+              </select>
+              <select
+                aria-label={t('register.labelNeuter')}
+                value={pet.neuterStatus}
+                onChange={(e) => onUpdatePet(pet.id, { neuterStatus: e.target.value as PetRow['neuterStatus'] })}
+                className={`${FIELD_AUTO} flex-auto px-2`}
+              >
+                <option value="">{t('register.labelNeuterShort')}</option>
+                <option value="done">{t('register.neuterOptDone')}</option>
+                <option value="not">{t('register.neuterOptNot')}</option>
+                <option value="unknown">{t('register.neuterOptUnknown')}</option>
+              </select>
+            </div>
+          </div>
         </div>
         {/* ── 避難所の受付で最初に見られる項目（獣医師の助言による並び）── */}
         <div className="rounded-lg border border-amber-200 bg-white/60 p-3">

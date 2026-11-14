@@ -95,7 +95,9 @@
     "labelPetMicrochipRegistry": "등록 기관",
     "labelPetOwner": "보호자(이 카드의 본인)",
     "labelPetOwnerName": "이름",
-    "labelPetOwnerEmergency": "긴급 연락처"
+    "labelPetOwnerEmergency": "긴급 연락처",
+    "petNeuterUnknown": "중성화 여부 모름",
+    "petSexNeuterSep": " / "
   },
   "edit": {
     "title": "카르테 편집",
@@ -301,8 +303,8 @@
     "parasiteNot": "하지 않음",
     "labelParasiteDate": "최종 실시일",
     "labelNeuter": "중성화 수술",
-    "neuterDone": "수술 완료",
-    "neuterNot": "하지 않음",
+    "neuterDone": "중성화 수술함",
+    "neuterNot": "중성화 수술 안 함",
     "neuterUnknown": "모름",
     "labelVetDoctor": "담당 수의사 이름",
     "placeholderVetDoctor": "예: 야마다 선생님, 스즈키 선생님",
@@ -315,7 +317,7 @@
     "registryMoe": "환경성 지정 등록기관",
     "registryAipo": "AIPO",
     "registryJkc": "JKC",
-    "registryShop": "펫숍 자체 등록",
+    "registryShop": "펫숍 자체 등록(Fam 등)",
     "registryUnknown": "모름",
     "registryOther": "기타",
     "labelMicrochipRegistryOther": "등록 기관(기타)",
@@ -328,13 +330,11 @@
     "whyNeuter": "발정 중인 암컷과 중성화하지 않은 수컷은 대피소에서 분리해 관리해야 하기 때문입니다. 어느 선택이든 존중됩니다.",
     "whyVetDoctor": "병원에 전화할 때 담당 선생님 이름을 알면 차트가 바로 나와 대응이 빨라집니다. 여행지에서 재해를 당했을 때 특히 유용합니다.",
     "whyMicrochip": "등록 기관이 여러 곳이라 번호만으로는 행정이 찾을 수 없습니다. 등록 기관을 알면 보호자에게 닿을 수 있습니다. 번호는 해외 발행(일본은 392로 시작) 판별에도 쓰므로 남깁니다.",
-    "petSexMaleNeutered": "수컷(중성화 완료)",
-    "petSexMaleIntact": "수컷(중성화 안 함)",
-    "petSexMaleNeuterUnknown": "수컷(중성화 여부 모름)",
-    "petSexFemaleSpayed": "암컷(중성화 완료)",
-    "petSexFemaleIntact": "암컷(중성화 안 함)",
-    "petSexFemaleSpayUnknown": "암컷(중성화 여부 모름)",
-    "petSexUnknownCombined": "성별 모름"
+    "labelPetSexOnly": "성별",
+    "labelNeuterShort": "중성화 여부",
+    "neuterOptDone": "함",
+    "neuterOptNot": "안 함",
+    "neuterOptUnknown": "모름"
   },
   "facilityTypes": {
     "自宅": "자택",

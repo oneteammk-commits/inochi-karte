@@ -95,7 +95,9 @@
     "labelPetMicrochipRegistry": "မှတ်ပုံတင်ထားသည့် အဖွဲ့",
     "labelPetOwner": "ပိုင်ရှင် (ဤကတ်၏ ကိုယ်တိုင်)",
     "labelPetOwnerName": "အမည်",
-    "labelPetOwnerEmergency": "အရေးပေါ် ဆက်သွယ်ရန်"
+    "labelPetOwnerEmergency": "အရေးပေါ် ဆက်သွယ်ရန်",
+    "petNeuterUnknown": "ခွဲစိတ်မှု မသိ",
+    "petSexNeuterSep": " / "
   },
   "edit": {
     "title": "ဆေးမှတ်တမ်းပြင်ဆင်ရန်",
@@ -302,8 +304,8 @@
     "parasiteNot": "မလုပ်ထားပါ",
     "labelParasiteDate": "နောက်ဆုံး လုပ်သည့်နေ့",
     "labelNeuter": "သားကြောဖြတ်/သင်းကွပ် ခွဲစိတ်မှု",
-    "neuterDone": "ပြီးပြီ",
-    "neuterNot": "မလုပ်ရသေး",
+    "neuterDone": "ခွဲစိတ်ပြီး",
+    "neuterNot": "ခွဲစိတ်မထားပါ",
     "neuterUnknown": "မသိ",
     "labelVetDoctor": "တာဝန်ခံ တိရစ္ဆာန်ဆရာဝန် အမည်",
     "placeholderVetDoctor": "ဥပမာ - ဒေါက်တာ ယာမာဒါ၊ ဒေါက်တာ ဆူဇူကီ",
@@ -316,7 +318,7 @@
     "registryMoe": "ပတ်ဝန်းကျင်ဝန်ကြီးဌာန သတ်မှတ် မှတ်ပုံတင်အဖွဲ့ (ဂျပန်)",
     "registryAipo": "AIPO",
     "registryJkc": "JKC",
-    "registryShop": "အိမ်မွေးတိရစ္ဆာန်ဆိုင်၏ ကိုယ်ပိုင် မှတ်ပုံတင်",
+    "registryShop": "အိမ်မွေးတိရစ္ဆာန်ဆိုင်၏ ကိုယ်ပိုင် မှတ်ပုံတင် (ဥပမာ Fam)",
     "registryUnknown": "မသိ",
     "registryOther": "အခြား",
     "labelMicrochipRegistryOther": "မှတ်ပုံတင်အဖွဲ့ (အခြား)",
@@ -329,13 +331,11 @@
     "whyNeuter": "မိတ်လိုက်ချိန် အမနှင့် သင်းမကွပ်ရသေးသော အထီးကို ခိုလှုံရာနေရာတွင် ခွဲထား စီမံရန် လိုအပ်သောကြောင့်ဖြစ်သည်။ မည်သည့် ရွေးချယ်မှုကိုမဆို လေးစားပါသည်။",
     "whyVetDoctor": "ဆေးခန်းသို့ ဖုန်းဆက်သည့်အခါ တာဝန်ခံ ဆရာဝန်အမည်ကို သိလျှင် မှတ်တမ်းကို ချက်ချင်း ရှာတွေ့နိုင်သည်။ ခရီးသွားနေစဉ် ဘေးအန္တရာယ် ကြုံရလျှင် အထူး အသုံးဝင်သည်။",
     "whyMicrochip": "မှတ်ပုံတင်အဖွဲ့ အများအပြား ရှိသောကြောင့် နံပါတ်တစ်ခုတည်းဖြင့် အာဏာပိုင်များ ရှာမတွေ့နိုင်ပါ။ မှတ်ပုံတင်အဖွဲ့ကို သိလျှင် ပိုင်ရှင်ထံ ရောက်နိုင်သည်။ နံပါတ်သည် နိုင်ငံခြားထုတ် (ဂျပန်သည် 392 ဖြင့် စသည်) ဟုတ်မဟုတ် ခွဲခြားရာတွင်လည်း အသုံးဝင်သောကြောင့် ထားရှိသည်။",
-    "petSexMaleNeutered": "အထီး (သင်းကွပ်ပြီး)",
-    "petSexMaleIntact": "အထီး (သင်းမကွပ်ရသေး)",
-    "petSexMaleNeuterUnknown": "အထီး (သင်းကွပ်မကွပ် မသိ)",
-    "petSexFemaleSpayed": "အမ (သားကြောဖြတ်ပြီး)",
-    "petSexFemaleIntact": "အမ (သားကြောမဖြတ်ရသေး)",
-    "petSexFemaleSpayUnknown": "အမ (သားကြောဖြတ်မဖြတ် မသိ)",
-    "petSexUnknownCombined": "လိင် မသိ"
+    "labelPetSexOnly": "လိင်",
+    "labelNeuterShort": "သားကြောဖြတ်/သင်းကွပ်",
+    "neuterOptDone": "ပြီး",
+    "neuterOptNot": "မလုပ်ရ",
+    "neuterOptUnknown": "မသိ"
   },
   "facilityTypes": {
     "自宅": "ကိုယ်ပိုင်အိမ်",

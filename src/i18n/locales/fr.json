@@ -95,7 +95,9 @@
     "labelPetMicrochipRegistry": "Organisme d’enregistrement",
     "labelPetOwner": "Propriétaire (la personne de cette fiche)",
     "labelPetOwnerName": "Nom",
-    "labelPetOwnerEmergency": "Contact d’urgence"
+    "labelPetOwnerEmergency": "Contact d’urgence",
+    "petNeuterUnknown": "Stérilisation inconnue",
+    "petSexNeuterSep": " / "
   },
   "edit": {
     "title": "Modifier la carte",
@@ -310,9 +312,9 @@
     "parasiteNot": "Non",
     "labelParasiteDate": "Date du dernier traitement",
     "labelNeuter": "Stérilisation / castration",
-    "neuterDone": "Fait",
-    "neuterNot": "Non fait",
-    "neuterUnknown": "Inconnu",
+    "neuterDone": "Stérilisé(e)",
+    "neuterNot": "Non stérilisé(e)",
+    "neuterUnknown": "Je ne sais pas",
     "labelVetDoctor": "Vétérinaire référent",
     "placeholderVetDoctor": "ex. : Dr Yamada, Dr Suzuki",
     "labelMicrochipGroup": "Puce électronique",
@@ -324,7 +326,7 @@
     "registryMoe": "Organisme désigné par le ministère de l’Environnement (Japon)",
     "registryAipo": "AIPO",
     "registryJkc": "JKC",
-    "registryShop": "Registre de l’animalerie",
+    "registryShop": "Registre de l’animalerie (ex. : Fam)",
     "registryUnknown": "Je ne sais pas",
     "registryOther": "Autre",
     "labelMicrochipRegistryOther": "Organisme (autre)",
@@ -337,13 +339,11 @@
     "whyNeuter": "Les femelles en chaleur et les mâles non castrés doivent être séparés au centre. Chaque choix est respecté.",
     "whyVetDoctor": "Au téléphone avec la clinique, le nom du vétérinaire permet de retrouver le dossier tout de suite. Très utile en cas de sinistre en voyage.",
     "whyMicrochip": "Il existe plusieurs registres : le numéro seul ne permet pas la recherche. Connaître le registre permet de retrouver le propriétaire. Le numéro indique aussi une émission à l’étranger (le Japon commence par 392).",
-    "petSexMaleNeutered": "Mâle (castré)",
-    "petSexMaleIntact": "Mâle (non castré)",
-    "petSexMaleNeuterUnknown": "Mâle (castration inconnue)",
-    "petSexFemaleSpayed": "Femelle (stérilisée)",
-    "petSexFemaleIntact": "Femelle (non stérilisée)",
-    "petSexFemaleSpayUnknown": "Femelle (stérilisation inconnue)",
-    "petSexUnknownCombined": "Sexe inconnu"
+    "labelPetSexOnly": "Sexe",
+    "labelNeuterShort": "Stérilisation",
+    "neuterOptDone": "Fait",
+    "neuterOptNot": "Non fait",
+    "neuterOptUnknown": "Je ne sais pas"
   },
   "facilityTypes": {
     "自宅": "Domicile",

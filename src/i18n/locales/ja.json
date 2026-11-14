@@ -95,7 +95,9 @@
     "labelPetMicrochipRegistry": "登録先",
     "labelPetOwner": "飼い主（このカルテのご本人）",
     "labelPetOwnerName": "お名前",
-    "labelPetOwnerEmergency": "緊急連絡先"
+    "labelPetOwnerEmergency": "緊急連絡先",
+    "petNeuterUnknown": "手術は分からない",
+    "petSexNeuterSep": "・"
   },
   "edit": {
     "title": "カルテを編集",
@@ -310,9 +312,9 @@
     "parasiteNot": "していない",
     "labelParasiteDate": "最終実施日",
     "labelNeuter": "不妊・去勢手術",
-    "neuterDone": "手術済み",
-    "neuterNot": "していない",
-    "neuterUnknown": "不明",
+    "neuterDone": "手術している",
+    "neuterNot": "手術していない",
+    "neuterUnknown": "分からない",
     "labelVetDoctor": "担当獣医師名",
     "placeholderVetDoctor": "例：山田先生、鈴木先生",
     "labelMicrochipGroup": "マイクロチップ",
@@ -324,7 +326,7 @@
     "registryMoe": "環境省指定登録機関",
     "registryAipo": "AIPO",
     "registryJkc": "JKC",
-    "registryShop": "ペットショップ独自",
+    "registryShop": "ペットショップ独自（Fam等）",
     "registryUnknown": "分からない",
     "registryOther": "その他",
     "labelMicrochipRegistryOther": "登録先（その他）",
@@ -337,13 +339,11 @@
     "whyNeuter": "発情中のメスと未去勢のオスは、避難所で離して管理する必要があるためです。どちらの選択も尊重されます。",
     "whyVetDoctor": "病院に電話したとき、担当の先生の名前が分かればカルテがすぐ出て対応が早くなります。旅行先で被災したときに特に役立ちます。",
     "whyMicrochip": "登録先が複数あり、番号だけでは行政が探せません。登録先が分かれば飼い主にたどり着けます。番号は海外発行（日本は392始まり）の判別にも使うので残します。",
-    "petSexMaleNeutered": "オス（去勢済み）",
-    "petSexMaleIntact": "オス（未去勢）",
-    "petSexMaleNeuterUnknown": "オス（去勢は不明）",
-    "petSexFemaleSpayed": "メス（避妊済み）",
-    "petSexFemaleIntact": "メス（未避妊）",
-    "petSexFemaleSpayUnknown": "メス（避妊は不明）",
-    "petSexUnknownCombined": "性別不明"
+    "labelPetSexOnly": "性別",
+    "labelNeuterShort": "手術の有無",
+    "neuterOptDone": "している",
+    "neuterOptNot": "していない",
+    "neuterOptUnknown": "分からない"
   },
   "facilityTypes": {
     "自宅": "自宅",

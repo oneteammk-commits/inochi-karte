@@ -808,7 +808,15 @@ export function VoiceGuide({
       goPrevField()
       return
     }
-    if (isCmd('voice.cmdSkip', true)) {
+    // 「分からない」などは「飛ばす」の合図でもあるが、いまのプルダウンにその言葉どおりの選択肢があれば、選択肢として扱う
+    // （例: ペットの不妊・去勢手術「分からない」、性別「不明」）
+    const curSel = targetRef.current && targetRef.current.isConnected && targetRef.current.tagName === 'SELECT'
+      ? (targetRef.current as HTMLSelectElement)
+      : null
+    const answersOption =
+      !!curSel &&
+      Array.from(curSel.options).some((o) => o.value && matchKeys(o.text).some((k) => cands.includes(k)))
+    if (isCmd('voice.cmdSkip', true) && !answersOption) {
       skipField()
       return
     }
@@ -1074,9 +1082,16 @@ export function VoiceGuide({
     if (el && el.tagName === 'SELECT') {
       const sel = el as HTMLSelectElement
       const opts = Array.from(sel.options).filter((o) => o.value)
+      // 1) ぴったり同じ言葉 → 2) 部分一致のうち、いちばん長く一致した選択肢
+      //   （「手術は分からない」が「ない」で「していない」に吸われないように）
+      const partial = (o: HTMLOptionElement) =>
+        Math.max(0, ...matchKeys(o.text).map((k) => (n.includes(k) ? k.length : k.length > 1 && k.includes(n) ? n.length : 0)))
       const hit =
         opts.find((o) => matchKeys(o.text).some((k) => k === n)) ??
-        opts.find((o) => matchKeys(o.text).some((k) => n.includes(k) || (k.length > 1 && k.includes(n))))
+        opts.reduce<HTMLOptionElement | null>((best, o) => {
+          const sc = partial(o)
+          return sc > 0 && (!best || sc > partial(best)) ? o : best
+        }, null)
       if (hit) {
         setNativeValue(sel, hit.value)
         afterFill(t('voice.selected', { text: say(hit.text) }), sel)

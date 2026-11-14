@@ -95,7 +95,9 @@
     "labelPetMicrochipRegistry": "Terdaftar di",
     "labelPetOwner": "Pemilik (orang pada kartu ini)",
     "labelPetOwnerName": "Nama",
-    "labelPetOwnerEmergency": "Kontak darurat"
+    "labelPetOwnerEmergency": "Kontak darurat",
+    "petNeuterUnknown": "Sterilisasi tidak diketahui",
+    "petSexNeuterSep": " / "
   },
   "edit": {
     "title": "Ubah Kartu",
@@ -309,8 +311,8 @@
     "parasiteNot": "Tidak",
     "labelParasiteDate": "Tanggal terakhir dilakukan",
     "labelNeuter": "Sterilisasi / kebiri",
-    "neuterDone": "Sudah",
-    "neuterNot": "Belum",
+    "neuterDone": "Sudah disteril",
+    "neuterNot": "Belum disteril",
     "neuterUnknown": "Tidak tahu",
     "labelVetDoctor": "Nama dokter hewan penanggung jawab",
     "placeholderVetDoctor": "Contoh: Dr. Yamada, Dr. Suzuki",
@@ -323,7 +325,7 @@
     "registryMoe": "Lembaga pendaftaran yang ditunjuk Kementerian Lingkungan (Jepang)",
     "registryAipo": "AIPO",
     "registryJkc": "JKC",
-    "registryShop": "Pendaftaran toko hewan",
+    "registryShop": "Pendaftaran toko hewan (mis. Fam)",
     "registryUnknown": "Tidak tahu",
     "registryOther": "Lainnya",
     "labelMicrochipRegistryOther": "Lembaga (lainnya)",
@@ -336,13 +338,11 @@
     "whyNeuter": "Betina yang sedang birahi dan jantan yang belum dikebiri perlu dipisahkan di pengungsian. Pilihan apa pun dihormati.",
     "whyVetDoctor": "Saat menelepon klinik, nama dokter penanggung jawab membuat rekam medis cepat ditemukan. Sangat berguna bila bencana terjadi saat bepergian.",
     "whyMicrochip": "Ada beberapa lembaga pendaftaran, sehingga petugas tidak bisa mencari hanya dengan nomor. Mengetahui lembaganya memungkinkan menemukan pemilik. Nomor juga menunjukkan apakah diterbitkan di luar negeri (Jepang diawali 392).",
-    "petSexMaleNeutered": "Jantan (sudah dikebiri)",
-    "petSexMaleIntact": "Jantan (belum dikebiri)",
-    "petSexMaleNeuterUnknown": "Jantan (kebiri tidak diketahui)",
-    "petSexFemaleSpayed": "Betina (sudah disteril)",
-    "petSexFemaleIntact": "Betina (belum disteril)",
-    "petSexFemaleSpayUnknown": "Betina (steril tidak diketahui)",
-    "petSexUnknownCombined": "Jenis kelamin tidak diketahui"
+    "labelPetSexOnly": "Jenis kelamin",
+    "labelNeuterShort": "Sterilisasi",
+    "neuterOptDone": "Sudah",
+    "neuterOptNot": "Belum",
+    "neuterOptUnknown": "Tidak tahu"
   },
   "facilityTypes": {
     "自宅": "Rumah sendiri",

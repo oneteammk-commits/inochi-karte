@@ -95,7 +95,9 @@
     "labelPetMicrochipRegistry": "Registered with",
     "labelPetOwner": "Owner (the person on this card)",
     "labelPetOwnerName": "Name",
-    "labelPetOwnerEmergency": "Emergency contact"
+    "labelPetOwnerEmergency": "Emergency contact",
+    "petNeuterUnknown": "Spay/neuter unknown",
+    "petSexNeuterSep": " / "
   },
   "edit": {
     "title": "Edit Card",
@@ -309,9 +311,9 @@
     "parasiteNot": "No",
     "labelParasiteDate": "Last treatment date",
     "labelNeuter": "Spay / neuter",
-    "neuterDone": "Done",
-    "neuterNot": "Not done",
-    "neuterUnknown": "Unknown",
+    "neuterDone": "Spayed/neutered",
+    "neuterNot": "Not spayed/neutered",
+    "neuterUnknown": "Don't know",
     "labelVetDoctor": "Veterinarian in charge",
     "placeholderVetDoctor": "e.g. Dr. Yamada, Dr. Suzuki",
     "labelMicrochipGroup": "Microchip",
@@ -323,7 +325,7 @@
     "registryMoe": "MOE designated registry (Japan)",
     "registryAipo": "AIPO",
     "registryJkc": "JKC",
-    "registryShop": "Pet shop registry",
+    "registryShop": "Pet shop registry (e.g. Fam)",
     "registryUnknown": "Don't know",
     "registryOther": "Other",
     "labelMicrochipRegistryOther": "Registry (other)",
@@ -336,13 +338,11 @@
     "whyNeuter": "Females in heat and unneutered males need to be kept apart at the shelter. Either choice is respected.",
     "whyVetDoctor": "When calling the clinic, knowing the vet’s name brings up the record quickly. Especially useful if disaster strikes while travelling.",
     "whyMicrochip": "There are several registries, so officials cannot search by number alone. Knowing the registry leads back to the owner. The number also shows whether the chip was issued abroad (Japan starts with 392).",
-    "petSexMaleNeutered": "Male (neutered)",
-    "petSexMaleIntact": "Male (not neutered)",
-    "petSexMaleNeuterUnknown": "Male (neutering unknown)",
-    "petSexFemaleSpayed": "Female (spayed)",
-    "petSexFemaleIntact": "Female (not spayed)",
-    "petSexFemaleSpayUnknown": "Female (spaying unknown)",
-    "petSexUnknownCombined": "Sex unknown"
+    "labelPetSexOnly": "Sex",
+    "labelNeuterShort": "Spay/neuter",
+    "neuterOptDone": "Done",
+    "neuterOptNot": "Not done",
+    "neuterOptUnknown": "Don't know"
   },
   "facilityTypes": {
     "自宅": "Home (own residence)",

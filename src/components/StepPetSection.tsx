@@ -4,7 +4,6 @@ import type { RegistrationFormState } from '../types/registration'
 import { ImeAwareInput, ImeAwareTextarea } from './ImeAwareField'
 import { getLocalPreview, uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
 import { ImportantBadge, WhyGroup, WhyHint } from './WhyHint'
-import { OcrButton } from './OcrButton'
 
 type PetFormBlockProps = {
   pet: PetRow
@@ -29,12 +28,6 @@ const LABEL = 'mb-1 block text-sm font-semibold text-stone-800'
 const SUBLABEL = 'mb-1 block text-xs font-semibold text-stone-700'
 /** 補足の説明文 */
 const HINT = 'mt-1 text-xs font-medium text-stone-700'
-
-/** 入力欄の今の文字の後ろに、読み取った文字を足す（空なら置き換え） */
-function appendText(current: string, add: string): string {
-  const c = current.trim()
-  return c ? `${c}\n${add}` : add
-}
 
 const PetFormBlock = memo(function PetFormBlock({
   pet,
@@ -190,7 +183,7 @@ const PetFormBlock = memo(function PetFormBlock({
             />
           </label>
           {/* 性別・不妊去勢: 見出し1つに、性別と手術の有無のプルダウンを横並び（獣医師の助言: 雄も雌も「している／していない／分からない」） */}
-          <div className="sm:col-span-2">
+          <WhyGroup className="sm:col-span-2">
             <span className={LABEL}>
               {t('register.labelPetSex')}
               {why('whyNeuter')}
@@ -224,7 +217,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 <option value="unknown">{t('register.neuterOptUnknown')}</option>
               </select>
             </div>
-          </div>
+          </WhyGroup>
         </div>
         {/* ── 避難所の受付で最初に見られる項目（獣医師の助言による並び）── */}
         <WhyGroup className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
@@ -292,12 +285,6 @@ const PetFormBlock = memo(function PetFormBlock({
                 onValueChange={(v) => onUpdatePet(pet.id, { vaccineInfo: v })}
                 className={FIELD}
                 placeholder={t('register.placeholderVaccineInfo')}
-              />
-              <OcrButton
-                kind="text"
-                label={t('ocr.buttonVaccine')}
-                onApply={(txt) => onUpdatePet(pet.id, { vaccineInfo: appendText(pet.vaccineInfo, txt) })}
-                onPhoto={(f) => void addDocPhotos([f])}
               />
             </label>
             <label className="block">
@@ -369,12 +356,6 @@ const PetFormBlock = memo(function PetFormBlock({
             rows={2}
             className="w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderPetMedications')}
-          />
-          <OcrButton
-            kind="text"
-            label={t('ocr.buttonMedicine')}
-            onApply={(txt) => onUpdatePet(pet.id, { medications: appendText(pet.medications, txt) })}
-            onPhoto={(f) => void onAddPetPhoto(pet.id, [f] as unknown as FileList)}
           />
         </label>
         <div>
@@ -450,18 +431,20 @@ const PetFormBlock = memo(function PetFormBlock({
               placeholder={t('register.placeholderVetClinic')}
             />
           </label>
-          <label className="block">
-            <span className={LABEL}>
-              {t('register.labelVetDoctor')}
-              {why('whyVetDoctor')}
-            </span>
-            <ImeAwareInput
-              value={pet.vetDoctor}
-              onValueChange={(v) => onUpdatePet(pet.id, { vetDoctor: v })}
-              className={FIELD}
-              placeholder={t('register.placeholderVetDoctor')}
-            />
-          </label>
+          <WhyGroup>
+            <label className="block">
+              <span className={LABEL}>
+                {t('register.labelVetDoctor')}
+                {why('whyVetDoctor')}
+              </span>
+              <ImeAwareInput
+                value={pet.vetDoctor}
+                onValueChange={(v) => onUpdatePet(pet.id, { vetDoctor: v })}
+                className={FIELD}
+                placeholder={t('register.placeholderVetDoctor')}
+              />
+            </label>
+          </WhyGroup>
         </div>
         {/* ── マイクロチップ（装着 → 登録先 → 番号）── */}
         <WhyGroup className="rounded-lg border border-amber-200 bg-white/60 p-3">
@@ -524,12 +507,6 @@ const PetFormBlock = memo(function PetFormBlock({
                     className={FIELD}
                     placeholder={t('register.placeholderMicrochip')}
                   />
-                  <OcrButton
-                    kind="digits"
-                    label={t('ocr.buttonNumber')}
-                    onApply={(txt) => onUpdatePet(pet.id, { microchip: txt })}
-                    onPhoto={(f) => void addDocPhotos([f])}
-                  />
                 </label>
               </>
             )}
@@ -547,12 +524,6 @@ const PetFormBlock = memo(function PetFormBlock({
               placeholder={t('register.placeholderLicenseNumber')}
             />
             <p className={HINT}>{t('register.hintLicenseNumber')}</p>
-            <OcrButton
-              kind="text"
-              label={t('ocr.buttonNumber')}
-              onApply={(txt) => onUpdatePet(pet.id, { licenseNumber: txt.replace(/\n/g, ' ') })}
-              onPhoto={(f) => void addDocPhotos([f])}
-            />
           </label>
         )}
         {/* ── 書類の写真（ワクチン証明書・血液検査・マイクロチップ登録証など）── */}

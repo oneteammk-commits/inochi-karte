@@ -2,7 +2,6 @@ import { memo, useState } from 'react'
 import type { MedicationRow } from '../types/registration'
 import { ImeAwareInput } from './ImeAwareField'
 import { getLocalPreview } from '../lib/uploadMedicationPhoto'
-import { OcrButton } from './OcrButton'
 
 export type MedicationBlockProps = {
   med: MedicationRow
@@ -78,18 +77,6 @@ export const MedicationBlock = memo(function MedicationBlock({
         />
         <p id={`med-note-${med.id}`} className="mt-2 text-xs leading-relaxed text-stone-500">{t('register.medicineNote')}</p>
       </label>
-      {/* お薬のシートや検査の紙を撮ると、文字を読み取ってお薬の名前の欄に入れる（写真は下の写真欄にも残す） */}
-      <OcrButton
-        kind="text"
-        label={t('ocr.buttonMedicine')}
-        onApply={(txt) => {
-          // お薬の名前の欄は1行なので、改行は「 / 」でつなぐ
-          const one = txt.split('\n').map((x) => x.trim()).filter(Boolean).join(' / ')
-          const cur = med.name.trim()
-          onUpdateMedication(med.id, { name: cur ? `${cur} / ${one}` : one })
-        }}
-        onPhoto={(f) => void onAddPhotos(med.id, [f])}
-      />
       <div className="mt-4">
         <span className="mb-1 block text-xs font-medium text-stone-600">
           {t('register.labelMedicinePhotos')}

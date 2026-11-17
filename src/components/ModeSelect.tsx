@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 export function ModeSelect({ onChoose }: { onChoose: (mode: 'person' | 'pet') => void }) {
   const { t } = useTranslation()
   const purposes = [t('register.purpose1'), t('register.purpose2'), t('register.purpose3')]
-  const faqs = [1, 2, 3, 4].map((n) => ({ q: t(`register.faqQ${n}`), a: t(`register.faqA${n}`) }))
+  const faqs = [1, 2, 3].map((n) => ({ q: t(`register.faqQ${n}`), a: t(`register.faqA${n}`) }))
 
   return (
     <section aria-labelledby="mode-title" className="space-y-6">

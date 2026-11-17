@@ -67,6 +67,9 @@ export async function buildPetRows(
         microchip_registry_other:
           pet.microchipFitted !== 'no' && pet.microchipRegistry === 'other' ? pet.microchipRegistryOther.trim() || null : null,
         microchip: pet.microchipFitted !== 'no' ? pet.microchip.trim() || null : null,
+        // 鑑札は犬だけ（種類が未選択のときは残す）
+        license_number: rabiesApplies ? pet.licenseNumber.trim() || null : null,
+        document_photo_urls: pet.documentPhotoUrls,
         food: pet.food.trim() || null,
         medication_photo_url: medicationPhotoUrl,
         photo_url: pet.photoUrl || null,

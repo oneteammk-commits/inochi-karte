@@ -49,6 +49,8 @@ export function petRegistrationToFormRow(row: PetRegistrationRow): PetRow {
     microchipRegistry: pick<Exclude<PetMicrochipRegistry, ''>>(row.microchip_registry, ['moe', 'aipo', 'jkc', 'shop', 'unknown', 'other']),
     microchipRegistryOther: row.microchip_registry_other ?? '',
     microchip: row.microchip ?? '',
+    licenseNumber: row.license_number ?? '',
+    documentPhotoUrls: Array.isArray(row.document_photo_urls) ? row.document_photo_urls : [],
     food: row.food ?? '',
     features: row.features ?? '',
     photoUrl: row.photo_url ?? null,

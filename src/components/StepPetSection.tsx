@@ -22,6 +22,9 @@ const FIELD =
 /** 幅を中身に合わせる版（横並び・自動で2段にするプルダウン用） */
 const FIELD_AUTO = FIELD.replace('w-full ', '')
 
+/** 日付の欄（iPhone では日付の欄が中身の幅から縮まらず枠からはみ出すため、幅を枠に合わせる。index.css の .date-field も参照） */
+const DATE_FIELD = `${FIELD} date-field`
+
 /** 入力欄の見出し（文字は少し濃くして読みやすく） */
 const LABEL = 'mb-1 block text-sm font-semibold text-stone-800'
 /** 見出しの下の小見出し */
@@ -127,7 +130,7 @@ const PetFormBlock = memo(function PetFormBlock({
             placeholder={t('register.petFeaturesPlaceholder')}
           />
         </label>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
             <span className={LABEL}>
               {t('register.labelSpecies')}
@@ -229,7 +232,7 @@ const PetFormBlock = memo(function PetFormBlock({
           {pet.speciesKind === 'cat' || pet.speciesKind === 'other' ? (
             <p className="text-sm font-medium text-stone-700">{t('register.rabiesNotApplicable')}</p>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="block">
                 <span className={SUBLABEL}>{t('register.labelStatus')}</span>
                 <select
@@ -244,7 +247,7 @@ const PetFormBlock = memo(function PetFormBlock({
                   <option value="exempt">{t('register.rabiesExempt')}</option>
                 </select>
               </label>
-              <label className="block">
+              <label className="block min-w-0">
                 <span className={SUBLABEL}>{t('register.labelRabiesDate')}</span>
                 <input
                   type="date"
@@ -252,7 +255,7 @@ const PetFormBlock = memo(function PetFormBlock({
                   value={pet.rabiesDate}
                   max="9999-12-31"
                   onChange={(e) => onUpdatePet(pet.id, { rabiesDate: e.target.value })}
-                  className={FIELD}
+                  className={DATE_FIELD}
                 />
               </label>
               {pet.rabiesStatus === 'exempt' && (
@@ -276,7 +279,7 @@ const PetFormBlock = memo(function PetFormBlock({
             {important}
             {why('whyVaccine')}
           </span>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="block">
               <span className={SUBLABEL}>{t('register.labelVaccineContent')}</span>
               <ImeAwareInput
@@ -287,7 +290,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 placeholder={t('register.placeholderVaccineInfo')}
               />
             </label>
-            <label className="block">
+            <label className="block min-w-0">
               <span className={SUBLABEL}>{t('register.labelVaccineDate')}</span>
               <input
                 type="date"
@@ -295,7 +298,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 value={pet.vaccineDate}
                 max="9999-12-31"
                 onChange={(e) => onUpdatePet(pet.id, { vaccineDate: e.target.value })}
-                className={FIELD}
+                className={DATE_FIELD}
               />
             </label>
           </div>
@@ -306,7 +309,7 @@ const PetFormBlock = memo(function PetFormBlock({
             {important}
             {why('whyParasite')}
           </span>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="block">
               <span className={SUBLABEL}>{t('register.labelStatus')}</span>
               <select
@@ -320,7 +323,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 <option value="not">{t('register.parasiteNot')}</option>
               </select>
             </label>
-            <label className="block">
+            <label className="block min-w-0">
               <span className={SUBLABEL}>{t('register.labelParasiteDate')}</span>
               <input
                 type="date"
@@ -328,7 +331,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 value={pet.parasiteDate}
                 max="9999-12-31"
                 onChange={(e) => onUpdatePet(pet.id, { parasiteDate: e.target.value })}
-                className={FIELD}
+                className={DATE_FIELD}
               />
             </label>
           </div>
@@ -419,7 +422,7 @@ const PetFormBlock = memo(function PetFormBlock({
           <p className={HINT}>{t('register.hintPetFood')}</p>
         </label>
         {/* ── かかりつけ・担当医 ── */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
             <span className={LABEL}>
               {t('register.labelVetClinic')}
@@ -452,7 +455,7 @@ const PetFormBlock = memo(function PetFormBlock({
             {t('register.labelMicrochipGroup')}
             {why('whyMicrochip')}
           </span>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="block">
               <span className={SUBLABEL}>{t('register.labelMicrochipFitted')}</span>
               <select
@@ -523,7 +526,13 @@ const PetFormBlock = memo(function PetFormBlock({
               className={FIELD}
               placeholder={t('register.placeholderLicenseNumber')}
             />
-            <p className={HINT}>{t('register.hintLicenseNumber')}</p>
+            <p className={HINT}>
+              {t('register.hintLicenseNumber')}
+              {/* 「持っていなければ空欄のままで大丈夫」は、迷わないよう濃く太く（近藤さんの要望 11/17） */}
+              <span className="mt-0.5 block font-bold text-stone-900" data-license-blank-ok>
+                {t('register.hintLicenseBlank')}
+              </span>
+            </p>
           </label>
         )}
         {/* ── 書類の写真（ワクチン証明書・血液検査・マイクロチップ登録証など）── */}

@@ -389,10 +389,8 @@
     "faqA1": "Just fill in what you know. Starting with your pet, it takes only a few minutes. You can change or add information later with \"Edit card\".",
     "faqQ2": "If someone scans my pet's collar code, can they see my illnesses?",
     "faqA2": "No. The pet 2D code (QR) shows only your pet's information and the owner's name. Your illnesses, medicines and address are not shown. Your phone number is not shown either; there is a \"Call the owner\" button instead.",
-    "faqQ3": "Can text be read from a photo?",
-    "faqA3": "Take a photo of a medicine sheet or a vaccination certificate, and the text can be read and filled in. Small text or glare can cause mistakes, so always check before using it.",
-    "faqQ4": "Can I change it later?",
-    "faqA4": "Yes. With the 4-digit number you set when registering, you can change it at any time. Please write the number down; even the association cannot look it up.",
+    "faqQ3": "Can I change it later?",
+    "faqA3": "Yes. With the 4-digit number you set when registering, you can change it at any time. Please write the number down; even the association cannot look it up.",
     "regionTitle": "Information about your current home or facility"
   },
   "facilityTypes": {
@@ -562,25 +560,6 @@
     "postalFilled": "From the postal code, {{text}} was filled in",
     "dateHow": "Say the year, month and day, for example \"April 10, 2025\""
   },
-  "ocr": {
-    "button": "Read text from a photo",
-    "buttonMedicine": "Take a photo of the medicine sheet to read the text",
-    "buttonVaccine": "Take a photo of the certificate to read the text",
-    "buttonNumber": "Take a photo of the number to read it",
-    "title": "Text read from the photo",
-    "loading": "Getting ready to read… (the first time takes a little longer)",
-    "reading": "Reading the text…",
-    "error": "The text could not be read. Please retake the photo in a bright place, with the text large in the picture.",
-    "resultLabel": "Text that was read (please correct anything wrong)",
-    "empty": "No text was found. Please retake the photo or type it in.",
-    "cautionTitle": "Mistakes can happen",
-    "caution1": "Small text, glare, handwriting and tilted photos are easy to misread",
-    "caution2": "Always compare medicine names and numbers with the photo before using them",
-    "caution3": "The photo is read on your phone. It is not sent to any outside company",
-    "apply": "Use this text",
-    "cancel": "Cancel",
-    "close": "Close"
-  },
   "petCard": {
     "title": "Pet card",
     "subtitle": "Information for when a pet is lost or taken in",
@@ -593,8 +572,13 @@
     "aboutSitte": "About Inochi no Karte (sitte)",
     "qrTitle": "2D code (QR) for collar or carrier",
     "qrNote": "People who scan it will see only this pet's information, the owner's name and a \"Call the owner\" button. Your illnesses, medicines, address and phone number are not shown.",
-    "qrSave": "Save this 2D code (QR) as an image",
-    "qrImageTitle": "If lost, please scan this code",
+    "qrSizeLabel": "Choose the size",
+    "qrSize20": "2 cm (recommended)",
+    "qrSize15": "1.5 cm (smaller)",
+    "qrSave": "Save as image",
+    "qrPrint": "Print on A4 (several copies)",
+    "qrSizeNote": "When printing, set the scale to \"100% (actual size)\". A 1.5 cm code may need the phone held close to scan.",
+    "qrPrintTitle": "2D code (QR) for collar or carrier (for printing)",
     "ownerLabel": "Owner"
   }
 }

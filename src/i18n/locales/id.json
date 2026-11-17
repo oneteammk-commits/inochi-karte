@@ -389,10 +389,8 @@
     "faqA1": "Cukup isi yang Anda ketahui. Jika mulai dari hewan, hanya beberapa menit. Bisa diubah atau ditambah nanti melalui \"Edit kartu\".",
     "faqQ2": "Jika seseorang memindai kode di kalung, apakah penyakit saya terlihat?",
     "faqA2": "Tidak. Kode 2D (QR) hewan hanya menampilkan informasi hewan dan nama pemilik. Penyakit, obat, dan alamat pemilik tidak ditampilkan. Nomor telepon juga tidak tampil, diganti tombol \"Telepon pemilik\".",
-    "faqQ3": "Bisakah teks dibaca dari foto?",
-    "faqA3": "Foto kemasan obat atau sertifikat vaksinasi, lalu teksnya dibaca dan dimasukkan ke kolom. Huruf kecil atau pantulan cahaya bisa menyebabkan salah baca, jadi selalu periksa sebelum memakainya.",
-    "faqQ4": "Bisakah diubah nanti?",
-    "faqA4": "Ya. Dengan nomor 4 digit yang Anda tentukan saat mendaftar, Anda bisa mengubahnya kapan saja. Catat nomornya karena asosiasi pun tidak dapat mencarinya.",
+    "faqQ3": "Bisakah diubah nanti?",
+    "faqA3": "Ya. Dengan nomor 4 digit yang Anda tentukan saat mendaftar, Anda bisa mengubahnya kapan saja. Catat nomornya karena asosiasi pun tidak dapat mencarinya.",
     "regionTitle": "Informasi tentang rumah atau fasilitas tempat tinggal Anda saat ini"
   },
   "facilityTypes": {
@@ -562,25 +560,6 @@
     "postalFilled": "Dari kode pos, {{text}} telah diisi",
     "dateHow": "Sebutkan tahun, bulan, dan tanggal, misalnya \"10 April 2025\""
   },
-  "ocr": {
-    "button": "Baca teks dari foto",
-    "buttonMedicine": "Foto kemasan obat untuk membaca teks",
-    "buttonVaccine": "Foto sertifikat untuk membaca teks",
-    "buttonNumber": "Foto nomornya untuk dibaca",
-    "title": "Teks yang terbaca dari foto",
-    "loading": "Menyiapkan pembacaan… (pertama kali sedikit lebih lama)",
-    "reading": "Membaca teks…",
-    "error": "Tidak dapat dibaca. Ambil ulang foto di tempat terang, dengan teks terlihat besar.",
-    "resultLabel": "Teks yang terbaca (perbaiki bagian yang salah)",
-    "empty": "Teks tidak ditemukan. Ambil ulang foto atau ketik sendiri.",
-    "cautionTitle": "Bisa terjadi salah baca",
-    "caution1": "Huruf kecil, pantulan cahaya, tulisan tangan, dan foto miring mudah salah dibaca",
-    "caution2": "Selalu bandingkan nama obat dan nomor dengan fotonya sebelum dipakai",
-    "caution3": "Foto dibaca di dalam ponsel Anda. Tidak dikirim ke perusahaan luar",
-    "apply": "Gunakan teks ini",
-    "cancel": "Batal",
-    "close": "Tutup"
-  },
   "petCard": {
     "title": "Kartu hewan",
     "subtitle": "Informasi saat hewan tersesat atau diamankan",
@@ -593,8 +572,13 @@
     "aboutSitte": "Tentang Inochi no Karte (sitte)",
     "qrTitle": "Kode 2D (QR) untuk kalung atau kandang bawaan",
     "qrNote": "Orang yang memindainya hanya melihat informasi hewan ini, nama pemilik, dan tombol \"Telepon pemilik\". Penyakit, obat, alamat, dan nomor telepon Anda tidak ditampilkan.",
-    "qrSave": "Simpan kode 2D (QR) ini sebagai gambar",
-    "qrImageTitle": "Jika tersesat, pindai kode ini",
+    "qrSizeLabel": "Pilih ukuran",
+    "qrSize20": "2 cm (disarankan)",
+    "qrSize15": "1,5 cm (lebih kecil)",
+    "qrSave": "Simpan sebagai gambar",
+    "qrPrint": "Cetak di kertas A4 (beberapa buah)",
+    "qrSizeNote": "Saat mencetak, atur skala ke \"100% (ukuran sebenarnya)\". Kode 1,5 cm mungkin perlu ponsel didekatkan agar terbaca.",
+    "qrPrintTitle": "Kode 2D (QR) untuk kalung atau kandang bawaan (untuk dicetak)",
     "ownerLabel": "Pemilik"
   }
 }

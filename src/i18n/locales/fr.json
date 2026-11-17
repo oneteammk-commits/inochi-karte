@@ -390,10 +390,8 @@
     "faqA1": "Remplissez seulement ce que vous savez. En commençant par votre animal, quelques minutes suffisent. Vous pourrez modifier ou compléter plus tard avec « Modifier la fiche ».",
     "faqQ2": "Si quelqu'un scanne le code du collier, peut-il voir mes maladies ?",
     "faqA2": "Non. Le code 2D (QR) de l'animal ne montre que les informations sur l'animal et le nom du propriétaire. Vos maladies, médicaments et adresse ne s'affichent pas. Votre numéro non plus : il est remplacé par un bouton « Appeler le propriétaire ».",
-    "faqQ3": "Peut-on lire le texte d'une photo ?",
-    "faqA3": "Photographiez une plaquette de médicaments ou un certificat de vaccination : le texte est lu et placé dans le champ. Les petits caractères ou les reflets peuvent causer des erreurs ; vérifiez toujours avant de l'utiliser.",
-    "faqQ4": "Puis-je modifier plus tard ?",
-    "faqA4": "Oui. Avec le code à 4 chiffres choisi à l'inscription, vous pouvez modifier à tout moment. Notez-le : même l'association ne peut pas le retrouver."
+    "faqQ3": "Puis-je modifier plus tard ?",
+    "faqA3": "Oui. Avec le code à 4 chiffres choisi à l'inscription, vous pouvez modifier à tout moment. Notez-le : même l'association ne peut pas le retrouver."
   },
   "facilityTypes": {
     "自宅": "Domicile",
@@ -562,25 +560,6 @@
     "postalFilled": "D'après le code postal, {{text}} a été rempli",
     "dateHow": "Dites l’année, le mois et le jour, par exemple « 10 avril 2025 »"
   },
-  "ocr": {
-    "button": "Lire le texte d'une photo",
-    "buttonMedicine": "Photographier la plaquette pour lire le texte",
-    "buttonVaccine": "Photographier le certificat pour lire le texte",
-    "buttonNumber": "Photographier le numéro pour le lire",
-    "title": "Texte lu sur la photo",
-    "loading": "Préparation de la lecture… (la première fois prend un peu plus de temps)",
-    "reading": "Lecture du texte…",
-    "error": "Lecture impossible. Reprenez la photo dans un endroit lumineux, avec le texte bien grand.",
-    "resultLabel": "Texte lu (corrigez ce qui est faux)",
-    "empty": "Aucun texte trouvé. Reprenez la photo ou saisissez-le à la main.",
-    "cautionTitle": "Des erreurs sont possibles",
-    "caution1": "Les petits caractères, les reflets, l'écriture manuscrite et les photos de travers sont facilement mal lus",
-    "caution2": "Comparez toujours les noms de médicaments et les numéros avec la photo avant de les utiliser",
-    "caution3": "La photo est lue sur votre téléphone. Elle n'est envoyée à aucune entreprise extérieure",
-    "apply": "Utiliser ce texte",
-    "cancel": "Annuler",
-    "close": "Fermer"
-  },
   "petCard": {
     "title": "Fiche de l'animal",
     "subtitle": "Informations en cas de perte ou de recueil",
@@ -593,8 +572,13 @@
     "aboutSitte": "À propos de Inochi no Karte (sitte)",
     "qrTitle": "Code 2D (QR) pour collier ou caisse de transport",
     "qrNote": "Les personnes qui le scannent ne voient que les informations sur cet animal, le nom du propriétaire et un bouton « Appeler le propriétaire ». Vos maladies, médicaments, adresse et numéro de téléphone ne s'affichent pas.",
-    "qrSave": "Enregistrer ce code 2D (QR) en image",
-    "qrImageTitle": "En cas de perte, scannez ce code",
+    "qrSizeLabel": "Choisir la taille",
+    "qrSize20": "2 cm (recommandé)",
+    "qrSize15": "1,5 cm (plus petit)",
+    "qrSave": "Enregistrer en image",
+    "qrPrint": "Imprimer sur A4 (plusieurs exemplaires)",
+    "qrSizeNote": "Pour imprimer, réglez l’échelle sur « 100 % (taille réelle) ». Avec 1,5 cm, il peut falloir approcher le téléphone pour lire le code.",
+    "qrPrintTitle": "Code 2D (QR) pour collier ou caisse de transport (à imprimer)",
     "ownerLabel": "Propriétaire"
   }
 }

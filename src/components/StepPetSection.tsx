@@ -2,7 +2,9 @@ import { memo, useState } from 'react'
 import type { PetRow } from '../types/pet'
 import type { RegistrationFormState } from '../types/registration'
 import { ImeAwareInput, ImeAwareTextarea } from './ImeAwareField'
-import { uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
+import { getLocalPreview, uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
+import { ImportantBadge, WhyGroup, WhyHint } from './WhyHint'
+import { OcrButton } from './OcrButton'
 
 type PetFormBlockProps = {
   pet: PetRow
@@ -15,34 +17,24 @@ type PetFormBlockProps = {
   t: (key: string, options?: { num?: number }) => string
 }
 
-/** 「なぜこの項目が要るの？」— ？を押すと獣医師の助言に基づく理由が開く */
-function WhyHint({ text, label }: { text: string; label: string }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <span className="inline">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        aria-label={label}
-        className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-400 bg-white text-[11px] font-bold text-amber-700 align-middle"
-      >
-        ?
-      </button>
-      {open && (
-        <span className="mt-1 block rounded-md bg-amber-100/70 px-2.5 py-1.5 text-xs font-normal leading-relaxed text-stone-700">
-          {text}
-        </span>
-      )}
-    </span>
-  )
-}
-
 const FIELD =
   'w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2'
 
 /** 幅を中身に合わせる版（横並び・自動で2段にするプルダウン用） */
 const FIELD_AUTO = FIELD.replace('w-full ', '')
+
+/** 入力欄の見出し（文字は少し濃くして読みやすく） */
+const LABEL = 'mb-1 block text-sm font-semibold text-stone-800'
+/** 見出しの下の小見出し */
+const SUBLABEL = 'mb-1 block text-xs font-semibold text-stone-700'
+/** 補足の説明文 */
+const HINT = 'mt-1 text-xs font-medium text-stone-700'
+
+/** 入力欄の今の文字の後ろに、読み取った文字を足す（空なら置き換え） */
+function appendText(current: string, add: string): string {
+  const c = current.trim()
+  return c ? `${c}\n${add}` : add
+}
 
 const PetFormBlock = memo(function PetFormBlock({
   pet,
@@ -54,6 +46,22 @@ const PetFormBlock = memo(function PetFormBlock({
   onRemovePetPhoto,
   t,
 }: PetFormBlockProps) {
+  const why = (key: string) => (
+    <WhyHint text={t(`register.${key}`)} label={t('register.whyLabel')} buttonText={t('register.whyButton')} />
+  )
+  const important = <ImportantBadge text={t('register.important')} />
+  const [docUploading, setDocUploading] = useState(0)
+  const addDocPhotos = async (files: FileList | File[] | null) => {
+    if (!files || files.length === 0) return
+    setDocUploading((n) => n + 1)
+    try {
+      const urls = await Promise.all(Array.from(files).map((f) => uploadMedicationPhoto(f)))
+      onUpdatePet(pet.id, { documentPhotoUrls: [...pet.documentPhotoUrls, ...urls] })
+    } finally {
+      setDocUploading((n) => Math.max(0, n - 1))
+    }
+  }
+  const isDogOrUnset = pet.speciesKind !== 'cat' && pet.speciesKind !== 'other'
   return (
     <div className="rounded-xl border border-amber-200/80 bg-amber-50/30 p-4">
       <div className="mb-4 flex items-center justify-between gap-2">
@@ -72,7 +80,7 @@ const PetFormBlock = memo(function PetFormBlock({
       </div>
       <div className="space-y-4">
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
+          <span className={LABEL}>
             {t('register.labelPetName')}
           </span>
           <ImeAwareInput
@@ -84,7 +92,7 @@ const PetFormBlock = memo(function PetFormBlock({
         </label>
         {/* ペットの写真(迷子時の特定用) */}
         <div className="mb-4">
-          <span className="mb-1 block text-xs font-medium text-stone-600">ペットの写真</span>
+          <span className={LABEL}>{t('register.petPhotoLabel')}</span>
           {pet.photoUrl ? (
             <div className="relative inline-block">
               <img src={pet.photoUrl} alt="pet" className="h-28 w-28 rounded-lg border border-stone-200 object-cover" />
@@ -111,24 +119,24 @@ const PetFormBlock = memo(function PetFormBlock({
                   void uploadMedicationPhoto(f).then((url) => onUpdatePet(pet.id, { photoUrl: url }))
                 }}
               />
-              <span className="text-center text-sm text-stone-500">タップして写真を選択</span>
+              <span className="text-center text-sm font-medium text-stone-700">{t('register.petPhotoTap')}</span>
             </label>
           )}
-          <p className="mt-1 text-xs text-stone-500">災害時に迷子になったとき、保護された子の特定に役立ちます</p>
+          <p className={HINT}>{t('register.petPhotoHint')}</p>
         </div>
         <label className="mb-4 block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">特徴(色・模様・首輪・性格など)</span>
+          <span className={LABEL}>{t('register.petFeaturesLabel')}</span>
           <ImeAwareTextarea
             value={pet.features}
             onValueChange={(v) => onUpdatePet(pet.id, { features: v })}
             rows={2}
             className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
-            placeholder="例:茶白のハチワレ、赤い首輪、人なつっこい"
+            placeholder={t('register.petFeaturesPlaceholder')}
           />
         </label>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-stone-600">
+            <span className={LABEL}>
               {t('register.labelSpecies')}
             </span>
             <select
@@ -148,7 +156,7 @@ const PetFormBlock = memo(function PetFormBlock({
           </label>
           {pet.speciesKind === 'other' && (
             <label className="block sm:col-span-2">
-              <span className="mb-1 block text-xs font-medium text-stone-600">
+              <span className={LABEL}>
                 {t('register.labelSpeciesOther')}
               </span>
               <ImeAwareInput
@@ -160,7 +168,7 @@ const PetFormBlock = memo(function PetFormBlock({
             </label>
           )}
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-stone-600">
+            <span className={LABEL}>
               {t('register.labelBreed')}
             </span>
             <ImeAwareInput
@@ -171,7 +179,7 @@ const PetFormBlock = memo(function PetFormBlock({
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-stone-600">
+            <span className={LABEL}>
               {t('register.labelPetAge')}
             </span>
             <ImeAwareInput
@@ -183,9 +191,9 @@ const PetFormBlock = memo(function PetFormBlock({
           </label>
           {/* 性別・不妊去勢: 見出し1つに、性別と手術の有無のプルダウンを横並び（獣医師の助言: 雄も雌も「している／していない／分からない」） */}
           <div className="sm:col-span-2">
-            <span className="mb-1 block text-xs font-medium text-stone-600">
+            <span className={LABEL}>
               {t('register.labelPetSex')}
-              <WhyHint text={t('register.whyNeuter')} label={t('register.whyLabel')} />
+              {why('whyNeuter')}
             </span>
             {/* 横並びで入るときは横に、言葉が長い言語（英語など）で入らないときは自動で2段にする（文字が切れないように） */}
             <div className="flex flex-wrap gap-2" data-pet-sex-neuter>
@@ -219,17 +227,18 @@ const PetFormBlock = memo(function PetFormBlock({
           </div>
         </div>
         {/* ── 避難所の受付で最初に見られる項目（獣医師の助言による並び）── */}
-        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
-          <span className="mb-2 block text-xs font-medium text-stone-600">
+        <WhyGroup className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
+          <span className={`${LABEL} mb-2`}>
             {t('register.labelRabies')}
-            <WhyHint text={t('register.whyRabies')} label={t('register.whyLabel')} />
+            {important}
+            {why('whyRabies')}
           </span>
           {pet.speciesKind === 'cat' || pet.speciesKind === 'other' ? (
-            <p className="text-sm text-stone-600">{t('register.rabiesNotApplicable')}</p>
+            <p className="text-sm font-medium text-stone-700">{t('register.rabiesNotApplicable')}</p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
-                <span className="mb-1 block text-xs text-stone-500">{t('register.labelStatus')}</span>
+                <span className={SUBLABEL}>{t('register.labelStatus')}</span>
                 <select
                   aria-label={t('register.labelRabies')}
                   value={pet.rabiesStatus}
@@ -243,7 +252,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs text-stone-500">{t('register.labelRabiesDate')}</span>
+                <span className={SUBLABEL}>{t('register.labelRabiesDate')}</span>
                 <input
                   type="date"
                   aria-label={`${t('register.labelRabies')} ${t('register.labelRabiesDate')}`}
@@ -255,7 +264,7 @@ const PetFormBlock = memo(function PetFormBlock({
               </label>
               {pet.rabiesStatus === 'exempt' && (
                 <label className="block sm:col-span-2">
-                  <span className="mb-1 block text-xs text-stone-500">{t('register.labelRabiesExemptReason')}</span>
+                  <span className={SUBLABEL}>{t('register.labelRabiesExemptReason')}</span>
                   <ImeAwareInput
                     aria-label={`${t('register.labelRabies')} ${t('register.labelRabiesExemptReason')}`}
                     value={pet.rabiesExemptReason}
@@ -267,15 +276,16 @@ const PetFormBlock = memo(function PetFormBlock({
               )}
             </div>
           )}
-        </div>
-        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
-          <span className="mb-2 block text-xs font-medium text-stone-600">
+        </WhyGroup>
+        <WhyGroup className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
+          <span className={`${LABEL} mb-2`}>
             {t('register.labelVaccineInfo')}
-            <WhyHint text={t('register.whyVaccine')} label={t('register.whyLabel')} />
+            {important}
+            {why('whyVaccine')}
           </span>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-1 block text-xs text-stone-500">{t('register.labelVaccineContent')}</span>
+              <span className={SUBLABEL}>{t('register.labelVaccineContent')}</span>
               <ImeAwareInput
                 aria-label={t('register.labelVaccineInfo')}
                 value={pet.vaccineInfo}
@@ -283,9 +293,15 @@ const PetFormBlock = memo(function PetFormBlock({
                 className={FIELD}
                 placeholder={t('register.placeholderVaccineInfo')}
               />
+              <OcrButton
+                kind="text"
+                label={t('ocr.buttonVaccine')}
+                onApply={(txt) => onUpdatePet(pet.id, { vaccineInfo: appendText(pet.vaccineInfo, txt) })}
+                onPhoto={(f) => void addDocPhotos([f])}
+              />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs text-stone-500">{t('register.labelVaccineDate')}</span>
+              <span className={SUBLABEL}>{t('register.labelVaccineDate')}</span>
               <input
                 type="date"
                 aria-label={`${t('register.labelVaccineInfo')} ${t('register.labelVaccineDate')}`}
@@ -296,15 +312,16 @@ const PetFormBlock = memo(function PetFormBlock({
               />
             </label>
           </div>
-        </div>
-        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
-          <span className="mb-2 block text-xs font-medium text-stone-600">
+        </WhyGroup>
+        <WhyGroup className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
+          <span className={`${LABEL} mb-2`}>
             {t('register.labelParasite')}
-            <WhyHint text={t('register.whyParasite')} label={t('register.whyLabel')} />
+            {important}
+            {why('whyParasite')}
           </span>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-1 block text-xs text-stone-500">{t('register.labelStatus')}</span>
+              <span className={SUBLABEL}>{t('register.labelStatus')}</span>
               <select
                 aria-label={t('register.labelParasite')}
                 value={pet.parasiteStatus}
@@ -317,7 +334,7 @@ const PetFormBlock = memo(function PetFormBlock({
               </select>
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs text-stone-500">{t('register.labelParasiteDate')}</span>
+              <span className={SUBLABEL}>{t('register.labelParasiteDate')}</span>
               <input
                 type="date"
                 aria-label={`${t('register.labelParasite')} ${t('register.labelParasiteDate')}`}
@@ -328,10 +345,10 @@ const PetFormBlock = memo(function PetFormBlock({
               />
             </label>
           </div>
-        </div>
+        </WhyGroup>
         {/* ── 持病・お薬・ごはん ── */}
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
+          <span className={LABEL}>
             {t('register.labelPetMedicalHistory')}
           </span>
           <ImeAwareTextarea
@@ -343,7 +360,7 @@ const PetFormBlock = memo(function PetFormBlock({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
+          <span className={LABEL}>
             {t('register.labelPetMedications')}
           </span>
           <ImeAwareTextarea
@@ -353,9 +370,15 @@ const PetFormBlock = memo(function PetFormBlock({
             className="w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderPetMedications')}
           />
+          <OcrButton
+            kind="text"
+            label={t('ocr.buttonMedicine')}
+            onApply={(txt) => onUpdatePet(pet.id, { medications: appendText(pet.medications, txt) })}
+            onPhoto={(f) => void onAddPetPhoto(pet.id, [f] as unknown as FileList)}
+          />
         </label>
         <div>
-          <span className="mb-1 block text-xs font-medium text-stone-600">
+          <span className={LABEL}>
             {t('register.labelPetMedicinePhoto')}
           </span>
           <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-amber-300 bg-white px-4 py-5 transition hover:border-brand/50 hover:bg-brand-50/20">
@@ -368,7 +391,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 e.currentTarget.value = ''
               }}
             />
-            <span className="text-center text-sm text-stone-500">
+            <span className="text-center text-sm font-medium text-stone-700">
               {t('register.tapToSelectPetMedicinePhoto')}
             </span>
           </label>
@@ -391,7 +414,7 @@ const PetFormBlock = memo(function PetFormBlock({
           )}
         </div>
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
+          <span className={LABEL}>
             {t('register.labelPetAllergies')}
           </span>
           <ImeAwareTextarea
@@ -403,7 +426,7 @@ const PetFormBlock = memo(function PetFormBlock({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-stone-600">
+          <span className={LABEL}>
             {t('register.labelPetFood')}
           </span>
           <ImeAwareInput
@@ -412,12 +435,12 @@ const PetFormBlock = memo(function PetFormBlock({
             className={FIELD}
             placeholder={t('register.placeholderPetFood')}
           />
-          <p className="mt-1.5 text-xs text-stone-500">{t('register.hintPetFood')}</p>
+          <p className={HINT}>{t('register.hintPetFood')}</p>
         </label>
         {/* ── かかりつけ・担当医 ── */}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-stone-600">
+            <span className={LABEL}>
               {t('register.labelVetClinic')}
             </span>
             <ImeAwareInput
@@ -428,9 +451,9 @@ const PetFormBlock = memo(function PetFormBlock({
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-stone-600">
+            <span className={LABEL}>
               {t('register.labelVetDoctor')}
-              <WhyHint text={t('register.whyVetDoctor')} label={t('register.whyLabel')} />
+              {why('whyVetDoctor')}
             </span>
             <ImeAwareInput
               value={pet.vetDoctor}
@@ -441,14 +464,14 @@ const PetFormBlock = memo(function PetFormBlock({
           </label>
         </div>
         {/* ── マイクロチップ（装着 → 登録先 → 番号）── */}
-        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
-          <span className="mb-2 block text-xs font-medium text-stone-600">
+        <WhyGroup className="rounded-lg border border-amber-200 bg-white/60 p-3">
+          <span className={`${LABEL} mb-2`}>
             {t('register.labelMicrochipGroup')}
-            <WhyHint text={t('register.whyMicrochip')} label={t('register.whyLabel')} />
+            {why('whyMicrochip')}
           </span>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-1 block text-xs text-stone-500">{t('register.labelMicrochipFitted')}</span>
+              <span className={SUBLABEL}>{t('register.labelMicrochipFitted')}</span>
               <select
                 aria-label={`${t('register.labelMicrochipGroup')} ${t('register.labelMicrochipFitted')}`}
                 value={pet.microchipFitted}
@@ -464,7 +487,7 @@ const PetFormBlock = memo(function PetFormBlock({
             {pet.microchipFitted !== 'no' && (
               <>
                 <label className="block">
-                  <span className="mb-1 block text-xs text-stone-500">{t('register.labelMicrochipRegistry')}</span>
+                  <span className={SUBLABEL}>{t('register.labelMicrochipRegistry')}</span>
                   <select
                     aria-label={`${t('register.labelMicrochipGroup')} ${t('register.labelMicrochipRegistry')}`}
                     value={pet.microchipRegistry}
@@ -482,7 +505,7 @@ const PetFormBlock = memo(function PetFormBlock({
                 </label>
                 {pet.microchipRegistry === 'other' && (
                   <label className="block">
-                    <span className="mb-1 block text-xs text-stone-500">{t('register.labelMicrochipRegistryOther')}</span>
+                    <span className={SUBLABEL}>{t('register.labelMicrochipRegistryOther')}</span>
                     <ImeAwareInput
                       aria-label={`${t('register.labelMicrochipGroup')} ${t('register.labelMicrochipRegistryOther')}`}
                       value={pet.microchipRegistryOther}
@@ -493,7 +516,7 @@ const PetFormBlock = memo(function PetFormBlock({
                   </label>
                 )}
                 <label className="block">
-                  <span className="mb-1 block text-xs text-stone-500">{t('register.labelMicrochip')}</span>
+                  <span className={SUBLABEL}>{t('register.labelMicrochip')}</span>
                   <ImeAwareInput
                     aria-label={`${t('register.labelMicrochipGroup')} ${t('register.labelMicrochip')}`}
                     value={pet.microchip}
@@ -501,10 +524,78 @@ const PetFormBlock = memo(function PetFormBlock({
                     className={FIELD}
                     placeholder={t('register.placeholderMicrochip')}
                   />
+                  <OcrButton
+                    kind="digits"
+                    label={t('ocr.buttonNumber')}
+                    onApply={(txt) => onUpdatePet(pet.id, { microchip: txt })}
+                    onPhoto={(f) => void addDocPhotos([f])}
+                  />
                 </label>
               </>
             )}
           </div>
+        </WhyGroup>
+        {/* ── 鑑札番号（犬だけ。持っていなければ空欄のままでよい）── */}
+        {isDogOrUnset && (
+          <label className="block rounded-lg border border-amber-200 bg-white/60 p-3">
+            <span className={LABEL}>{t('register.labelLicenseNumber')}</span>
+            <ImeAwareInput
+              aria-label={t('register.labelLicenseNumber')}
+              value={pet.licenseNumber}
+              onValueChange={(v) => onUpdatePet(pet.id, { licenseNumber: v })}
+              className={FIELD}
+              placeholder={t('register.placeholderLicenseNumber')}
+            />
+            <p className={HINT}>{t('register.hintLicenseNumber')}</p>
+            <OcrButton
+              kind="text"
+              label={t('ocr.buttonNumber')}
+              onApply={(txt) => onUpdatePet(pet.id, { licenseNumber: txt.replace(/\n/g, ' ') })}
+              onPhoto={(f) => void addDocPhotos([f])}
+            />
+          </label>
+        )}
+        {/* ── 書類の写真（ワクチン証明書・血液検査・マイクロチップ登録証など）── */}
+        <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
+          <span className={LABEL}>{t('register.labelDocPhotos')}</span>
+          <p className={`${HINT} mb-2`}>{t('register.hintDocPhotos')}</p>
+          {pet.documentPhotoUrls.length > 0 && (
+            <div className="mb-2 grid grid-cols-3 gap-2" data-doc-photos>
+              {pet.documentPhotoUrls.map((src, i) => (
+                <div key={src + i} className="relative">
+                  <img src={getLocalPreview(src) ?? src} alt={t('register.labelDocPhotos')} className="h-24 w-full rounded-lg border border-stone-300 object-cover" />
+                  <button
+                    style={{ color: '#ffffff' }}
+                    type="button"
+                    aria-label={t('register.deletePhoto')}
+                    onClick={() =>
+                      onUpdatePet(pet.id, { documentPhotoUrls: pet.documentPhotoUrls.filter((_, j) => j !== i) })
+                    }
+                    className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-base font-bold text-white shadow-md"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <label className="flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-amber-300 bg-white px-4 py-4">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="sr-only"
+              data-doc-input
+              onChange={(e) => {
+                const files = e.target.files ? Array.from(e.target.files) : []
+                e.currentTarget.value = ''
+                void addDocPhotos(files)
+              }}
+            />
+            <span className="text-center text-sm font-medium text-stone-700">
+              {docUploading > 0 ? t('register.photoUploading') : t('register.tapToAddDocPhotos')}
+            </span>
+          </label>
         </div>
       </div>
     </div>
@@ -520,6 +611,10 @@ type StepPetSectionProps = {
   onAddPetPhoto: (id: string, files: FileList | null) => Promise<void>
   onRemovePetPhoto: (id: string) => void
   t: (key: string, options?: { num?: number }) => string
+  /** 「わたしとペット」で登録するとき: ペット欄が最初のページになり、オン・オフの切り替えは出さない */
+  petMode?: boolean
+  /** ページの上に出すエラー（「わたしとペット」のときに使う） */
+  error?: string | null
 }
 
 export function StepPetSection({
@@ -531,6 +626,8 @@ export function StepPetSection({
   onAddPetPhoto,
   onRemovePetPhoto,
   t,
+  petMode = false,
+  error = null,
 }: StepPetSectionProps) {
   // 削除は確認ダイアログを挟む（押し間違いでペット情報を失わないため）
   const [pendingDelete, setPendingDelete] = useState<PetRow | null>(null)
@@ -551,11 +648,20 @@ export function StepPetSection({
     >
       <div className="mb-4 rounded-xl bg-amber-100/80 px-4 py-3 ring-1 ring-amber-200/70">
         <h2 id="step-pet-title" className="text-lg font-bold text-amber-900">
-          <span aria-hidden="true">🐾</span> {t('register.petsSectionTitle')}
+          <span aria-hidden="true">🐾</span> {petMode ? t('register.petModeTitle') : t('register.petsSectionTitle')}
         </h2>
-        <p className="mt-1 text-sm text-amber-800/90">{t('register.petsSectionSubtitle')}</p>
+        <p className="mt-1 text-sm font-medium text-amber-900">
+          {petMode ? t('register.petModeSubtitle') : t('register.petsSectionSubtitle')}
+        </p>
       </div>
 
+      {error && (
+        <p role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-100">
+          {error}
+        </p>
+      )}
+
+      {!petMode && (
       <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
         <span className="text-sm font-bold text-stone-800">
           {t('register.petsToggleLabel')}
@@ -577,6 +683,7 @@ export function StepPetSection({
           />
         </span>
       </label>
+      )}
 
       {form.registerPetsEnabled && (
         <div className="mt-6 space-y-6">

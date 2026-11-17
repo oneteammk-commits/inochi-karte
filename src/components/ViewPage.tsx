@@ -6,6 +6,7 @@ import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
 import { downloadOmamoriCard, downloadQrOnly, downloadWatchQr } from '../lib/omamoriCard'
 import { PetViewSection } from './PetViewSection'
 import type { PetRegistrationRow } from '../types/petRegistration'
+import { downloadCardCsv } from '../lib/cardCsv'
 
 /** お薬写真1枚。読み込みに失敗したときは、壊れた画像アイコンではなく
  *  「読み込めませんでした」の案内(タップで元URLを開く)を出す。 */
@@ -149,7 +150,9 @@ export function ViewPage({ id }: { id: string }) {
           <h2 className="text-lg font-bold text-blue-800 border-b-2 border-blue-200 pb-2 mb-3">👤 {t('view.basicInfo')}</h2>
           <p className="text-3xl font-bold text-black">{data.name}</p>
           {data.furigana && <p className="text-base text-stone-700 mt-1">{data.furigana}</p>}
-          <p className="text-base text-black mt-2">{t('view.birthDate')}: <span className="font-bold">{data.birth_date}</span></p>
+          {data.birth_date && (
+            <p className="text-base text-black mt-2">{t('view.birthDate')}: <span className="font-bold">{data.birth_date}</span></p>
+          )}
         </div>
 
         <div className="bg-pink-50 border-l-4 border-pink-500 shadow-sm p-5 mb-3 rounded-r-2xl">
@@ -160,7 +163,7 @@ export function ViewPage({ id }: { id: string }) {
               <span className="font-bold">{data.emergency_contact_relationship}</span>
             </p>
           )}
-          <p className="text-xl font-bold text-black mt-1">{data.emergency_contact_name}</p>
+          {data.emergency_contact_name && <p className="text-xl font-bold text-black mt-1">{data.emergency_contact_name}</p>}
           {data.emergency_contact_furigana && <p className="text-base text-stone-700">{data.emergency_contact_furigana}</p>}
           <a href={"tel:" + data.emergency_contact_phone} className="mt-3 inline-block text-2xl font-bold text-blue-700 underline">📞 {data.emergency_contact_phone}</a>
         </div>
@@ -187,6 +190,8 @@ export function ViewPage({ id }: { id: string }) {
           </div>
         )}
 
+        {/* 「わたしとペット」で登録してお薬が無いときは、空の欄を出さない */}
+        {!(data.card_mode === 'pet' && medications.length === 0) && (
         <div className="bg-purple-50 border-l-4 border-purple-500 shadow-sm p-5 mb-3 rounded-r-2xl">
           <h2 className="text-lg font-bold text-purple-700 border-b-2 border-purple-200 pb-2 mb-3">💊 {t('view.medications')}</h2>
           {medications.length === 0 ? (
@@ -208,6 +213,7 @@ export function ViewPage({ id }: { id: string }) {
             ))
           )}
         </div>
+        )}
 
         {data.hospital_name && (
           <div className="bg-sky-50 border-l-4 border-sky-500 shadow-sm p-5 mb-3 rounded-r-2xl">
@@ -244,6 +250,7 @@ export function ViewPage({ id }: { id: string }) {
             emergencyName: data.emergency_contact_name,
             emergencyPhone: data.emergency_contact_phone,
           }}
+          showQr
         />
 
 <div className="bg-white border-2 border-red-700 shadow-md p-5 mb-3 rounded-2xl">
@@ -293,6 +300,19 @@ export function ViewPage({ id }: { id: string }) {
               <span className="block text-xs font-normal opacity-80 leading-snug">{t('view.emFinds', '具合が悪くなったときに役立つガイド（JNTOサイト）')}</span>
             </span>
           </a>
+        </div>
+
+        {/* 文字のデータ（CSV）: 行政などに渡すとき、写真を見て打ち直さなくて済むように */}
+        <div className="mt-6 rounded-2xl border border-stone-300 bg-white p-4">
+          <button
+            type="button"
+            onClick={() => downloadCardCsv(data, pets)}
+            data-csv
+            className="block w-full rounded-xl border-2 border-stone-700 bg-white py-3 text-center text-base font-bold text-stone-900"
+          >
+            📄 {t('view.csvSave')}
+          </button>
+          <p className="mt-2 text-xs font-medium leading-relaxed text-stone-700">{t('view.csvNote')}</p>
         </div>
 
         <div className="mt-6 mb-4">          <a href={"/edit/" + id} className="block w-full bg-stone-700 hover:bg-stone-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow">{t('view.buttonEdit')}</a>

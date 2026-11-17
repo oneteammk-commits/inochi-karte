@@ -69,6 +69,7 @@ function dataToForm(data: any): RegistrationFormState {
     dailyNotes: data.daily_notes || '',
     medications,
     registerPetsEnabled: false,
+    cardMode: data.card_mode === 'pet' ? 'pet' : '',
     pets: [],
     editPassword: '',
   }

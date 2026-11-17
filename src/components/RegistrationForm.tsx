@@ -14,7 +14,6 @@ import {
 ALLERGY_TAGS,  CHRONIC_TAGS,
   FACILITY_TYPES,
   PREFECTURES,
-  STEP_LABELS,
 } from '../data/registrationConstants'
 import { persistRegistration } from '../lib/persistRegistration'
 import { persistPetRegistrations } from '../lib/persistPetRegistrations'
@@ -22,6 +21,11 @@ import { addMyCard } from '../lib/storage'
 import { StepPetSection } from './StepPetSection'
 import { createEmptyPetRow } from '../types/pet'
 import type { PetRow } from '../types/pet'
+import { readWhyMode, WhyModeContext } from './WhyHint'
+import { ModeSelect } from './ModeSelect'
+import { PetQrBlock } from './PetQrBlock'
+import { fetchCard } from '../lib/cardApi'
+import type { PetRegistrationRow } from '../types/petRegistration'
 import type { MedicationRow, RegistrationFormState } from '../types/registration'
 
 export type { MedicationRow, RegistrationFormState }
@@ -57,8 +61,33 @@ const initialForm: RegistrationFormState = {
   dailyNotes: '',
   medications: [createEmptyMedicationRow()],
   registerPetsEnabled: false,
+  cardMode: '',
   pets: [],
   editPassword: '',
+}
+
+/** 登録の種類: null = まだ選んでいない（最初の選択画面を出す） */
+type RegisterMode = null | 'person' | 'pet'
+
+/** 「わたしの情報」: これまでどおりの順番（ペットは最後のページでいっしょに登録できる） */
+const PERSON_STEPS = ['basic', 'region', 'tags', 'meds', 'password', 'done'] as const
+/** 「わたしとペット」: ペットの情報から入力。飼い主はお名前と電話だけ必須 */
+const PET_STEPS = ['pets', 'owner', 'password', 'done'] as const
+type StepKey = (typeof PERSON_STEPS)[number] | (typeof PET_STEPS)[number]
+
+function stepsFor(mode: RegisterMode): readonly StepKey[] {
+  return mode === 'pet' ? PET_STEPS : PERSON_STEPS
+}
+
+const VOICE_KEY = 'sitte_voice_guide'
+/** 声のご案内を使っている人は、選択画面を飛ばして「わたしの情報」から始める（声の流れを止めないため） */
+function initialMode(): RegisterMode {
+  try {
+    if (localStorage.getItem(VOICE_KEY) === 'on') return 'person'
+  } catch {
+    // noop
+  }
+  return null
 }
 
 function toggleInList(list: string[], value: string): string[] {
@@ -68,9 +97,9 @@ function toggleInList(list: string[], value: string): string[] {
   return [...list, value]
 }
 
-function validateRegistrationStep(s: number, data: RegistrationFormState, t: (key: string) => string): string | null {
-  switch (s) {
-    case 0: {
+function validateRegistrationStep(key: StepKey, data: RegistrationFormState, t: (key: string) => string): string | null {
+  switch (key) {
+    case 'basic': {
       if (!data.fullName.trim()) return t('register.errorName')
       if (!data.birthDate) return t('register.errorBirthDate')
       if (!isCompleteBirthDate(data.birthDate)) return t('register.errorBirthDateIncomplete')
@@ -86,7 +115,7 @@ function validateRegistrationStep(s: number, data: RegistrationFormState, t: (ke
       if (!data.emergencyContactPhone.trim()) return t('register.errorEmergencyPhone')
       return null
     }
-    case 1: {
+    case 'region': {
       if (data.postalCode.replace(/\D/g, '').length !== 7) {
         return t('register.errorPostalCode')
       }
@@ -95,11 +124,19 @@ function validateRegistrationStep(s: number, data: RegistrationFormState, t: (ke
       if (!data.facilityType) return t('register.errorFacilityType')
       return null
     }
-    case 2:
+    case 'pets': {
+      // 「わたしとペット」: ペットの名前が1匹分は入っていること
+      if (!data.pets.some((p) => p.petName.trim())) return t('register.errorPetName')
       return null
-    case 3:
+    }
+    case 'owner': {
+      // 「わたしとペット」: 飼い主はお名前と電話番号だけ必須。生年月日は入れるなら最後まで
+      if (!data.fullName.trim()) return t('register.errorName')
+      if (!data.emergencyContactPhone.trim()) return t('register.errorOwnerPhone')
+      if (data.birthDate && !isCompleteBirthDate(data.birthDate)) return t('register.errorBirthDateIncomplete')
       return null
-    case 4: {
+    }
+    case 'password': {
       if (!data.editPassword) return t('register.errorPassword')
       if (!/^\d{4}$/.test(data.editPassword)) return t('register.errorPasswordFormat')
       return null
@@ -107,7 +144,9 @@ function validateRegistrationStep(s: number, data: RegistrationFormState, t: (ke
     default:
       return null
   }
-}type WizardState = {
+}
+
+type WizardState = {
   step: number
   registrationId: string | null
 }
@@ -116,6 +155,9 @@ const DRAFT_KEY = 'sitte_registration_draft_v1'
 
 export function RegistrationForm() {
   const { t } = useTranslation()
+  const [whyMode] = useState(readWhyMode)
+  const [mode, setMode] = useState<RegisterMode>(initialMode)
+  const steps = stepsFor(mode)
   const [wizard, setWizard] = useState<WizardState>({ step: 0, registrationId: null })
   const [form, setForm] = useState<RegistrationFormState>(initialForm)
   const [stepError, setStepError] = useState<string | null>(null)
@@ -131,6 +173,8 @@ export function RegistrationForm() {
   formRef.current = form
   const wizardRef = useRef(wizard)
   wizardRef.current = wizard
+  const stepsRef = useRef(steps)
+  stepsRef.current = steps
 
   // 自動下書き保存: 入力途中で画面が作り直されても、続きから再開できる
   const [draftAvailable, setDraftAvailable] = useState<boolean>(() => {
@@ -147,19 +191,24 @@ export function RegistrationForm() {
     if (wizard.registrationId) return
     if (draftAvailable) return
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ form, step: wizard.step, savedAt: Date.now() }))
+      if (!mode) return
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ form, step: wizard.step, mode, savedAt: Date.now() }))
     } catch {
       // 保存できない環境でも入力は継続できる
     }
-  }, [form, wizard.step, wizard.registrationId, draftAvailable])
+  }, [form, wizard.step, wizard.registrationId, draftAvailable, mode])
   const restoreDraft = () => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY)
       if (raw) {
         const d = JSON.parse(raw)
         if (d && d.form && typeof d.form === 'object') {
-          setForm({ ...initialForm, ...d.form })
-          setWizard((w) => ({ ...w, step: typeof d.step === 'number' ? d.step : 0 }))
+          // 以前の下書き（登録の種類が無いもの）は「わたしの情報」として続ける
+          const m: RegisterMode = d.mode === 'pet' ? 'pet' : 'person'
+          setMode(m)
+          setForm({ ...initialForm, ...d.form, cardMode: m === 'pet' ? 'pet' : '' })
+          const maxStep = stepsFor(m).length - 2
+          setWizard((w) => ({ ...w, step: typeof d.step === 'number' ? Math.min(Math.max(d.step, 0), maxStep) : 0 }))
         }
       }
     } catch {
@@ -177,6 +226,7 @@ export function RegistrationForm() {
   }
 
   const activeStep = wizard.step
+  const activeKey: StepKey = steps[Math.min(activeStep, steps.length - 1)]
   // ページが変わったら、新しいページの見出しに移る（iPhoneのVoiceOverなどで、新しいページの名前から読まれるように）
   const prevStepRef = useRef(activeStep)
   useEffect(() => {
@@ -205,17 +255,19 @@ export function RegistrationForm() {
   const goNext = async () => {
     if (submitLockRef.current) return
     const currentStep = wizardRef.current.step
+    const currentSteps = stepsRef.current
+    const currentKey = currentSteps[Math.min(currentStep, currentSteps.length - 1)]
     const data = formRef.current
     if (photoUploadingRef.current > 0) {
       setStepError(t('register.photoUploadWait'))
       return
     }
-    const err = validateRegistrationStep(currentStep, data, t)
+    const err = validateRegistrationStep(currentKey, data, t)
     setStepError(err)
     if (err) return
     setStepError(null)
 
-    if (currentStep === 4) {
+    if (currentKey === 'password') {
       submitLockRef.current = true
       setIsSubmitting(true)
       try {
@@ -230,7 +282,7 @@ export function RegistrationForm() {
           // noop
         }
         setWizard((w) => ({
-          step: Math.min(w.step + 1, STEP_LABELS.length - 1),
+          step: Math.min(w.step + 1, currentSteps.length - 1),
           registrationId: savedId,
         }))
       } catch (e) {
@@ -243,7 +295,7 @@ export function RegistrationForm() {
     }
 
     setWizard((w) => {
-      const maxIdx = STEP_LABELS.length - 1
+      const maxIdx = currentSteps.length - 1
       const nextStep = Math.min(w.step + 1, maxIdx)
       return { step: nextStep, registrationId: w.registrationId }
     })
@@ -251,12 +303,34 @@ export function RegistrationForm() {
 
   const goBack = () => {
     setStepError(null)
+    // 最初のページで「戻る」を押したら、登録の種類を選ぶ画面に戻る（声のご案内中は戻らない）
+    if (wizardRef.current.step === 0) {
+      if (!initialMode()) setMode(null)
+      return
+    }
     setWizard((w) => ({ ...w, step: Math.max(w.step - 1, 0) }))
+  }
+
+  /** 最初の画面で登録の種類を選んだとき */
+  const chooseMode = (m: 'person' | 'pet') => {
+    setStepError(null)
+    setMode(m)
+    setWizard({ step: 0, registrationId: null })
+    if (m === 'pet') {
+      setForm((prev) => ({
+        ...prev,
+        cardMode: 'pet',
+        registerPetsEnabled: true,
+        pets: prev.pets.length > 0 ? prev.pets : [createEmptyPetRow()],
+      }))
+    } else {
+      setForm((prev) => ({ ...prev, cardMode: '' }))
+    }
   }
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (activeStep >= 5 || isSubmitting) return
+    if (activeKey === 'done' || isSubmitting) return
     void goNext()
   }
 
@@ -377,7 +451,54 @@ export function RegistrationForm() {
     }))
   }, [])
 
+  const draftBanner = draftAvailable && !registrationId && (
+    <div className="mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
+      <p className="mb-3 text-sm font-semibold text-amber-900">
+        入力途中のデータがあります。続きから入力しますか?
+      </p>
+      <div className="flex gap-3">
+        <button
+          style={{ color: '#ffffff' }}
+          type="button"
+          onClick={restoreDraft}
+          className="flex-1 rounded-xl bg-red-700 py-2.5 text-sm font-bold text-white hover:bg-red-800"
+        >
+          続きから入力する
+        </button>
+        <button
+          type="button"
+          onClick={discardDraft}
+          className="flex-1 rounded-xl border border-stone-300 bg-white py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+        >
+          最初から入力する
+        </button>
+      </div>
+    </div>
+  )
+
+  const stepLabel = (key: StepKey): string => {
+    switch (key) {
+      case 'basic':
+        return t('register.step1')
+      case 'region':
+        return t('register.step2')
+      case 'tags':
+        return t('register.step3')
+      case 'meds':
+        return t('register.step4')
+      case 'password':
+        return t('register.step5')
+      case 'done':
+        return t('register.step6')
+      case 'pets':
+        return t('register.stepPets')
+      case 'owner':
+        return t('register.stepOwner')
+    }
+  }
+
   return (
+    <WhyModeContext.Provider value={whyMode}>
     <div className="min-h-screen bg-stone-100 pb-16 pt-6 sm:pt-10">
       <main className="mx-auto max-w-lg px-4">
       <header className="mb-8 text-center">
@@ -392,44 +513,28 @@ export function RegistrationForm() {
             </p>
                       </header>
 
+        {mode === null ? (
+          <>
+            {draftBanner}
+            <ModeSelect onChoose={chooseMode} />
+          </>
+        ) : (
+        <>
         <VoiceGuide containerRef={formElRef} stepKey={activeStep} error={stepError} onNext={() => void goNext()} onBack={goBack} />
 
-        <StepIndicator current={activeStep} labels={[t('register.step1'), t('register.step2'), t('register.step3'), t('register.step4'), t('register.step5'), t('register.step6')]} />
+        <StepIndicator current={activeStep} labels={steps.map(stepLabel)} />
 
-        {draftAvailable && !registrationId && (
-          <div className="mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
-            <p className="mb-3 text-sm font-semibold text-amber-900">
-              入力途中のデータがあります。続きから入力しますか?
-            </p>
-            <div className="flex gap-3">
-              <button
-                style={{ color: '#ffffff' }}
-                type="button"
-                onClick={restoreDraft}
-                className="flex-1 rounded-xl bg-red-700 py-2.5 text-sm font-bold text-white hover:bg-red-800"
-              >
-                続きから入力する
-              </button>
-              <button
-                type="button"
-                onClick={discardDraft}
-                className="flex-1 rounded-xl border border-stone-300 bg-white py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-50"
-              >
-                最初から入力する
-              </button>
-            </div>
-          </div>
-        )}
+        {draftBanner}
 
         <form ref={formElRef} onSubmit={handleFormSubmit} noValidate className="block">
           <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:p-8">
-            {activeStep === 0 && (
+            {activeKey === 'basic' && (
 <StepBasic form={form} onChange={updateForm} error={stepError} t={t} />            )}
-            {activeStep === 1 && (
+            {activeKey === 'region' && (
 <StepRegion form={form} onChange={updateForm} error={stepError} t={t} />            )}
-            {activeStep === 2 && (
+            {activeKey === 'tags' && (
 <StepMedicalTags form={form} onChange={updateForm} error={stepError} t={t} />            )}
-           {activeStep === 3 && (
+           {activeKey === 'meds' && (
   <StepMedications
     form={form}
     onAddRow={addMedicationRow}
@@ -440,8 +545,24 @@ export function RegistrationForm() {
 error={stepError}
     t={t}  />
 )}
-{activeStep === 4 && (
+            {activeKey === 'pets' && (
+              <StepPetSection
+                form={form}
+                onChange={updateForm}
+                onAddPet={addPetRow}
+                onRemovePet={removePetRow}
+                onUpdatePet={updatePet}
+                onAddPetPhoto={addPetPhoto}
+                onRemovePetPhoto={removePetPhoto}
+                t={t}
+                petMode
+                error={stepError}
+              />
+            )}
+            {activeKey === 'owner' && <StepOwner form={form} onChange={updateForm} error={stepError} t={t} />}
+{activeKey === 'password' && (
               <>
+                {mode !== 'pet' && (
                 <StepPetSection
                   form={form}
                   onChange={updateForm}
@@ -452,20 +573,21 @@ error={stepError}
                   onRemovePetPhoto={removePetPhoto}
                   t={t}
                 />
+                )}
                 <StepEditPassword form={form} onChange={updateForm} error={stepError} t={t} />
               </>
             )}
-{activeStep === 5 && registrationId && (
-  <StepComplete registrationId={registrationId} qrValue={qrPayload} t={t} />
+{activeKey === 'done' && registrationId && (
+  <StepComplete registrationId={registrationId} qrValue={qrPayload} t={t} petMode={mode === 'pet'} />
 )}
           </div>
 
-          {activeStep < 5 && (
+          {activeKey !== 'done' && (
             <nav className="mt-6 flex gap-3">
               <button
                 type="button"
                 onClick={goBack}
-                disabled={activeStep === 0 || isSubmitting}
+                disabled={(activeStep === 0 && !!initialMode()) || isSubmitting}
                 className="flex-1 rounded-xl border border-stone-300 bg-white py-3 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {t('register.buttonBack')}
@@ -478,15 +600,18 @@ error={stepError}
               >
                 {isSubmitting
                   ? t('register.saving')
-                  : activeStep === 4
+                  : activeKey === 'password'
                     ? t('register.buttonRegister')
                     : t('register.buttonNext')}
               </button>
             </nav>
           )}
         </form>
+        </>
+        )}
       </main>
     </div>
+    </WhyModeContext.Provider>
   )
 }
 
@@ -624,6 +749,122 @@ export function StepBasic({
     </section>
   )
 }
+/**
+ * 「わたしとペット」の飼い主のページ。
+ * 必須はお名前と電話番号だけ。そのほかは「ほかの情報も入れる」を開いたときだけ出す。
+ */
+function StepOwner({
+  form,
+  onChange,
+  error,
+  t,
+}: {
+  form: RegistrationFormState
+  onChange: (p: Partial<RegistrationFormState>) => void
+  error: string | null
+  t: (key: string) => string
+}) {
+  const hasExtra = !!(
+    form.furigana ||
+    form.birthDate ||
+    form.emergencyContactName ||
+    form.emergencyContactRelationshipKey
+  )
+  const fieldClass =
+    'w-full rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none ring-brand/30 transition focus:border-brand focus:ring-2'
+  return (
+    <section aria-labelledby="step-owner-title">
+      <h2 id="step-owner-title" className="mb-2 text-lg font-bold text-stone-900">
+        {t('register.ownerTitle')}
+      </h2>
+      <p className="mb-6 text-sm font-medium text-stone-700">{t('register.ownerSubtitle')}</p>
+      <FieldError message={error} />
+      <div className="space-y-5">
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-semibold text-stone-800">
+            {t('register.labelOwnerName')}
+            <span className="ml-1.5 rounded border border-red-800 bg-red-50 px-1.5 py-px text-[11px] font-bold text-red-900">
+              {t('register.required')}
+            </span>
+          </span>
+          <ImeAwareInput
+            autoComplete="name"
+            aria-required="true"
+            aria-label={t('register.labelOwnerName')}
+            value={form.fullName}
+            onValueChange={(v) => onChange({ fullName: v })}
+            className={fieldClass}
+            placeholder={t('register.placeholderName')}
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-semibold text-stone-800">
+            {t('register.labelOwnerPhone')}
+            <span className="ml-1.5 rounded border border-red-800 bg-red-50 px-1.5 py-px text-[11px] font-bold text-red-900">
+              {t('register.required')}
+            </span>
+          </span>
+          <input
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            aria-required="true"
+            aria-label={t('register.labelOwnerPhone')}
+            aria-describedby="hint-owner-phone"
+            value={form.emergencyContactPhone}
+            onChange={(e) => onChange({ emergencyContactPhone: e.target.value })}
+            className={fieldClass}
+            placeholder={t('register.placeholderEmergencyPhone')}
+          />
+          <p id="hint-owner-phone" className="mt-1.5 text-xs font-medium leading-relaxed text-stone-700">
+            {t('register.hintOwnerPhone')}
+          </p>
+        </label>
+
+        <details className="rounded-xl border border-stone-300 bg-stone-50 p-4" open={hasExtra}>
+          <summary className="cursor-pointer text-sm font-bold text-stone-800">{t('register.ownerMore')}</summary>
+          <div className="mt-4 space-y-5">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelFurigana')}</span>
+              <ImeAwareInput
+                value={form.furigana}
+                onValueChange={(v) => onChange({ furigana: v })}
+                className={fieldClass}
+                placeholder={t('register.placeholderFurigana')}
+              />
+            </label>
+            <BirthDateField value={form.birthDate} onChange={(birthDate) => onChange({ birthDate })} t={t} />
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-stone-700">
+                {t('register.labelEmergencyRelationship')}
+              </span>
+              <EmergencyRelationshipField
+                relationshipKey={form.emergencyContactRelationshipKey}
+                relationshipOther={form.emergencyContactRelationshipOther}
+                onChange={onChange}
+                t={t}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-stone-700">{t('register.labelEmergencyName')}</span>
+              <ImeAwareInput
+                type="text"
+                value={form.emergencyContactName}
+                onValueChange={(v) => onChange({ emergencyContactName: v })}
+                className={fieldClass}
+                placeholder={t('register.placeholderEmergencyName')}
+              />
+            </label>
+          </div>
+        </details>
+        <p className="rounded-lg bg-sky-50 p-3 text-sm font-medium leading-relaxed text-sky-900">
+          {t('register.ownerLaterNote')}
+        </p>
+      </div>
+    </section>
+  )
+}
+
 export function StepRegion({
   form,
   onChange,
@@ -1015,12 +1256,26 @@ function StepEditPassword({
   registrationId,
   qrValue,
   t,
+  petMode = false,
 }: {
   registrationId: string
   qrValue: string
   t: (key: string) => string
+  petMode?: boolean
 }) {
   const viewUrl = "/card/" + registrationId
+  // 「わたしとペット」のときは、首輪用（ペット用）の二次元コードもこの画面で見せる
+  const [pets, setPets] = useState<PetRegistrationRow[]>([])
+  useEffect(() => {
+    if (!petMode) return
+    let alive = true
+    void fetchCard(registrationId).then((b) => {
+      if (alive && b) setPets(b.pets)
+    })
+    return () => {
+      alive = false
+    }
+  }, [petMode, registrationId])
   return (
   <section className="text-center" aria-labelledby="step-done-title">
       <div className="mb-4 flex items-center justify-center gap-3">
@@ -1046,6 +1301,13 @@ function StepEditPassword({
         {t('register.registrationId')}
       </p>
       <p className="mb-8 font-mono text-sm text-black break-all">{registrationId}</p>
+      {petMode && pets.length > 0 && (
+        <div className="mb-8 space-y-4 text-left">
+          {pets.map((p) => (
+            <PetQrBlock key={p.id} petId={p.id} petName={p.pet_name} />
+          ))}
+        </div>
+      )}
       <a href={viewUrl} className="block w-full bg-red-700 hover:bg-red-800 text-white text-center py-5 rounded-2xl text-lg font-bold shadow-md mb-3">{t('register.buttonViewCard')}</a>
       <a href="/" className="block w-full bg-white border-2 border-stone-400 hover:bg-stone-50 text-black text-center py-4 rounded-2xl text-base font-bold">{t('register.buttonHome')}</a>
     </section>

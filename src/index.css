@@ -30,3 +30,27 @@ h1, h2, h3, h4 {
   font-weight: 700;
   color: #000000;
 }
+
+/*
+ * 日付の欄（ペットの接種日など）
+ * iPhone の Safari では日付の欄が中身の幅より小さくならず、枠からはみ出す。
+ * 見た目の飾りを外して幅を枠に合わせ、高さはほかの入力欄とそろえる。
+ */
+input[type='date'].date-field {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.75rem;
+  text-align: left;
+}
+input[type='date'].date-field::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+input[type='date'].date-field::-webkit-calendar-picker-indicator {
+  margin-left: auto;
+}

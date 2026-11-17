@@ -42,6 +42,10 @@ export type PetRow = {
   microchipRegistry: PetMicrochipRegistry
   microchipRegistryOther: string
   microchip: string
+  /** 犬の鑑札番号（持っていなければ空） */
+  licenseNumber: string
+  /** 書類の写真（ワクチン証明書・血液検査・マイクロチップ登録証など）のURL */
+  documentPhotoUrls: string[]
   food: string
   features: string
   photoUrl: string | null
@@ -75,6 +79,8 @@ export function createEmptyPetRow(): PetRow {
     microchipRegistry: '',
     microchipRegistryOther: '',
     microchip: '',
+    licenseNumber: '',
+    documentPhotoUrls: [],
     food: '',
     features: '',
     photoUrl: null,
@@ -108,6 +114,8 @@ export function petRowHasAnyData(pet: PetRow): boolean {
     pet.microchipRegistry ||
     pet.microchipRegistryOther.trim() ||
     pet.microchip.trim() ||
+    pet.licenseNumber.trim() ||
+    pet.documentPhotoUrls.length > 0 ||
     pet.food.trim() ||
     pet.features.trim() ||
     pet.photoUrl ||

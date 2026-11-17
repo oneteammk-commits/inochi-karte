@@ -26,5 +26,7 @@ export type PetRegistrationRow = {
   microchip_fitted?: string | null
   microchip_registry?: string | null
   microchip_registry_other?: string | null
+  license_number?: string | null
+  document_photo_urls?: string[] | null
   owner_id: string
 }

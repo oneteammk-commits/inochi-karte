@@ -94,6 +94,7 @@ export function buildCardCsv(registration: any, pets: PetRegistrationRow[]): str
     add(rows, g, 'アレルギー', p.allergies)
     add(rows, g, 'ごはん', p.food)
     add(rows, g, 'かかりつけ動物病院', p.vet_clinic)
+    add(rows, g, 'かかりつけ動物病院・住所', p.vet_clinic_address)
     add(rows, g, '担当獣医師', p.vet_doctor)
     add(rows, g, 'マイクロチップ', label(p.microchip_fitted, FITTED))
     add(rows, g, 'マイクロチップ・登録先', label(p.microchip_registry, REGISTRY))

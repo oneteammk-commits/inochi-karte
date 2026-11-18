@@ -50,6 +50,7 @@ export async function buildPetRows(
         medications: pet.medications.trim() || null,
         allergies: pet.allergies.trim() || null,
         vet_clinic: pet.vetClinic.trim() || null,
+        vet_clinic_address: pet.vetClinicAddress.trim() || null,
         vet_doctor: pet.vetDoctor.trim() || null,
         vaccine_info: pet.vaccineInfo.trim() || null,
         vaccine_date: pet.vaccineDate || null,

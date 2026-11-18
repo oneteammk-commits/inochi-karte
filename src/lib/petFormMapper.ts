@@ -36,6 +36,7 @@ export function petRegistrationToFormRow(row: PetRegistrationRow): PetRow {
     medications: row.medications ?? '',
     allergies: row.allergies ?? '',
     vetClinic: row.vet_clinic ?? '',
+    vetClinicAddress: row.vet_clinic_address ?? '',
     vetDoctor: row.vet_doctor ?? '',
     vaccineInfo: row.vaccine_info ?? '',
     vaccineDate: row.vaccine_date ?? '',

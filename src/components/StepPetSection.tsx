@@ -4,7 +4,7 @@ import type { RegistrationFormState } from '../types/registration'
 import { ImeAwareInput, ImeAwareTextarea } from './ImeAwareField'
 import { getLocalPreview, uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
 import { ImportantBadge, WhyGroup, WhyHint } from './WhyHint'
-import { FoldSection } from './CompareModes'
+import { FoldSection, useCompare } from './CompareModes'
 
 type PetFormBlockProps = {
   pet: PetRow
@@ -647,6 +647,8 @@ export function StepPetSection({
 }: StepPetSectionProps) {
   // 削除は確認ダイアログを挟む（押し間違いでペット情報を失わないため）
   const [pendingDelete, setPendingDelete] = useState<PetRow | null>(null)
+  // 重要ラベル・文字と色・画面の長さの形（登録画面と編集画面の両方で同じ見た目にする）
+  const compare = useCompare()
 
   const handleToggle = (enabled: boolean) => {
     if (enabled && form.pets.length === 0) {
@@ -660,6 +662,9 @@ export function StepPetSection({
   return (
     <section
       aria-labelledby="step-pet-title"
+      data-imp={compare.imp}
+      data-ud={compare.ud}
+      data-fold={compare.fold}
       className="mb-8 mt-8 rounded-2xl border-2 border-brand bg-amber-100/50 p-5 sm:p-6"
     >
       <div className="mb-4 rounded-xl bg-amber-100/80 px-4 py-3 ring-1 ring-amber-200/70">

@@ -21,8 +21,8 @@ import { addMyCard } from '../lib/storage'
 import { StepPetSection } from './StepPetSection'
 import { createEmptyPetRow } from '../types/pet'
 import type { PetRow } from '../types/pet'
-import { readWhyMode, saveWhyMode, WhyModeContext } from './WhyHint'
-import { CompareContext, CompareSwitcher, readVariant, saveVariant, type CompareKey, type CompareState, type Variant } from './CompareModes'
+import { readWhyMode, WhyModeContext } from './WhyHint'
+import { CompareContext, readVariant, type CompareState } from './CompareModes'
 import { ModeSelect } from './ModeSelect'
 import { PetQrBlock } from './PetQrBlock'
 import { fetchCard } from '../lib/cardApi'
@@ -156,21 +156,13 @@ const DRAFT_KEY = 'sitte_registration_draft_v1'
 
 export function RegistrationForm() {
   const { t } = useTranslation()
-  const [whyMode, setWhyMode] = useState(readWhyMode)
-  // 見比べ用（重要ラベル・文字と色・画面の長さ）。標準は A。「仮」の画面だけで切り替えられる
-  const [compare, setCompare] = useState<CompareState>(() => ({
+  const [whyMode] = useState(readWhyMode)
+  // 重要ラベル・文字と色・画面の長さの形（11/19 に決定。CompareModes.tsx の DEFAULT_VARIANTS）
+  const [compare] = useState<CompareState>(() => ({
     imp: readVariant('imp'),
     ud: readVariant('ud'),
     fold: readVariant('fold'),
   }))
-  const changeCompare = (key: CompareKey, v: Variant) => {
-    saveVariant(key, v)
-    setCompare((c) => ({ ...c, [key]: v }))
-  }
-  const changeWhy = (v: Variant) => {
-    saveWhyMode(v)
-    setWhyMode(v)
-  }
   const [mode, setMode] = useState<RegisterMode>(initialMode)
   const steps = stepsFor(mode)
   const [wizard, setWizard] = useState<WizardState>({ step: 0, registrationId: null })
@@ -632,7 +624,6 @@ error={stepError}
         )}
       </main>
     </div>
-    <CompareSwitcher state={compare} whyMode={whyMode} onChange={changeCompare} onWhyChange={changeWhy} />
     </CompareContext.Provider>
     </WhyModeContext.Provider>
   )

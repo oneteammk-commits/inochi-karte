@@ -143,7 +143,14 @@ function norm(s: string): string {
 function fieldLabel(el: HTMLElement): string {
   const aria = el.getAttribute('aria-label')
   if (aria) return clean(aria)
-  const group = el.closest('label')?.querySelector('span')?.textContent
+  // 「なぜ必要？」の説明（開いているとき）は項目名に含めない（項目名だけを読む。説明の読み上げは足さない）
+  const groupSpan = el.closest('label')?.querySelector('span')
+  let group = groupSpan?.textContent ?? ''
+  if (groupSpan?.querySelector('[data-why-text]')) {
+    const copy = groupSpan.cloneNode(true) as HTMLElement
+    copy.querySelectorAll('[data-why-text]').forEach((n) => n.remove())
+    group = copy.textContent ?? ''
+  }
   const prev = el.previousElementSibling
   const own = prev && prev.tagName === 'SPAN' ? prev.textContent : ''
   const parts = [clean(group), clean(own)].filter(Boolean)
@@ -244,8 +251,16 @@ function petToggleOf(root: HTMLElement): HTMLInputElement | null {
   return root.querySelector<HTMLInputElement>('label input[type="checkbox"].sr-only')
 }
 
+/** 折りたたまれている項目（任意の項目など）を開く。声のご案内では、たたまれた欄も順番に案内するため */
+function openFolded(root: HTMLElement) {
+  root.querySelectorAll<HTMLDetailsElement>('details[data-fold-section]:not([open])').forEach((d) => {
+    d.open = true
+  })
+}
+
 /** 声で順番に案内する欄（空かどうかに関係なく、画面に見えているもの）。元号の欄は年と一緒に扱うので入れない */
 function voiceFields(root: HTMLElement): HTMLElement[] {
+  openFolded(root)
   return Array.from(root.querySelectorAll<HTMLElement>('input, select, textarea')).filter((el) => {
     if (!el.offsetParent || (el as HTMLInputElement).disabled) return false
     if (el.tagName === 'SELECT' && el.closest('[data-voice-date]')) return false
@@ -275,6 +290,7 @@ function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectE
 
 /** 声で入れられる欄（画面に見えていて、まだ空のもの）を順番に並べる */
 function fillableFields(root: HTMLElement): HTMLElement[] {
+  openFolded(root)
   return Array.from(root.querySelectorAll<HTMLElement>('input, select, textarea')).filter((el) => {
     if (!el.offsetParent || (el as HTMLInputElement).disabled) return false
     if (el.tagName === 'SELECT' && el.closest('[data-voice-date]')) return false

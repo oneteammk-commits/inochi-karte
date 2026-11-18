@@ -11,8 +11,8 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 export type WhyMode = 'a' | 'b' | 'c'
 
 const WHY_KEY = 'sitte_why_mode'
-/** ふだん使う出し方（近藤さんが3パターンを見比べて決めたら、ここを変える） */
-export const DEFAULT_WHY_MODE: WhyMode = 'a'
+/** ふだん使う出し方（11/19 近藤さんが見比べて B に決定：選ぶと少しして自動で出る） */
+export const DEFAULT_WHY_MODE: WhyMode = 'b'
 /** b のとき、選んでから説明が開くまでの時間 */
 export const WHY_AUTO_OPEN_MS = 700
 

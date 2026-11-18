@@ -9,6 +9,7 @@ export type PetRegistrationRow = {
   medications: string | null
   allergies: string | null
   vet_clinic: string | null
+  vet_clinic_address?: string | null
   vaccine_info: string | null
   microchip: string | null
   food: string | null

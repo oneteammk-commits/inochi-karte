@@ -25,6 +25,8 @@ export type PetRow = {
   medications: string
   allergies: string
   vetClinic: string
+  /** かかりつけ動物病院の住所（同じ名前の病院が全国にあるため。持田様のご依頼 11/18） */
+  vetClinicAddress: string
   /** 担当獣医師名（複数可・自由記入） */
   vetDoctor: string
   vaccineInfo: string
@@ -66,6 +68,7 @@ export function createEmptyPetRow(): PetRow {
     medications: '',
     allergies: '',
     vetClinic: '',
+    vetClinicAddress: '',
     vetDoctor: '',
     vaccineInfo: '',
     vaccineDate: '',
@@ -101,6 +104,7 @@ export function petRowHasAnyData(pet: PetRow): boolean {
     pet.medications.trim() ||
     pet.allergies.trim() ||
     pet.vetClinic.trim() ||
+    pet.vetClinicAddress.trim() ||
     pet.vetDoctor.trim() ||
     pet.vaccineInfo.trim() ||
     pet.vaccineDate ||

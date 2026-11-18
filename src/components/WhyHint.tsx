@@ -52,7 +52,16 @@ const GroupTouchContext = createContext<number>(0)
  * 項目のまとまり（見出し＋入力欄）を囲む。
  * 中の入力欄を選んだり書き始めたりすると、b のときだけ説明を自動で開く合図を出す。
  */
-export function WhyGroup({ children, className }: { children: ReactNode; className?: string }) {
+export function WhyGroup({
+  children,
+  className,
+  important,
+}: {
+  children: ReactNode
+  className?: string
+  /** 「重要」の項目のまとまり（重要ラベルの見比べで、枠の色などを変えるため） */
+  important?: boolean
+}) {
   const mode = useContext(WhyModeContext)
   const [touched, setTouched] = useState(0)
   const handle = () => {
@@ -60,7 +69,12 @@ export function WhyGroup({ children, className }: { children: ReactNode; classNa
   }
   return (
     <GroupTouchContext.Provider value={touched}>
-      <div className={className} onFocusCapture={handle} onChangeCapture={handle}>
+      <div
+        className={className}
+        data-important-block={important ? '' : undefined}
+        onFocusCapture={handle}
+        onChangeCapture={handle}
+      >
         {children}
       </div>
     </GroupTouchContext.Provider>

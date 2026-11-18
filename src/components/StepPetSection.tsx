@@ -4,6 +4,7 @@ import type { RegistrationFormState } from '../types/registration'
 import { ImeAwareInput, ImeAwareTextarea } from './ImeAwareField'
 import { getLocalPreview, uploadMedicationPhoto } from '../lib/uploadMedicationPhoto'
 import { ImportantBadge, WhyGroup, WhyHint } from './WhyHint'
+import { FoldSection } from './CompareModes'
 
 type PetFormBlockProps = {
   pet: PetRow
@@ -17,7 +18,7 @@ type PetFormBlockProps = {
 }
 
 const FIELD =
-  'w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2'
+  'ud-field w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2'
 
 /** 幅を中身に合わせる版（横並び・自動で2段にするプルダウン用） */
 const FIELD_AUTO = FIELD.replace('w-full ', '')
@@ -26,11 +27,11 @@ const FIELD_AUTO = FIELD.replace('w-full ', '')
 const DATE_FIELD = `${FIELD} date-field`
 
 /** 入力欄の見出し（文字は少し濃くして読みやすく） */
-const LABEL = 'mb-1 block text-sm font-semibold text-stone-800'
+const LABEL = 'ud-label mb-1 block text-sm font-semibold text-stone-800'
 /** 見出しの下の小見出し */
-const SUBLABEL = 'mb-1 block text-xs font-semibold text-stone-700'
+const SUBLABEL = 'ud-sublabel mb-1 block text-xs font-semibold text-stone-700'
 /** 補足の説明文 */
-const HINT = 'mt-1 text-xs font-medium text-stone-700'
+const HINT = 'ud-hint mt-1 text-xs font-medium text-stone-700'
 
 const PetFormBlock = memo(function PetFormBlock({
   pet,
@@ -82,7 +83,7 @@ const PetFormBlock = memo(function PetFormBlock({
           <ImeAwareInput
             value={pet.petName}
             onValueChange={(v) => onUpdatePet(pet.id, { petName: v })}
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
+            className="ud-field w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
             placeholder={t('register.placeholderPetName')}
           />
         </label>
@@ -120,16 +121,18 @@ const PetFormBlock = memo(function PetFormBlock({
           )}
           <p className={HINT}>{t('register.petPhotoHint')}</p>
         </div>
+        <FoldSection title={t('register.petFeaturesLabel')} optional={true} filled={!!pet.features.trim()}>
         <label className="mb-4 block">
           <span className={LABEL}>{t('register.petFeaturesLabel')}</span>
           <ImeAwareTextarea
             value={pet.features}
             onValueChange={(v) => onUpdatePet(pet.id, { features: v })}
             rows={2}
-            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
+            className="ud-field w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
             placeholder={t('register.petFeaturesPlaceholder')}
           />
         </label>
+        </FoldSection>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
             <span className={LABEL}>
@@ -142,7 +145,7 @@ const PetFormBlock = memo(function PetFormBlock({
                   speciesKind: e.target.value as PetRow['speciesKind'],
                 })
               }
-              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
+              className="ud-field w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
             >
               <option value="">{t('register.selectPlaceholder')}</option>
               <option value="dog">{t('register.speciesDog')}</option>
@@ -158,7 +161,7 @@ const PetFormBlock = memo(function PetFormBlock({
               <ImeAwareInput
                 value={pet.speciesOther}
                 onValueChange={(v) => onUpdatePet(pet.id, { speciesOther: v })}
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
+                className="ud-field w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
                 placeholder={t('register.placeholderSpeciesOther')}
               />
             </label>
@@ -170,7 +173,7 @@ const PetFormBlock = memo(function PetFormBlock({
             <ImeAwareInput
               value={pet.breed}
               onValueChange={(v) => onUpdatePet(pet.id, { breed: v })}
-              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
+              className="ud-field w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
               placeholder={t('register.placeholderBreed')}
             />
           </label>
@@ -181,11 +184,12 @@ const PetFormBlock = memo(function PetFormBlock({
             <ImeAwareInput
               value={pet.age}
               onValueChange={(v) => onUpdatePet(pet.id, { age: v })}
-              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
+              className="ud-field w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 outline-none ring-brand/30 focus:border-brand focus:ring-2"
               placeholder={t('register.placeholderPetAge')}
             />
           </label>
           {/* 性別・不妊去勢: 見出し1つに、性別と手術の有無のプルダウンを横並び（獣医師の助言: 雄も雌も「している／していない／分からない」） */}
+          <FoldSection title={t('register.labelPetSex')} optional={false} filled={!!(pet.sex || pet.neuterStatus)} className="sm:col-span-2">
           <WhyGroup className="sm:col-span-2">
             <span className={LABEL}>
               {t('register.labelPetSex')}
@@ -221,9 +225,11 @@ const PetFormBlock = memo(function PetFormBlock({
               </select>
             </div>
           </WhyGroup>
+          </FoldSection>
         </div>
         {/* ── 避難所の受付で最初に見られる項目（獣医師の助言による並び）── */}
-        <WhyGroup className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
+        <FoldSection title={t('register.labelRabies')} optional={false} important importantText={t('register.important')} filled={!!(pet.rabiesStatus || pet.rabiesDate)}>
+        <WhyGroup important className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
           <span className={`${LABEL} mb-2`}>
             {t('register.labelRabies')}
             {important}
@@ -273,7 +279,9 @@ const PetFormBlock = memo(function PetFormBlock({
             </div>
           )}
         </WhyGroup>
-        <WhyGroup className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
+        </FoldSection>
+        <FoldSection title={t('register.labelVaccineInfo')} optional={false} important importantText={t('register.important')} filled={!!(pet.vaccineInfo.trim() || pet.vaccineDate)}>
+        <WhyGroup important className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
           <span className={`${LABEL} mb-2`}>
             {t('register.labelVaccineInfo')}
             {important}
@@ -303,7 +311,9 @@ const PetFormBlock = memo(function PetFormBlock({
             </label>
           </div>
         </WhyGroup>
-        <WhyGroup className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
+        </FoldSection>
+        <FoldSection title={t('register.labelParasite')} optional={false} important importantText={t('register.important')} filled={!!(pet.parasiteStatus || pet.parasiteDate)}>
+        <WhyGroup important className="rounded-lg border-2 border-amber-300 bg-white/70 p-3">
           <span className={`${LABEL} mb-2`}>
             {t('register.labelParasite')}
             {important}
@@ -336,7 +346,9 @@ const PetFormBlock = memo(function PetFormBlock({
             </label>
           </div>
         </WhyGroup>
+        </FoldSection>
         {/* ── 持病・お薬・ごはん ── */}
+        <FoldSection title={t('register.foldHealth')} optional={true} filled={!!(pet.medicalHistory.trim() || pet.medications.trim() || pet.allergies.trim() || pet.food.trim() || pet.medicationPhotoUrl)}>
         <label className="block">
           <span className={LABEL}>
             {t('register.labelPetMedicalHistory')}
@@ -421,19 +433,36 @@ const PetFormBlock = memo(function PetFormBlock({
           />
           <p className={HINT}>{t('register.hintPetFood')}</p>
         </label>
+        </FoldSection>
         {/* ── かかりつけ・担当医 ── */}
+        <FoldSection title={t('register.labelVetClinic')} optional={true} filled={!!(pet.vetClinic.trim() || pet.vetClinicAddress.trim() || pet.vetDoctor.trim())}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className={LABEL}>
-              {t('register.labelVetClinic')}
-            </span>
-            <ImeAwareInput
-              value={pet.vetClinic}
-              onValueChange={(v) => onUpdatePet(pet.id, { vetClinic: v })}
-              className={FIELD}
-              placeholder={t('register.placeholderVetClinic')}
-            />
-          </label>
+          {/* 病院名と住所は並べて1組にする（同じ名前の病院が全国にあるため住所で見分ける。持田様のご依頼 11/18） */}
+          <div className="grid grid-cols-1 gap-3 sm:col-span-2 sm:grid-cols-2" data-vet-clinic-group>
+            <label className="block min-w-0">
+              <span className={LABEL}>
+                {t('register.labelVetClinic')}
+              </span>
+              <ImeAwareInput
+                value={pet.vetClinic}
+                onValueChange={(v) => onUpdatePet(pet.id, { vetClinic: v })}
+                className={FIELD}
+                placeholder={t('register.placeholderVetClinic')}
+              />
+            </label>
+            <label className="block min-w-0">
+              <span className={LABEL}>
+                {t('register.labelVetClinicAddress')}
+              </span>
+              <ImeAwareInput
+                aria-label={t('register.labelVetClinicAddress')}
+                value={pet.vetClinicAddress}
+                onValueChange={(v) => onUpdatePet(pet.id, { vetClinicAddress: v })}
+                className={FIELD}
+                placeholder={t('register.placeholderVetClinicAddress')}
+              />
+            </label>
+          </div>
           <WhyGroup>
             <label className="block">
               <span className={LABEL}>
@@ -449,7 +478,9 @@ const PetFormBlock = memo(function PetFormBlock({
             </label>
           </WhyGroup>
         </div>
+        </FoldSection>
         {/* ── マイクロチップ（装着 → 登録先 → 番号）── */}
+        <FoldSection title={t('register.labelMicrochipGroup')} optional={false} filled={!!(pet.microchipFitted || pet.microchip.trim())}>
         <WhyGroup className="rounded-lg border border-amber-200 bg-white/60 p-3">
           <span className={`${LABEL} mb-2`}>
             {t('register.labelMicrochipGroup')}
@@ -515,8 +546,10 @@ const PetFormBlock = memo(function PetFormBlock({
             )}
           </div>
         </WhyGroup>
+        </FoldSection>
         {/* ── 鑑札番号（犬だけ。持っていなければ空欄のままでよい）── */}
         {isDogOrUnset && (
+          <FoldSection title={t('register.labelLicenseNumber')} optional={false} filled={!!pet.licenseNumber.trim()}>
           <label className="block rounded-lg border border-amber-200 bg-white/60 p-3">
             <span className={LABEL}>{t('register.labelLicenseNumber')}</span>
             <ImeAwareInput
@@ -534,8 +567,10 @@ const PetFormBlock = memo(function PetFormBlock({
               </span>
             </p>
           </label>
+          </FoldSection>
         )}
         {/* ── 書類の写真（ワクチン証明書・血液検査・マイクロチップ登録証など）── */}
+        <FoldSection title={t('register.labelDocPhotos')} optional={true} filled={pet.documentPhotoUrls.length > 0}>
         <div className="rounded-lg border border-amber-200 bg-white/60 p-3">
           <span className={LABEL}>{t('register.labelDocPhotos')}</span>
           <p className={`${HINT} mb-2`}>{t('register.hintDocPhotos')}</p>
@@ -577,6 +612,7 @@ const PetFormBlock = memo(function PetFormBlock({
             </span>
           </label>
         </div>
+        </FoldSection>
       </div>
     </div>
   )

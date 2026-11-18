@@ -172,6 +172,7 @@ export function PetViewSection({ pets, t, lang = 'ja', owner, showQr = false }: 
 
               {/* ── かかりつけ・担当医 ── */}
               <PetField label={t('view.labelPetVetClinic')} value={pet.vet_clinic} />
+              <PetField label={t('view.labelPetVetClinicAddress')} value={pet.vet_clinic_address} />
               <PetField label={t('view.labelPetVetDoctor')} value={pet.vet_doctor} />
 
               {/* ── マイクロチップ ── */}

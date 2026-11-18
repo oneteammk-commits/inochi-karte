@@ -21,7 +21,8 @@ import { addMyCard } from '../lib/storage'
 import { StepPetSection } from './StepPetSection'
 import { createEmptyPetRow } from '../types/pet'
 import type { PetRow } from '../types/pet'
-import { readWhyMode, WhyModeContext } from './WhyHint'
+import { readWhyMode, saveWhyMode, WhyModeContext } from './WhyHint'
+import { CompareContext, CompareSwitcher, readVariant, saveVariant, type CompareKey, type CompareState, type Variant } from './CompareModes'
 import { ModeSelect } from './ModeSelect'
 import { PetQrBlock } from './PetQrBlock'
 import { fetchCard } from '../lib/cardApi'
@@ -155,7 +156,21 @@ const DRAFT_KEY = 'sitte_registration_draft_v1'
 
 export function RegistrationForm() {
   const { t } = useTranslation()
-  const [whyMode] = useState(readWhyMode)
+  const [whyMode, setWhyMode] = useState(readWhyMode)
+  // 見比べ用（重要ラベル・文字と色・画面の長さ）。標準は A。「仮」の画面だけで切り替えられる
+  const [compare, setCompare] = useState<CompareState>(() => ({
+    imp: readVariant('imp'),
+    ud: readVariant('ud'),
+    fold: readVariant('fold'),
+  }))
+  const changeCompare = (key: CompareKey, v: Variant) => {
+    saveVariant(key, v)
+    setCompare((c) => ({ ...c, [key]: v }))
+  }
+  const changeWhy = (v: Variant) => {
+    saveWhyMode(v)
+    setWhyMode(v)
+  }
   const [mode, setMode] = useState<RegisterMode>(initialMode)
   const steps = stepsFor(mode)
   const [wizard, setWizard] = useState<WizardState>({ step: 0, registrationId: null })
@@ -499,7 +514,13 @@ export function RegistrationForm() {
 
   return (
     <WhyModeContext.Provider value={whyMode}>
-    <div className="min-h-screen bg-stone-100 pb-16 pt-6 sm:pt-10">
+    <CompareContext.Provider value={compare}>
+    <div
+      className="min-h-screen bg-stone-100 pb-16 pt-6 sm:pt-10"
+      data-imp={compare.imp}
+      data-ud={compare.ud}
+      data-fold={compare.fold}
+    >
       <main className="mx-auto max-w-lg px-4">
       <header className="mb-8 text-center">
           <p className="text-sm font-medium tracking-wide text-brand">{t('register.headerLabel')}</p>
@@ -611,6 +632,8 @@ error={stepError}
         )}
       </main>
     </div>
+    <CompareSwitcher state={compare} whyMode={whyMode} onChange={changeCompare} onWhyChange={changeWhy} />
+    </CompareContext.Provider>
     </WhyModeContext.Provider>
   )
 }

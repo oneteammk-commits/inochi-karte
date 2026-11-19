@@ -30,3 +30,108 @@ h1, h2, h3, h4 {
   font-weight: 700;
   color: #000000;
 }
+
+/*
+ * 日付の欄（ペットの接種日など）
+ * iPhone の Safari では日付の欄が中身の幅より小さくならず、枠からはみ出す。
+ * 見た目の飾りを外して幅を枠に合わせ、高さはほかの入力欄とそろえる。
+ */
+input[type='date'].date-field {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.75rem;
+  text-align: left;
+}
+input[type='date'].date-field::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+input[type='date'].date-field::-webkit-calendar-picker-indicator {
+  margin-left: auto;
+}
+
+/*
+ * 見比べ用（「仮」の画面で A/B/C を切り替える。CompareModes.tsx を参照）
+ * A は今の形のまま（ここでは何も変えない）。
+ */
+
+/* ① 重要ラベル B：札＋枠の左に赤い帯 */
+[data-imp='b'] [data-important-block] {
+  border-left: 8px solid #b91c1c;
+  background-color: #fef2f2;
+}
+[data-imp='b'] [data-important] {
+  font-size: 12px;
+  padding: 2px 8px;
+}
+/* ① 重要ラベル C：赤地に白文字の大きな札＋枠を赤く */
+[data-imp='c'] [data-important-block] {
+  border-color: #b91c1c;
+}
+[data-imp='c'] [data-important] {
+  background-color: #b91c1c;
+  border-color: #7f1d1d;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 3px 10px;
+}
+
+/* ④ 文字と色 B：説明の文字を大きく太く */
+[data-ud='b'] .ud-hint,
+[data-ud='c'] .ud-hint {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1c1917;
+}
+[data-ud='b'] .ud-sublabel,
+[data-ud='c'] .ud-sublabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1c1917;
+}
+[data-ud='b'] .ud-label,
+[data-ud='c'] .ud-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0c0a09;
+}
+[data-ud='b'] [data-why-text],
+[data-ud='c'] [data-why-text] {
+  font-size: 15px;
+  font-weight: 700;
+}
+/* ④ 文字と色 C：さらに大きく・入力欄の枠線も太く濃く */
+[data-ud='c'] .ud-hint,
+[data-ud='c'] .ud-sublabel {
+  font-size: 15px;
+}
+[data-ud='c'] .ud-label {
+  font-size: 17px;
+}
+[data-ud='c'] [data-why-text] {
+  font-size: 16px;
+}
+[data-ud='c'] .ud-field {
+  border: 2px solid #44403c;
+  font-size: 16px;
+  color: #0c0a09;
+}
+[data-ud='c'] .ud-field::placeholder {
+  color: #57534e;
+}
+
+/* ⑦ 画面の長さ B・C：折りたたみの見出し（開いたら▼） */
+.fold-section[open] > summary .fold-arrow {
+  transform: rotate(90deg);
+}
+.fold-section > summary {
+  list-style: none;
+}
+.fold-section > summary::-webkit-details-marker {
+  display: none;
+}

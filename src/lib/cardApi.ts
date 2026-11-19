@@ -42,6 +42,29 @@ export async function fetchCard(id: string): Promise<CardBundle | null> {
   }
 }
 
+export type PetCardBundle = {
+  pet: PetRegistrationRow
+  /** 飼い主に電話するための番号（画面には番号を出さず、ボタンにする） */
+  ownerPhone: string | null
+  ownerName: string | null
+}
+
+/**
+ * ペット用の二次元コード（首輪用）で開く画面のデータ。
+ * ペット1匹の情報と、飼い主に電話するための番号だけ。飼い主の病気・お薬・住所は返ってこない。
+ */
+export async function fetchPetCard(petId: string): Promise<PetCardBundle | null> {
+  const { data, error } = await supabase.rpc('get_pet_card', { p_pet_id: petId })
+  if (error || !data) return null
+  const pet = (data as any)?.pet
+  if (!pet) return null
+  return {
+    pet: pet as PetRegistrationRow,
+    ownerPhone: (data as any)?.owner_phone ?? null,
+    ownerName: (data as any)?.owner_name ?? null,
+  }
+}
+
 export type CardSummary = {
   id: string
   name: string

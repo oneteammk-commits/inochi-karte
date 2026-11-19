@@ -9,6 +9,7 @@ export type PetRegistrationRow = {
   medications: string | null
   allergies: string | null
   vet_clinic: string | null
+  vet_clinic_address?: string | null
   vaccine_info: string | null
   microchip: string | null
   food: string | null
@@ -26,5 +27,7 @@ export type PetRegistrationRow = {
   microchip_fitted?: string | null
   microchip_registry?: string | null
   microchip_registry_other?: string | null
+  license_number?: string | null
+  document_photo_urls?: string[] | null
   owner_id: string
 }

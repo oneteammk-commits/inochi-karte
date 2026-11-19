@@ -25,6 +25,8 @@ export type PetRow = {
   medications: string
   allergies: string
   vetClinic: string
+  /** かかりつけ動物病院の住所（同じ名前の病院が全国にあるため。持田様のご依頼 11/18） */
+  vetClinicAddress: string
   /** 担当獣医師名（複数可・自由記入） */
   vetDoctor: string
   vaccineInfo: string
@@ -42,6 +44,10 @@ export type PetRow = {
   microchipRegistry: PetMicrochipRegistry
   microchipRegistryOther: string
   microchip: string
+  /** 犬の鑑札番号（持っていなければ空） */
+  licenseNumber: string
+  /** 書類の写真（ワクチン証明書・血液検査・マイクロチップ登録証など）のURL */
+  documentPhotoUrls: string[]
   food: string
   features: string
   photoUrl: string | null
@@ -62,6 +68,7 @@ export function createEmptyPetRow(): PetRow {
     medications: '',
     allergies: '',
     vetClinic: '',
+    vetClinicAddress: '',
     vetDoctor: '',
     vaccineInfo: '',
     vaccineDate: '',
@@ -75,6 +82,8 @@ export function createEmptyPetRow(): PetRow {
     microchipRegistry: '',
     microchipRegistryOther: '',
     microchip: '',
+    licenseNumber: '',
+    documentPhotoUrls: [],
     food: '',
     features: '',
     photoUrl: null,
@@ -95,6 +104,7 @@ export function petRowHasAnyData(pet: PetRow): boolean {
     pet.medications.trim() ||
     pet.allergies.trim() ||
     pet.vetClinic.trim() ||
+    pet.vetClinicAddress.trim() ||
     pet.vetDoctor.trim() ||
     pet.vaccineInfo.trim() ||
     pet.vaccineDate ||
@@ -108,6 +118,8 @@ export function petRowHasAnyData(pet: PetRow): boolean {
     pet.microchipRegistry ||
     pet.microchipRegistryOther.trim() ||
     pet.microchip.trim() ||
+    pet.licenseNumber.trim() ||
+    pet.documentPhotoUrls.length > 0 ||
     pet.food.trim() ||
     pet.features.trim() ||
     pet.photoUrl ||

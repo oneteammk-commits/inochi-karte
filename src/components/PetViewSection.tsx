@@ -1,5 +1,6 @@
 import { formatPetSexNeuter } from '../lib/petSexNeuter'
 import type { PetRegistrationRow } from '../types/petRegistration'
+import { PetQrBlock } from './PetQrBlock'
 
 function PetField({
   label,
@@ -65,9 +66,11 @@ type PetViewSectionProps = {
     emergencyName?: string | null
     emergencyPhone?: string | null
   }
+  /** 各ペットの首輪用（ペット用）の二次元コードを出すか（カルテ画面で出す） */
+  showQr?: boolean
 }
 
-export function PetViewSection({ pets, t, lang = 'ja', owner }: PetViewSectionProps) {
+export function PetViewSection({ pets, t, lang = 'ja', owner, showQr = false }: PetViewSectionProps) {
   if (pets.length === 0) return null
 
   const rabiesLabel = {
@@ -169,6 +172,7 @@ export function PetViewSection({ pets, t, lang = 'ja', owner }: PetViewSectionPr
 
               {/* ── かかりつけ・担当医 ── */}
               <PetField label={t('view.labelPetVetClinic')} value={pet.vet_clinic} />
+              <PetField label={t('view.labelPetVetClinicAddress')} value={pet.vet_clinic_address} />
               <PetField label={t('view.labelPetVetDoctor')} value={pet.vet_doctor} />
 
               {/* ── マイクロチップ ── */}
@@ -178,6 +182,26 @@ export function PetViewSection({ pets, t, lang = 'ja', owner }: PetViewSectionPr
                   <PetField label={t('view.labelPetMicrochipRegistry')} value={registry} />
                   <PetField label={t('view.labelPetMicrochip')} value={pet.microchip} />
                 </PetGroup>
+              )}
+              <PetField label={t('view.labelPetLicense')} value={pet.license_number} />
+
+              {/* ── 書類の写真（ワクチン証明書・血液検査など）── */}
+              {Array.isArray(pet.document_photo_urls) && pet.document_photo_urls.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-sm text-amber-900/70">{t('view.labelPetDocPhotos')}</p>
+                  <div className="mt-1 grid grid-cols-2 gap-2">
+                    {pet.document_photo_urls.map((src, i) => (
+                      <a key={src + i} href={src} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={src}
+                          alt={t('view.labelPetDocPhotos')}
+                          loading="lazy"
+                          className="w-full rounded-lg border border-amber-200 object-contain"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
               )}
 
               {/* ── 飼い主（このカルテのご本人） ── */}
@@ -189,6 +213,12 @@ export function PetViewSection({ pets, t, lang = 'ja', owner }: PetViewSectionPr
                     value={[owner.emergencyName, owner.emergencyPhone].filter(Boolean).join('　')}
                   />
                 </PetGroup>
+              )}
+
+              {showQr && (
+                <div className="mt-4">
+                  <PetQrBlock petId={pet.id} petName={pet.pet_name} />
+                </div>
               )}
             </div>
           )

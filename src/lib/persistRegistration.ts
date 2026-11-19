@@ -37,6 +37,7 @@ export function buildRegistrationPayload(
     hospital_name: form.hospitalName.trim() || null,
     daily_notes: form.dailyNotes.trim() || null,
     medications,
+    card_mode: form.cardMode || null,
   }
 }
 

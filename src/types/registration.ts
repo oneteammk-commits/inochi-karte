@@ -33,6 +33,8 @@ export type RegistrationFormState = {
   dailyNotes: string
   medications: MedicationRow[]
   registerPetsEnabled: boolean
+  /** 登録の種類。'pet' = 「わたしとペット」（飼い主は名前と電話だけでも登録できる）、'' = これまでどおり */
+  cardMode: '' | 'pet'
   pets: PetRow[]
   editPassword: string
 }
